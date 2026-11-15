@@ -1,14 +1,23 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion, useMotionValueEvent, useReducedMotion, useScroll, useTransform } from "framer-motion";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Camera, Database, HardDrive, Layers3, RotateCcw, ShieldOff, Trash2, Undo2 } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useInView, useReducedMotion } from "framer-motion";
+import {
+  Camera,
+  Database,
+  HardDrive,
+  Layers3,
+  Play,
+  RotateCcw,
+  ShieldOff,
+  Trash2,
+  Undo2,
+} from "lucide-react";
 import SceneShell from "@/components/three/SceneShell";
 import { LvmPoster } from "@/components/three/fallbacks";
 import CaseContent from "@/components/CaseContent";
+import DemoPanel from "@/components/DemoPanel";
 import MagneticButton from "@/components/MagneticButton";
 import TweenNumber from "@/components/TweenNumber";
 import { useToast } from "@/components/providers/ToastProvider";
@@ -57,16 +66,29 @@ function ScrambleText({ text }: { text: string }) {
 export default function CaseLVM() {
   const { push } = useToast();
   const reduced = useReducedMotion();
-  const driverRef = useRef<HTMLDivElement>(null);
-  const progressRef = useRef(0);
-  const { scrollYProgress } = useScroll({ target: driverRef, offset: ["start start", "end end"] });
-  const hintOpacity = useTransform(scrollYProgress, [0, 0.06], [1, 0]);
 
+  // ── self-timed build sequence (no scroll hijack) ──
+  const progressRef = useRef(0);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(stageRef, { margin: "-15% 0px -15% 0px" });
   const [phase, setPhase] = useState(0);
-  useMotionValueEvent(scrollYProgress, "change", (v) => {
-    progressRef.current = v;
-    setPhase(v < 0.38 ? 0 : v < 0.72 ? 1 : 2);
-  });
+  const [playNonce, setPlayNonce] = useState(0);
+  const startRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!inView) return;
+    let raf = 0;
+    const tick = (now: number) => {
+      if (startRef.current === null) startRef.current = now;
+      const t = Math.min(1, (now - startRef.current) / 3600);
+      progressRef.current = t;
+      const ph = t < 0.38 ? 0 : t < 0.72 ? 1 : 2;
+      setPhase((prev) => (prev === ph ? prev : ph));
+      if (t < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [inView, playNonce]);
 
   const [extended, setExtended] = useState(false);
   const [snapshot, setSnapshot] = useState(false);
@@ -74,27 +96,20 @@ export default function CaseLVM() {
   const [rollbackCount, setRollbackCount] = useState(0);
   const [shaking, setShaking] = useState(false);
 
-  // PV → VG → LV timeline highlighting via GSAP ScrollTrigger
-  const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const [activeStep, setActiveStep] = useState(-1);
-  useEffect(() => {
-    gsap.registerPlugin(ScrollTrigger);
-    const triggers = stepRefs.current.map((el, i) =>
-      el
-        ? ScrollTrigger.create({
-            trigger: el,
-            start: "top 80%",
-            onEnter: () => setActiveStep(i),
-          })
-        : null
-    );
-    return () => triggers.forEach((t) => t?.kill());
+  const replay = useCallback(() => {
+    startRef.current = null;
+    progressRef.current = 0;
+    setPhase(0);
+    setExtended(false);
+    setSnapshot(false);
+    setCorrupt(false);
+    setPlayNonce((n) => n + 1);
   }, []);
 
   const onExtend = () => {
     if (extended) {
       setExtended(false);
-      push({ title: "Pool reset", description: "Back to 3 PVs — drag the scroll to rebuild.", tone: "info" });
+      push({ title: "Pool reset", description: "Back to 3 PVs — press replay to rebuild the sequence.", tone: "info" });
     } else {
       setExtended(true);
       push({ title: "lvextend -L +2G -r", description: "lv_data grown online — df: 5.0G → 7.0G, zero downtime.", tone: "success" });
@@ -133,132 +148,6 @@ export default function CaseLVM() {
 
   return (
     <section id="lvm" className="relative">
-      {/* ── scroll-driven 3D stage ─────────────────────────────── */}
-      <div ref={driverRef} className="relative h-[300vh]">
-        <div className="dotgrid sticky top-0 flex h-screen flex-col overflow-hidden">
-          <motion.div
-            className="absolute inset-0"
-            animate={shaking ? { x: [0, -12, 12, -8, 8, 0] } : { x: 0 }}
-            transition={{ duration: 0.45 }}
-            onAnimationComplete={() => setShaking(false)}
-          >
-            <div className="pointer-events-none absolute inset-0">
-              <SceneShell
-                label="LVM scene: disks stacking into a volume group, then splitting into two logical volumes"
-                poster={<LvmPoster />}
-                render={(frameloop) => (
-                  <LvmScene
-                    frameloop={frameloop}
-                    progressRef={progressRef}
-                    extended={extended}
-                    snapshot={snapshot}
-                    corrupt={corrupt}
-                    rollbackCount={rollbackCount}
-                    reduced={!!reduced}
-                  />
-                )}
-              />
-            </div>
-          </motion.div>
-
-          {/* red glitch flash on corrupt / shake */}
-          <AnimatePresence>
-            {(corrupt || shaking) && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: corrupt ? 0.14 : 0.1 }}
-                exit={{ opacity: 0 }}
-                className="pointer-events-none absolute inset-0 bg-red-500"
-              />
-            )}
-          </AnimatePresence>
-
-          {/* phase caption */}
-          <div className="pointer-events-none relative z-10 px-5 pt-6 md:px-10">
-            <AnimatePresence mode="wait">
-              <motion.p
-                key={phase}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                className="inline-block rounded-full border border-[#7c5cff33] bg-[#05070f]/70 px-4 py-1.5 font-mono text-[11px] text-[#c4b5fd] backdrop-blur"
-              >
-                {PHASES[phase]}
-              </motion.p>
-            </AnimatePresence>
-            <motion.p
-              style={{ opacity: hintOpacity }}
-              className="mt-2 font-mono text-[10px] uppercase tracking-[0.25em] text-[#8fa2c9]"
-            >
-              ↓ scroll to scrub the build
-            </motion.p>
-          </div>
-
-          {/* live readouts + controls */}
-          <div className="relative z-10 mt-auto px-4 pb-6">
-            <motion.div
-              className="glass-strong mx-auto flex max-w-4xl flex-col gap-3 rounded-2xl px-4 py-3.5"
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ margin: "-40px" }}
-            >
-              <div className="flex flex-wrap items-center gap-x-5 gap-y-1 font-mono text-[12px]">
-                <span className="text-[#8fa2c9]">
-                  df -h /mnt/lab/data
-                  <span className="ml-2 text-[#e8eefc]">
-                    <TweenNumber target={extended ? 7 : 5} decimals={1} suffix="G" />
-                  </span>
-                </span>
-                <span className="text-[#8fa2c9]">
-                  vg_lab VFree
-                  <span className="ml-2 text-[#a78bfa]">
-                    <TweenNumber target={extended ? 9 : 5} decimals={1} suffix="G" />
-                  </span>
-                </span>
-                <span className="ml-auto">
-                  <ScrambleText text={corrupt ? SHA_CORRUPT : SHA_ORIGINAL} />
-                </span>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <MagneticButton onClick={onExtend} accentHex={VIOLET} cursorLabel="toggle" className="!px-3.5 !py-2 text-[12px]">
-                  <HardDrive className="h-3.5 w-3.5" style={{ color: VIOLET }} />
-                  {extended ? "Reset pool" : "Extend +2G"}
-                </MagneticButton>
-                <MagneticButton onClick={onSnapshot} accentHex={snapshot ? "#34d399" : undefined} cursorLabel="toggle" className="!px-3.5 !py-2 text-[12px]">
-                  <Camera className="h-3.5 w-3.5" style={{ color: snapshot ? "#34d399" : "#8fa2c9" }} />
-                  {snapshot ? "Snapshot armed" : "Snapshot"}
-                </MagneticButton>
-                <MagneticButton
-                  onClick={onCorrupt}
-                  accentHex={corrupt ? "#f87171" : undefined}
-                  cursorLabel="zap"
-                  className={`!px-3.5 !py-2 text-[12px] ${!snapshot ? "pointer-events-none opacity-40" : ""}`}
-                  ariaLabel="Corrupt the live data to test the snapshot"
-                >
-                  <Trash2 className="h-3.5 w-3.5 text-[#f87171]" />
-                  Corrupt
-                </MagneticButton>
-                <MagneticButton
-                  onClick={onRollback}
-                  accentHex={corrupt ? "#34d399" : undefined}
-                  cursorLabel="rewind"
-                  className={`!px-3.5 !py-2 text-[12px] ${!corrupt ? "pointer-events-none opacity-40" : ""}`}
-                  ariaLabel="Roll back to the snapshot"
-                >
-                  <Undo2 className="h-3.5 w-3.5 text-[#34d399]" />
-                  Rollback
-                </MagneticButton>
-                <MagneticButton onClick={onShrink} cursorLabel="denied" className="!px-3.5 !py-2 text-[12px]" ariaLabel="Attempt to shrink the XFS volume (will be refused)">
-                  <ShieldOff className="h-3.5 w-3.5 text-[#f87171]" />
-                  Shrink XFS
-                </MagneticButton>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── documented case study ──────────────────────────────── */}
       <CaseContent
         meta={LVM_META}
         steps={LVM_STEPS}
@@ -266,37 +155,138 @@ export default function CaseLVM() {
         troubleshooting={LVM_TROUBLESHOOTING}
         accentHex={VIOLET}
         extra={
-          <div className="mb-14 grid gap-4 md:grid-cols-3">
-            {LVM_PIPELINE_STEPS.map((step, i) => {
-              const Icon = step.key === "pv" ? HardDrive : step.key === "vg" ? Layers3 : Database;
-              const active = activeStep >= i;
-              return (
-                <div
-                  key={step.key}
-                  ref={(el) => { stepRefs.current[i] = el; }}
-                  className={`glass rounded-2xl p-5 transition-all duration-500 ${
-                    active ? "border-[#7c5cff66] shadow-[0_0_32px_rgba(124,92,255,0.18)]" : "opacity-70"
-                  }`}
+          <>
+            {/* ── interactive stage ── */}
+            <div ref={stageRef} className="mb-14">
+              <motion.div animate={shaking ? { x: [0, -10, 10, -7, 7, 0] } : { x: 0 }} transition={{ duration: 0.45 }} onAnimationComplete={() => setShaking(false)}>
+                <DemoPanel
+                  title="interactive demo · pvcreate → vgcreate → lvcreate"
+                  accentHex={VIOLET}
+                  heightClass="h-[400px] md:h-[500px]"
+                  badges={
+                    <AnimatePresence mode="wait">
+                      <motion.span
+                        key={phase}
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -6 }}
+                        className="rounded-full border border-[#7c5cff44] bg-[#7c5cff14] px-3 py-1 font-mono text-[10.5px] text-[#c4b5fd]"
+                      >
+                        {PHASES[phase]}
+                      </motion.span>
+                    </AnimatePresence>
+                  }
+                  controls={
+                    <div className="flex flex-col gap-3">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <MagneticButton onClick={onExtend} accentHex={extended ? undefined : VIOLET} cursorLabel="toggle" className="!px-3.5 !py-2 text-[12px]">
+                          <HardDrive className="h-3.5 w-3.5" style={{ color: VIOLET }} />
+                          {extended ? "Reset pool" : "Extend +2G"}
+                        </MagneticButton>
+                        <MagneticButton onClick={onSnapshot} accentHex={snapshot ? "#34d399" : undefined} cursorLabel="toggle" className="!px-3.5 !py-2 text-[12px]">
+                          <Camera className="h-3.5 w-3.5" style={{ color: snapshot ? "#34d399" : "#8fa2c9" }} />
+                          {snapshot ? "Snapshot armed" : "Snapshot"}
+                        </MagneticButton>
+                        <MagneticButton
+                          onClick={onCorrupt}
+                          accentHex={corrupt ? "#f87171" : undefined}
+                          cursorLabel="zap"
+                          className={`!px-3.5 !py-2 text-[12px] ${!snapshot ? "pointer-events-none opacity-40" : ""}`}
+                          ariaLabel="Corrupt the live data to test the snapshot"
+                        >
+                          <Trash2 className="h-3.5 w-3.5 text-[#f87171]" />
+                          Corrupt
+                        </MagneticButton>
+                        <MagneticButton
+                          onClick={onRollback}
+                          accentHex={corrupt ? "#34d399" : undefined}
+                          cursorLabel="rewind"
+                          className={`!px-3.5 !py-2 text-[12px] ${!corrupt ? "pointer-events-none opacity-40" : ""}`}
+                          ariaLabel="Roll back to the snapshot"
+                        >
+                          <Undo2 className="h-3.5 w-3.5 text-[#34d399]" />
+                          Rollback
+                        </MagneticButton>
+                        <MagneticButton onClick={onShrink} cursorLabel="denied" className="!px-3.5 !py-2 text-[12px]" ariaLabel="Attempt to shrink the XFS volume (will be refused)">
+                          <ShieldOff className="h-3.5 w-3.5 text-[#f87171]" />
+                          Shrink XFS
+                        </MagneticButton>
+                        <MagneticButton onClick={replay} cursorLabel="replay" className="!px-3.5 !py-2 text-[12px] sm:ml-auto" ariaLabel="Replay the build sequence">
+                          <Play className="h-3.5 w-3.5 text-[#8fa2c9]" />
+                          Replay build
+                        </MagneticButton>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-x-5 gap-y-1 border-t border-white/8 pt-3 font-mono text-[12px]">
+                        <span className="text-[#8fa2c9]">
+                          df -h /mnt/lab/data
+                          <span className="ml-2 text-[#e8eefc]">
+                            <TweenNumber target={extended ? 7 : 5} decimals={1} suffix="G" />
+                          </span>
+                        </span>
+                        <span className="text-[#8fa2c9]">
+                          vg_lab VFree
+                          <span className="ml-2 text-[#a78bfa]">
+                            <TweenNumber target={extended ? 9 : 5} decimals={1} suffix="G" />
+                          </span>
+                        </span>
+                        <span className="ml-auto">
+                          <ScrambleText text={corrupt ? SHA_CORRUPT : SHA_ORIGINAL} />
+                        </span>
+                      </div>
+                    </div>
+                  }
                 >
-                  <div className="mb-3 flex items-center gap-3">
-                    <span
-                      className={`flex h-9 w-9 items-center justify-center rounded-xl transition-colors ${
-                        active ? "bg-[#7c5cff26]" : "bg-white/5"
-                      }`}
-                    >
-                      <Icon className="h-4 w-4" style={{ color: active ? VIOLET : "#8fa2c9" }} />
-                    </span>
-                    <span className="font-mono text-xs uppercase tracking-[0.2em]" style={{ color: active ? VIOLET : "#8fa2c9" }}>
-                      {step.label}
-                    </span>
-                    <span className="ml-auto h-1.5 w-1.5 rounded-full" style={{ background: active ? VIOLET : "rgba(143,162,201,0.3)", boxShadow: active ? `0 0 10px ${VIOLET}` : undefined }} />
+                  <SceneShell
+                    label="LVM scene: disks stacking into a volume group, then splitting into two logical volumes"
+                    poster={<LvmPoster />}
+                    render={(frameloop) => (
+                      <LvmScene
+                        frameloop={frameloop}
+                        progressRef={progressRef}
+                        extended={extended}
+                        snapshot={snapshot}
+                        corrupt={corrupt}
+                        rollbackCount={rollbackCount}
+                        reduced={!!reduced}
+                      />
+                    )}
+                  />
+                </DemoPanel>
+              </motion.div>
+            </div>
+
+            {/* ── PV → VG → LV pipeline cards ── */}
+            <div className="mb-14 grid gap-4 md:grid-cols-3">
+              {LVM_PIPELINE_STEPS.map((step, i) => {
+                const Icon = step.key === "pv" ? HardDrive : step.key === "vg" ? Layers3 : Database;
+                const active = phase >= i;
+                return (
+                  <div
+                    key={step.key}
+                    className={`glass rounded-2xl p-5 transition-all duration-500 ${
+                      active ? "border-[#7c5cff66] shadow-[0_0_32px_rgba(124,92,255,0.18)]" : "opacity-70"
+                    }`}
+                  >
+                    <div className="mb-3 flex items-center gap-3">
+                      <span
+                        className={`flex h-9 w-9 items-center justify-center rounded-xl transition-colors ${
+                          active ? "bg-[#7c5cff26]" : "bg-white/5"
+                        }`}
+                      >
+                        <Icon className="h-4 w-4" style={{ color: active ? VIOLET : "#8fa2c9" }} />
+                      </span>
+                      <span className="font-mono text-xs uppercase tracking-[0.2em]" style={{ color: active ? VIOLET : "#8fa2c9" }}>
+                        {step.label}
+                      </span>
+                      <span className="ml-auto h-1.5 w-1.5 rounded-full" style={{ background: active ? VIOLET : "rgba(143,162,201,0.3)", boxShadow: active ? `0 0 10px ${VIOLET}` : undefined }} />
+                    </div>
+                    <p className="text-[13.5px] font-medium text-[#e8eefc]">{step.title}</p>
+                    <p className="mt-1 text-[12.5px] leading-relaxed text-[#8fa2c9]">{step.body}</p>
                   </div>
-                  <p className="text-[13.5px] font-medium text-[#e8eefc]">{step.title}</p>
-                  <p className="mt-1 text-[12.5px] leading-relaxed text-[#8fa2c9]">{step.body}</p>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          </>
         }
       />
     </section>

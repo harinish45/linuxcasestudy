@@ -1,12 +1,22 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckCircle2, FolderGit2, AlertTriangle, ShieldCheck, TerminalSquare, Unplug } from "lucide-react";
+import {
+  CheckCircle2,
+  FolderGit2,
+  AlertTriangle,
+  ShieldCheck,
+  TerminalSquare,
+  Timer,
+  Unplug,
+  UserCheck,
+} from "lucide-react";
 import SceneShell from "@/components/three/SceneShell";
 import { NfsPoster } from "@/components/three/fallbacks";
 import CaseContent from "@/components/CaseContent";
+import DemoPanel from "@/components/DemoPanel";
 import MagneticButton from "@/components/MagneticButton";
 import { useToast } from "@/components/providers/ToastProvider";
 import { NFS_META, NFS_STEPS, NFS_TROUBLESHOOTING, NFS_VERIFICATION } from "@/data/nfs";
@@ -40,7 +50,7 @@ function LabToggle({
       onClick={onToggle}
       data-cursor="toggle"
       data-cursor-label={cursorLabel}
-      className="glass flex flex-1 items-center gap-3 rounded-xl px-4 py-3 text-left transition-colors hover:bg-white/8"
+      className="glass flex min-w-0 flex-1 basis-44 items-center gap-3 rounded-xl px-4 py-3 text-left transition-colors hover:bg-white/8"
     >
       <span
         className="relative inline-block h-5 w-9 shrink-0 rounded-full transition-colors duration-300"
@@ -65,7 +75,7 @@ function LabToggle({
 function MountTerminal({ runKey }: { runKey: number }) {
   const [lines, setLines] = useState<string[]>([]);
   const [typed, setTyped] = useState("");
-  const cmd = "sudo mount -t nfs -o rw,sync 192.168.56.10:/srv/nfs/shared /mnt/shared";
+  const cmd = "sudo mount -t nfs4 -o rw,sync 192.168.56.10:/srv/nfs/shared /mnt/shared";
   const outputs = [
     "# mount.nfs4: negotiating NFSv4 with 192.168.56.10 …",
     "# rpc: tcp/2049 open · sec=sys",
@@ -105,7 +115,7 @@ function MountTerminal({ runKey }: { runKey: number }) {
 
   return (
     <div className="scanlines relative rounded-xl border border-white/10 bg-[#05070f]/80 p-4 font-mono text-[12px] leading-relaxed">
-      <p className="text-[#e8eefc]">
+      <p className="break-all text-[#e8eefc]">
         <span style={{ color: CYAN }}>$ </span>
         {typed}
         <span className="term-cursor" />
@@ -132,8 +142,8 @@ function PermissionsDiagram() {
       <p className="mb-1 font-mono text-[11px] uppercase tracking-[0.25em]" style={{ color: CYAN }}>
         permissions · the sharing glue
       </p>
-      <p className="mb-4 text-[12.5px] leading-relaxed text-[#8fa2c9]">
-        The export directory is <span className="font-mono text-[#e8eefc]">chmod 2775</span>. Hover the{" "}
+      <p className="mb-4 max-w-3xl text-[12.5px] leading-relaxed text-[#8fa2c9]">
+        The export directory is <span className="font-mono text-[#e8eefc]">chmod 2775</span>. Hover or focus the{" "}
         <span className="font-mono text-[#e8eefc]">s</span> — the setgid bit is what keeps group ownership
         consistent across every client.
       </p>
@@ -176,6 +186,28 @@ function PermissionsDiagram() {
   );
 }
 
+/** Three guarantees of the export — the consistent feature-card row. */
+const GUARANTEES = [
+  {
+    icon: <Timer className="h-4 w-4" style={{ color: CYAN }} />,
+    label: "sync writes",
+    title: "Committed before the ACK",
+    body: "The server only replies once data hit stable storage. Measured 2.1× slower on small writes — accepted for an integrity-first share.",
+  },
+  {
+    icon: <UserCheck className="h-4 w-4" style={{ color: CYAN }} />,
+    label: "root_squash",
+    title: "Root becomes nobody (65534)",
+    body: "A compromised client's root cannot own the share. Verified live: root's touch landed as nobody, and a chown was refused.",
+  },
+  {
+    icon: <ShieldCheck className="h-4 w-4" style={{ color: CYAN }} />,
+    label: "tcp/2049 only",
+    title: "One port, fail-closed",
+    body: "NFSv4 needs a single port. Closing 2049 produced exactly the failure signature you'd expect — connection timed out, nothing half-broken.",
+  },
+];
+
 export default function CaseNFS() {
   const { push } = useToast();
   const [sync, setSync] = useState(true);
@@ -200,7 +232,7 @@ export default function CaseNFS() {
   };
 
   return (
-    <section id="nfs" className="relative pt-10">
+    <section id="nfs" className="relative">
       <CaseContent
         meta={NFS_META}
         steps={NFS_STEPS}
@@ -208,107 +240,135 @@ export default function CaseNFS() {
         troubleshooting={NFS_TROUBLESHOOTING}
         accentHex={CYAN}
         extra={
-          <div className="mb-14">
-            {/* ── 3D stage ── */}
-            <div className="glass relative mb-4 h-[430px] overflow-hidden rounded-2xl md:h-[540px]">
-              <SceneShell
-                label="NFS scene: a central export server with three orbiting clients receiving data packets"
-                poster={<NfsPoster />}
-                render={(frameloop) => (
-                  <NfsScene
-                    frameloop={frameloop}
-                    sync={sync}
-                    squash={squash}
-                    firewall={firewall}
-                    mounted={mounted}
-                    reduced={false}
-                  />
-                )}
-              />
-              {/* status badges */}
-              <div className="pointer-events-none absolute right-4 top-4 flex flex-col items-end gap-2">
-                <span
-                  className={`flex items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-[10.5px] backdrop-blur ${
-                    sync
-                      ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"
-                      : "border-amber-400/30 bg-amber-400/10 text-amber-300"
-                  }`}
-                >
-                  {sync ? <ShieldCheck className="h-3 w-3" /> : <AlertTriangle className="h-3 w-3" />}
-                  {sync ? "sync · safe" : "async · data loss risk"}
-                </span>
-                <span
-                  className={`flex items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-[10.5px] backdrop-blur ${
-                    squash
-                      ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"
-                      : "border-red-400/40 bg-red-400/10 text-red-300"
-                  }`}
-                >
-                  {squash ? <CheckCircle2 className="h-3 w-3" /> : <AlertTriangle className="h-3 w-3" />}
-                  {squash ? "root_squash · PASS" : "SECURITY ALERT"}
-                </span>
-                {!firewall && (
-                  <span className="flex items-center gap-1.5 rounded-full border border-red-400/40 bg-red-400/10 px-3 py-1 font-mono text-[10.5px] text-red-300 backdrop-blur">
-                    <Unplug className="h-3 w-3" /> 2049 blocked · timed out
-                  </span>
-                )}
-                {mounted && (
-                  <span className="flex items-center gap-1.5 rounded-full border border-[#22d3ee44] bg-[#22d3ee14] px-3 py-1 font-mono text-[10.5px] text-[#22d3ee] backdrop-blur">
-                    <FolderGit2 className="h-3 w-3" /> /mnt/shared mounted
-                  </span>
-                )}
-              </div>
+          <>
+            {/* ── interactive stage ── */}
+            <div className="mb-14">
+              <DemoPanel
+                title="interactive demo · exportfs → showmount → mount"
+                accentHex={CYAN}
+                heightClass="h-[420px] md:h-[520px]"
+                badges={
+                  <>
+                    <span
+                      className={`flex items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-[10.5px] backdrop-blur ${
+                        sync
+                          ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"
+                          : "border-amber-400/30 bg-amber-400/10 text-amber-300"
+                      }`}
+                    >
+                      {sync ? <ShieldCheck className="h-3 w-3" /> : <AlertTriangle className="h-3 w-3" />}
+                      {sync ? "sync · safe" : "async · risk"}
+                    </span>
+                    <span
+                      className={`flex items-center gap-1.5 rounded-full border px-3 py-1 font-mono text-[10.5px] backdrop-blur ${
+                        squash
+                          ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"
+                          : "border-red-400/40 bg-red-400/10 text-red-300"
+                      }`}
+                    >
+                      {squash ? <CheckCircle2 className="h-3 w-3" /> : <AlertTriangle className="h-3 w-3" />}
+                      {squash ? "root_squash · PASS" : "SECURITY ALERT"}
+                    </span>
+                    {!firewall && (
+                      <span className="flex items-center gap-1.5 rounded-full border border-red-400/40 bg-red-400/10 px-3 py-1 font-mono text-[10.5px] text-red-300 backdrop-blur">
+                        <Unplug className="h-3 w-3" /> 2049 blocked
+                      </span>
+                    )}
+                    {mounted && (
+                      <span className="flex items-center gap-1.5 rounded-full border border-[#22d3ee44] bg-[#22d3ee14] px-3 py-1 font-mono text-[10.5px] text-[#22d3ee] backdrop-blur">
+                        <FolderGit2 className="h-3 w-3" /> /mnt/shared mounted
+                      </span>
+                    )}
+                  </>
+                }
+                controls={
+                  <div className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+                      <LabToggle
+                        on={sync}
+                        onToggle={() => setSync((v) => !v)}
+                        label={sync ? "sync" : "async"}
+                        sub="commit writes before ACK vs buffer server-side"
+                        accentHex={sync ? "#34d399" : "#f59e0b"}
+                        ariaLabel="Toggle synchronous writes"
+                      />
+                      <LabToggle
+                        on={squash}
+                        onToggle={() => setSquash((v) => !v)}
+                        label="root_squash"
+                        sub="map remote root → nobody (65534)"
+                        accentHex={CYAN}
+                        ariaLabel="Toggle root squashing"
+                      />
+                      <LabToggle
+                        on={firewall}
+                        onToggle={() => setFirewall((v) => !v)}
+                        label={firewall ? "tcp/2049 open" : "tcp/2049 blocked"}
+                        sub="ufw rule for the NFSv4 port"
+                        accentHex={firewall ? CYAN : "#f87171"}
+                        cursorLabel="firewall"
+                        ariaLabel="Toggle firewall port 2049"
+                      />
+                      <MagneticButton onClick={onMount} accentHex={mounted ? undefined : CYAN} cursorLabel={mounted ? "unmount" : "mount"} className="!px-4 !py-3 text-[12.5px] sm:flex-1 sm:basis-44 lg:flex-none">
+                        <TerminalSquare className="h-4 w-4" style={{ color: CYAN }} />
+                        {mounted ? "Unmount client" : "Mount from client-2"}
+                      </MagneticButton>
+                    </div>
+                    <AnimatePresence>
+                      {mounted && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="overflow-hidden"
+                        >
+                          <MountTerminal runKey={runKey} />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                }
+              >
+                <SceneShell
+                  label="NFS scene: a central export server with three orbiting clients receiving data packets"
+                  poster={<NfsPoster />}
+                  render={(frameloop) => (
+                    <NfsScene
+                      frameloop={frameloop}
+                      sync={sync}
+                      squash={squash}
+                      firewall={firewall}
+                      mounted={mounted}
+                      reduced={false}
+                    />
+                  )}
+                />
+              </DemoPanel>
             </div>
 
-            {/* ── controls ── */}
-            <div className="glass-strong mb-4 flex flex-col gap-3 rounded-2xl p-4">
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <LabToggle
-                  on={sync}
-                  onToggle={() => setSync((v) => !v)}
-                  label={sync ? "sync" : "async"}
-                  sub="commit writes before ACK vs buffer server-side"
-                  accentHex={sync ? "#34d399" : "#f59e0b"}
-                  ariaLabel="Toggle synchronous writes"
-                />
-                <LabToggle
-                  on={squash}
-                  onToggle={() => setSquash((v) => !v)}
-                  label="root_squash"
-                  sub="map remote root → nobody (65534)"
-                  accentHex={CYAN}
-                  ariaLabel="Toggle root squashing"
-                />
-                <LabToggle
-                  on={firewall}
-                  onToggle={() => setFirewall((v) => !v)}
-                  label={firewall ? "tcp/2049 open" : "tcp/2049 blocked"}
-                  sub="ufw rule for the NFSv4 port"
-                  accentHex={firewall ? CYAN : "#f87171"}
-                  cursorLabel="firewall"
-                  ariaLabel="Toggle firewall port 2049"
-                />
-                <MagneticButton onClick={onMount} accentHex={mounted ? undefined : CYAN} cursorLabel={mounted ? "unmount" : "mount"} className="!px-4 !py-3 text-[12.5px] sm:flex-none">
-                  <TerminalSquare className="h-4 w-4" style={{ color: CYAN }} />
-                  {mounted ? "Unmount client" : "Mount from client-2"}
-                </MagneticButton>
-              </div>
-              <AnimatePresence>
-                {mounted && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="overflow-hidden"
-                  >
-                    <MountTerminal runKey={runKey} />
-                  </motion.div>
-                )}
-              </AnimatePresence>
+            {/* ── three guarantees ── */}
+            <div className="mb-14 grid gap-4 md:grid-cols-3">
+              {GUARANTEES.map((g, i) => (
+                <div key={i} className="glass rounded-2xl p-5">
+                  <div className="mb-3 flex items-center gap-3">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/5">
+                      {g.icon}
+                    </span>
+                    <span className="font-mono text-xs uppercase tracking-[0.2em]" style={{ color: CYAN }}>
+                      {g.label}
+                    </span>
+                  </div>
+                  <p className="text-[13.5px] font-medium text-[#e8eefc]">{g.title}</p>
+                  <p className="mt-1 text-[12.5px] leading-relaxed text-[#8fa2c9]">{g.body}</p>
+                </div>
+              ))}
             </div>
 
-            <PermissionsDiagram />
-          </div>
+            {/* ── permissions ── */}
+            <div className="mb-14">
+              <PermissionsDiagram />
+            </div>
+          </>
         }
       />
     </section>

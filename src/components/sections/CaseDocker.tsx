@@ -3,10 +3,11 @@
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Boxes, Layers, Play, Rocket, Skull } from "lucide-react";
+import { Boxes, Layers, Play, Rocket, Skull, Timer } from "lucide-react";
 import SceneShell from "@/components/three/SceneShell";
 import { ContainerPoster } from "@/components/three/fallbacks";
 import CaseContent from "@/components/CaseContent";
+import DemoPanel from "@/components/DemoPanel";
 import MagneticButton from "@/components/MagneticButton";
 import { useToast } from "@/components/providers/ToastProvider";
 import {
@@ -158,7 +159,7 @@ export default function CaseDocker() {
   };
 
   return (
-    <section id="containers" className="relative pt-10">
+    <section id="containers" className="relative">
       <CaseContent
         meta={DOCKER_META}
         steps={DOCKER_STEPS}
@@ -166,96 +167,107 @@ export default function CaseDocker() {
         troubleshooting={DOCKER_TROUBLESHOOTING}
         accentHex={EMERALD}
         extra={
-          <div className="mb-14">
-            {/* ── 3D stage ── */}
-            <div className="glass relative mb-4 h-[460px] overflow-hidden rounded-2xl md:h-[560px]">
-              <SceneShell
-                label="Containers scene: a slow VM boot lane racing an instant container lane, lifecycle cube and volume demo"
-                poster={<ContainerPoster />}
-                render={(frameloop) => (
-                  <ContainerScene
-                    frameloop={frameloop}
-                    lifecycle={lifecycle}
-                    volumeMode={volumeMode}
-                    volumeEvent={volumeEvent}
-                    reduced={false}
-                  />
-                )}
-              />
+          <>
+            {/* ── interactive stage ── */}
+            <div className="mb-14">
+              <DemoPanel
+                title="interactive demo · boot race, lifecycle & volumes"
+                accentHex={EMERALD}
+                heightClass="h-[440px] md:h-[540px]"
+                badges={
+                  <span className="flex items-center gap-1.5 rounded-full border border-[#34d39944] bg-[#34d39914] px-3 py-1 font-mono text-[10.5px] text-[#34d399] backdrop-blur">
+                    <Timer className="h-3 w-3" /> 18s vs 0.2s · live
+                  </span>
+                }
+                controls={
+                  <div className="flex flex-col gap-3">
+                    {/* lifecycle state machine */}
+                    <div>
+                      <p className="mb-2 flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-[0.22em] text-[#8fa2c9]">
+                        <Boxes className="h-3.5 w-3.5" style={{ color: EMERALD }} /> lifecycle state machine — click a state
+                      </p>
+                      <div className="flex flex-wrap gap-2" role="tablist" aria-label="Container lifecycle states">
+                        {DOCKER_LIFECYCLE.map((s) => (
+                          <button
+                            key={s.key}
+                            role="tab"
+                            aria-selected={lifecycle === s.key}
+                            onClick={() => onLifecycle(s.key as LifecycleKey)}
+                            data-cursor="run"
+                            data-cursor-label="animate"
+                            className={`rounded-lg border px-3.5 py-2 font-mono text-[12px] transition-all ${
+                              lifecycle === s.key
+                                ? "border-[#34d39966] bg-[#34d39916] text-[#34d399] shadow-[0_0_18px_rgba(52,211,153,0.25)]"
+                                : "border-white/10 bg-white/5 text-[#8fa2c9] hover:text-[#e8eefc]"
+                            }`}
+                          >
+                            {s.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={lifecycle}
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -6 }}
+                        transition={{ duration: 0.2 }}
+                        className="rounded-xl border border-white/10 bg-[#05070f]/80 p-3.5"
+                      >
+                        <code className="block break-all font-mono text-[12.5px] text-[#e8eefc]">
+                          <span style={{ color: EMERALD }}>$ </span>
+                          {current.command}
+                        </code>
+                        <p className="mt-1.5 text-[12.5px] leading-relaxed text-[#8fa2c9]">{current.explain}</p>
+                      </motion.div>
+                    </AnimatePresence>
+                    {/* volume persistence */}
+                    <div className="flex flex-wrap items-center gap-3 border-t border-white/8 pt-3">
+                      <p className="min-w-0 flex-1 text-[12.5px] leading-relaxed text-[#b9c6e4]">
+                        <span className="font-mono text-[10.5px] uppercase tracking-widest" style={{ color: EMERALD }}>
+                          volume persistence ·{" "}
+                        </span>
+                        Containers are disposable. <span className="text-[#34d399]">Volumes are not.</span> Destroy the
+                        cube — the orb in <code className="font-mono text-[#e8eefc]">lab_data</code> survives.
+                      </p>
+                      <div className="flex gap-2">
+                        <MagneticButton onClick={onRm} accentHex={volumeMode === "rm" ? "#f87171" : undefined} cursorLabel="destroy" className="!px-3.5 !py-2 text-[12px]">
+                          <Skull className="h-3.5 w-3.5 text-[#f87171]" />
+                          docker rm -f
+                        </MagneticButton>
+                        <MagneticButton onClick={onRun} accentHex={volumeMode === "run" ? EMERALD : undefined} cursorLabel="run" className="!px-3.5 !py-2 text-[12px]">
+                          <Play className="h-3.5 w-3.5 text-[#34d399]" />
+                          docker run
+                        </MagneticButton>
+                      </div>
+                    </div>
+                  </div>
+                }
+              >
+                <SceneShell
+                  label="Containers scene: a slow VM boot lane racing an instant container lane, lifecycle cube and volume demo"
+                  poster={<ContainerPoster />}
+                  render={(frameloop) => (
+                    <ContainerScene
+                      frameloop={frameloop}
+                      lifecycle={lifecycle}
+                      volumeMode={volumeMode}
+                      volumeEvent={volumeEvent}
+                      reduced={false}
+                    />
+                  )}
+                />
+              </DemoPanel>
             </div>
 
-            {/* lifecycle state machine */}
-            <div className="glass-strong mb-4 rounded-2xl p-4">
-              <p className="mb-3 flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.25em]" style={{ color: EMERALD }}>
-                <Boxes className="h-3.5 w-3.5" /> lifecycle state machine — click a state
-              </p>
-              <div className="mb-3 flex flex-wrap gap-2" role="tablist" aria-label="Container lifecycle states">
-                {DOCKER_LIFECYCLE.map((s) => (
-                  <button
-                    key={s.key}
-                    role="tab"
-                    aria-selected={lifecycle === s.key}
-                    onClick={() => onLifecycle(s.key as LifecycleKey)}
-                    data-cursor="run"
-                    data-cursor-label="animate"
-                    className={`rounded-lg border px-3.5 py-2 font-mono text-[12px] transition-all ${
-                      lifecycle === s.key
-                        ? "border-[#34d39966] bg-[#34d39916] text-[#34d399] shadow-[0_0_18px_rgba(52,211,153,0.25)]"
-                        : "border-white/10 bg-white/5 text-[#8fa2c9] hover:text-[#e8eefc]"
-                    }`}
-                  >
-                    {s.label}
-                  </button>
-                ))}
-              </div>
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={lifecycle}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.2 }}
-                  className="rounded-xl border border-white/10 bg-[#05070f]/80 p-4"
-                >
-                  <code className="block font-mono text-[12.5px] text-[#e8eefc]">
-                    <span style={{ color: EMERALD }}>$ </span>
-                    {current.command}
-                  </code>
-                  <p className="mt-2 text-[12.5px] leading-relaxed text-[#8fa2c9]">{current.explain}</p>
-                </motion.div>
-              </AnimatePresence>
+            {/* ── image layers ── */}
+            <div className="mb-14">
+              <LayerVisualiser />
             </div>
-
-            {/* volume persistence demo */}
-            <div className="glass-strong mb-4 rounded-2xl p-4">
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="min-w-0 flex-1">
-                  <p className="font-mono text-[11px] uppercase tracking-[0.25em]" style={{ color: EMERALD }}>
-                    volume persistence
-                  </p>
-                  <p className="mt-1 text-[13px] leading-relaxed text-[#b9c6e4]">
-                    Containers are disposable. <span className="text-[#34d399]">Volumes are not.</span> Destroy the
-                    cube — the orb in <code className="font-mono text-[#e8eefc]">lab_data</code> survives; run a new
-                    cube and it forms around the same orb.
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <MagneticButton onClick={onRm} accentHex={volumeMode === "rm" ? "#f87171" : undefined} cursorLabel="destroy" className="!px-4 !py-2.5 text-[12.5px]">
-                    <Skull className="h-4 w-4 text-[#f87171]" />
-                    docker rm -f
-                  </MagneticButton>
-                  <MagneticButton onClick={onRun} accentHex={volumeMode === "run" ? EMERALD : undefined} cursorLabel="run" className="!px-4 !py-2.5 text-[12.5px]">
-                    <Play className="h-4 w-4 text-[#34d399]" />
-                    docker run
-                  </MagneticButton>
-                </div>
-              </div>
-            </div>
-
-            <LayerVisualiser />
 
             {/* race verdict chip */}
-            <div className="mt-4 flex flex-wrap items-center justify-center gap-3 rounded-2xl border border-[#34d39933] bg-[#34d3990d] px-5 py-4 text-center">
+            <div className="flex flex-wrap items-center justify-center gap-3 rounded-2xl border border-[#34d39933] bg-[#34d3990d] px-5 py-4 text-center">
               <Rocket className="h-4 w-4 text-[#34d399]" />
               <p className="text-[13.5px] text-[#b9c6e4]">
                 Same host, same app: <span className="font-mono text-[#e8eefc]">18s</span> to first VM request vs{" "}
@@ -263,7 +275,7 @@ export default function CaseDocker() {
                 <span className="text-[#34d399]">90× head start</span> that compounds on every deploy.
               </p>
             </div>
-          </div>
+          </>
         }
       />
     </section>

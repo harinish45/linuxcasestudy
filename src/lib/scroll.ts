@@ -13,12 +13,13 @@ export function getLenis() {
 }
 
 /** Smooth-scroll to a section id; falls back to native scrollIntoView. */
-export function scrollToSection(id: string, offset = 0) {
+export function scrollToSection(id: string, offset = -76) {
   const el = document.getElementById(id);
   if (!el) return;
   if (lenis) {
     lenis.scrollTo(el, { offset, duration: 1.4 });
   } else {
-    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    const y = el.getBoundingClientRect().top + window.scrollY + offset;
+    window.scrollTo({ top: y, behavior: "smooth" });
   }
 }

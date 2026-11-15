@@ -167,7 +167,7 @@ function Scene({ progressRef, extended, snapshot, corrupt, rollbackCount, reduce
 
     // camera dolly
     if (!reduced) {
-      state.camera.position.z = THREE.MathUtils.damp(state.camera.position.z, 7.6 - p * 1.1, 2.5, delta);
+      state.camera.position.z = THREE.MathUtils.damp(state.camera.position.z, 7.4 - p * 0.9, 2.5, delta);
     }
   });
 
@@ -177,22 +177,22 @@ function Scene({ progressRef, extended, snapshot, corrupt, rollbackCount, reduce
       {[0, 1, 2].map((i) => (
         <group key={i} ref={(el) => { diskRefs.current[i] = el; }}>
           <mesh rotation={[Math.PI / 2, 0, 0]}>
-            <cylinderGeometry args={[0.52, 0.52, 0.15, 44]} />
+            <cylinderGeometry args={[0.56, 0.56, 0.16, 48]} />
             <meshStandardMaterial
               color={VIOLET}
               emissive={VIOLET}
-              emissiveIntensity={0.35}
-              metalness={0.6}
-              roughness={0.35}
+              emissiveIntensity={0.4}
+              metalness={0.55}
+              roughness={0.32}
               transparent
               opacity={1}
             />
           </mesh>
-          <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 0.09]}>
-            <torusGeometry args={[0.3, 0.02, 8, 32]} />
-            <meshStandardMaterial color="#e8eefc" emissive={VIOLET} emissiveIntensity={0.6} transparent opacity={0.7} />
+          <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 0.095]}>
+            <torusGeometry args={[0.34, 0.022, 10, 40]} />
+            <meshStandardMaterial color="#e8eefc" emissive={VIOLET} emissiveIntensity={0.75} transparent opacity={0.85} />
           </mesh>
-          <Chip position={[0, 0.85, 0]} accent={VIOLET} visible={phase === 0}>
+          <Chip position={[0, 0.78, 0]} accent={VIOLET} visible={phase === 0}>
               /dev/{["sdb", "sdc", "sdd"][i]} · 4G
             </Chip>
         </group>
@@ -318,7 +318,7 @@ export default function LvmScene(props: SceneProps & { frameloop?: "always" | "d
     <Canvas
       dpr={[1, 1.5]}
       frameloop={frameloop}
-      camera={{ position: [0, 0.3, 7.6], fov: 42 }}
+      camera={{ position: [0, 0.55, 7.4], fov: 42 }}
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       style={{ background: "transparent" }}
     >

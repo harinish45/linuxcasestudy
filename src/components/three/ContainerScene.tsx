@@ -3,7 +3,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
 import * as THREE from "three";
 import { Burst, CameraRig, Chip } from "./shared";
 
@@ -22,11 +21,119 @@ const VM_BOOT = 18;
 const SLOTS = 12;
 const SPAWN_EVERY = 0.85;
 
+/** Boot-progress ring as a sprite (10Hz canvas redraw, no DOM). */
+function VmRing({ index, accent = "#94a3b8" }: { index: number; accent?: string }) {
+  const canvas = useMemo(() => {
+    const c = document.createElement("canvas");
+    c.width = c.height = 128;
+    return c;
+  }, []);
+  const tex = useMemo(() => {
+    const t = new THREE.CanvasTexture(canvas);
+    t.colorSpace = THREE.SRGBColorSpace;
+    return t;
+  }, [canvas]);
+  useEffect(() => () => tex.dispose(), [tex]);
+  const acc = useRef(0);
+
+  useFrame((state, delta) => {
+    acc.current += delta;
+    if (acc.current < 0.1) return;
+    acc.current = 0;
+    const bootP = (state.clock.elapsedTime % VM_BOOT) / VM_BOOT;
+    const stagger = Math.max(0, Math.min(1, (bootP - index * 0.08) / (1 - index * 0.08)));
+    const ctx = canvas.getContext("2d")!;
+    ctx.clearRect(0, 0, 128, 128);
+    ctx.lineWidth = 9;
+    ctx.strokeStyle = "rgba(255,255,255,0.14)";
+    ctx.beginPath();
+    ctx.arc(64, 64, 48, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.strokeStyle = accent;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.arc(64, 64, 48, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * stagger);
+    ctx.stroke();
+    ctx.fillStyle = "#8fa2c9";
+    ctx.font = "500 24px 'JetBrains Mono', monospace";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(`VM${index + 1}`, 64, 66);
+    tex.needsUpdate = true;
+  });
+
+  return (
+    <sprite position={[0.95, 0.55, 0.3]} scale={[0.62, 0.62, 1]} renderOrder={9}>
+      <spriteMaterial map={tex} transparent depthWrite={false} toneMapped={false} />
+    </sprite>
+  );
+}
+
+/** Live stopwatch panel fed by a shared stats ref (no React re-renders). */
+function StatsPanel({
+  position,
+  statsRef,
+}: {
+  position: [number, number, number];
+  statsRef: React.MutableRefObject<{ boot: number; count: number }>;
+}) {
+  const canvas = useMemo(() => {
+    const c = document.createElement("canvas");
+    c.width = 560;
+    c.height = 190;
+    return c;
+  }, []);
+  const tex = useMemo(() => {
+    const t = new THREE.CanvasTexture(canvas);
+    t.colorSpace = THREE.SRGBColorSpace;
+    return t;
+  }, [canvas]);
+  useEffect(() => () => tex.dispose(), [tex]);
+  const acc = useRef(0);
+
+  useFrame((_, delta) => {
+    acc.current += delta;
+    if (acc.current < 0.1) return;
+    acc.current = 0;
+    const { boot, count } = statsRef.current;
+    const ctx = canvas.getContext("2d")!;
+    ctx.clearRect(0, 0, 560, 190);
+    ctx.fillStyle = "rgba(5, 7, 15, 0.8)";
+    ctx.strokeStyle = "rgba(255,255,255,0.16)";
+    ctx.lineWidth = 2;
+    const r = 16;
+    ctx.beginPath();
+    ctx.moveTo(4 + r, 4);
+    ctx.arcTo(556, 4, 556, 186, r);
+    ctx.arcTo(556, 186, 4, 186, r);
+    ctx.arcTo(4, 186, 4, 4, r);
+    ctx.arcTo(4, 4, 556, 4, r);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.textBaseline = "middle";
+    ctx.font = "500 30px 'JetBrains Mono', monospace";
+    ctx.textAlign = "left";
+    ctx.fillStyle = "rgba(143,162,201,0.95)";
+    ctx.fillText("VM boot", 36, 58);
+    ctx.fillText("containers up", 36, 132);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#e8eefc";
+    ctx.fillText(`${boot.toFixed(1)}s / 18s`, 524, 58);
+    ctx.fillStyle = "#34d399";
+    ctx.fillText(String(count), 524, 132);
+    tex.needsUpdate = true;
+  });
+
+  return (
+    <sprite position={position} scale={[2.1, 0.71, 1]} renderOrder={10}>
+      <spriteMaterial map={tex} transparent depthWrite={false} depthTest={false} toneMapped={false} />
+    </sprite>
+  );
+}
+
 function Scene({ lifecycle, volumeEvent, volumeMode, reduced }: SceneProps) {
   const vmRefs = useRef<(THREE.Group | null)[]>([null, null, null]);
-  const ringRefs = useRef<(SVGCircleElement | null)[]>([null, null, null]);
-  const vmTimeRef = useRef<HTMLSpanElement>(null);
-  const countRef = useRef<HTMLSpanElement>(null);
 
   const contRefs = useRef<(THREE.Group | null)[]>([]);
   const spawnTimes = useRef<number[]>(new Array(SLOTS).fill(-99));
@@ -35,6 +142,7 @@ function Scene({ lifecycle, volumeEvent, volumeMode, reduced }: SceneProps) {
   const nextSpawn = useRef(0);
 
   const lifeRef = useRef<THREE.Group>(null);
+  const statsRef = useRef({ boot: 0, count: 0 });
   const lifeMat = useMemo(
     () => new THREE.MeshStandardMaterial({ color: EMERALD, emissive: EMERALD, emissiveIntensity: 0.35, metalness: 0.5, roughness: 0.35, transparent: true, opacity: 0.92 }),
     []
@@ -77,14 +185,13 @@ function Scene({ lifecycle, volumeEvent, volumeMode, reduced }: SceneProps) {
     []
   );
 
-  const CIRC = 2 * Math.PI * 15;
-
   useFrame((state, delta) => {
     const t = state.clock.elapsedTime;
 
     // ── VM lane: 18s boot loop ──
     const bootT = t % VM_BOOT;
     const bootP = bootT / VM_BOOT;
+    statsRef.current.boot = bootT;
     vmRefs.current.forEach((g, i) => {
       if (!g) return;
       const stagger = Math.max(0, Math.min(1, (bootP - i * 0.08) / (1 - i * 0.08)));
@@ -92,12 +199,6 @@ function Scene({ lifecycle, volumeEvent, volumeMode, reduced }: SceneProps) {
       g.scale.setScalar(THREE.MathUtils.damp(g.scale.x, s, 6, delta));
       g.rotation.y = reduced ? 0 : Math.sin(t * 0.4 + i) * 0.12;
     });
-    ringRefs.current.forEach((c, i) => {
-      if (!c) return;
-      const stagger = Math.max(0, Math.min(1, (bootP - i * 0.08) / (1 - i * 0.08)));
-      c.style.strokeDashoffset = `${CIRC * (1 - stagger)}`;
-    });
-    if (vmTimeRef.current) vmTimeRef.current.textContent = bootT >= VM_BOOT - 0.05 ? "18.0s" : `${bootT.toFixed(1)}s`;
 
     // ── Container lane: instant spawn stream ──
     if (t >= nextSpawn.current) {
@@ -105,7 +206,7 @@ function Scene({ lifecycle, volumeEvent, volumeMode, reduced }: SceneProps) {
       spawnTimes.current[slotCursor.current] = t;
       slotCursor.current = (slotCursor.current + 1) % SLOTS;
       spawnCount.current += 1;
-      if (countRef.current) countRef.current.textContent = String(spawnCount.current);
+      statsRef.current.count = spawnCount.current;
     }
     contRefs.current.forEach((g, i) => {
       if (!g) return;
@@ -175,10 +276,10 @@ function Scene({ lifecycle, volumeEvent, volumeMode, reduced }: SceneProps) {
         <meshBasicMaterial color="#ffffff" transparent opacity={0.12} />
       </mesh>
 
-      <Chip position={[-2.55, 2.35, 0]} accent="#8fa2c9">
+      <Chip position={[-3.2, 2.7, 0]} accent="#8fa2c9">
         LANE A · VMs · 18s boot
       </Chip>
-      <Chip position={[1.7, 2.35, 0]} accent={EMERALD}>
+      <Chip position={[2.4, 2.7, 0]} accent={EMERALD}>
         LANE B · Containers · 0.2s
       </Chip>
 
@@ -192,36 +293,12 @@ function Scene({ lifecycle, volumeEvent, volumeMode, reduced }: SceneProps) {
             <boxGeometry args={[0.7, 0.08, 0.02]} />
             <meshBasicMaterial color="#94a3b8" />
           </mesh>
-          <Html position={[0.75, 0.5, 0.3]} center zIndexRange={[15, 0]} style={{ pointerEvents: "none" }}>
-            <svg width="38" height="38" viewBox="0 0 38 38" aria-hidden>
-              <circle cx="19" cy="19" r="15" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="3" />
-              <circle
-                ref={(el) => { ringRefs.current[i] = el; }}
-                cx="19" cy="19" r="15" fill="none"
-                stroke="#94a3b8" strokeWidth="3" strokeLinecap="round"
-                strokeDasharray={CIRC}
-                strokeDashoffset={CIRC}
-                transform="rotate(-90 19 19)"
-              />
-              <text x="19" y="23" textAnchor="middle" fontSize="9" fill="#8fa2c9" fontFamily="monospace">
-                VM{i + 1}
-              </text>
-            </svg>
-          </Html>
+          <VmRing index={i} />
         </group>
       ))}
 
       {/* stopwatch panel */}
-      <Html position={[2.4, 2.3, 0]} center zIndexRange={[15, 0]} style={{ pointerEvents: "none" }}>
-        <div className="glass rounded-lg px-3 py-2 text-center font-mono text-[10px] leading-relaxed">
-          <div className="text-[#8fa2c9]">
-            VM boot: <span ref={vmTimeRef} className="text-[#e8eefc]">0.0s</span> / 18s
-          </div>
-          <div className="text-[#8fa2c9]">
-            containers up: <span ref={countRef} className="text-[#34d399]">0</span>
-          </div>
-        </div>
-      </Html>
+      <StatsPanel position={[2.6, 2.2, 0]} statsRef={statsRef} />
 
       {/* container cubes */}
       {Array.from({ length: SLOTS }).map((_, i) => (
@@ -238,7 +315,7 @@ function Scene({ lifecycle, volumeEvent, volumeMode, reduced }: SceneProps) {
       ))}
 
       {/* lifecycle stage */}
-      <Chip position={[0, 1.35, 2.2]} accent={EMERALD}>
+      <Chip position={[0, -1.25, 2.2]} accent={EMERALD}>
         lifecycle: {lifecycle}
       </Chip>
       <group ref={lifeRef} position={[0, -0.1, 2.2]}>

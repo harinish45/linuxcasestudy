@@ -3,7 +3,9 @@ import { ToastProvider } from "@/components/providers/ToastProvider";
 import AuroraBackground from "@/components/providers/AuroraBackground";
 import Cursor from "@/components/providers/Cursor";
 import ProgressRail from "@/components/providers/ProgressRail";
+import NavBar from "@/components/providers/NavBar";
 import CommandPalette from "@/components/providers/CommandPalette";
+import LabRoot from "@/components/LabRoot";
 import Hero from "@/components/sections/Hero";
 import CaseLVM from "@/components/sections/CaseLVM";
 import CaseNFS from "@/components/sections/CaseNFS";
@@ -20,19 +22,22 @@ export default function Home() {
         <AuroraBackground />
         <div className="grain" aria-hidden />
         <Cursor />
-        <ProgressRail />
-        <CommandPalette />
+        <LabRoot>
+          <NavBar />
+          <ProgressRail />
+          <CommandPalette />
 
-        <main className="relative flex min-h-screen flex-col">
-          <Hero />
-          <CaseLVM />
-          <CaseNFS />
-          <CaseDocker />
-          <Integration />
-          <TerminalLab />
-          <Dashboard />
-        </main>
-        <Footer />
+          <main className="relative flex min-h-screen flex-col">
+            <Hero />
+            <CaseLVM />
+            <CaseNFS />
+            <CaseDocker />
+            <Integration />
+            <TerminalLab />
+            <Dashboard />
+          </main>
+          <Footer />
+        </LabRoot>
       </ToastProvider>
     </SmoothScroll>
   );

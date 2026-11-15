@@ -13,19 +13,18 @@ const GAP = 0.1;
 
 function RackBody({ accent, reduced }: { accent: AccentKey; reduced: boolean }) {
   const group = useRef<THREE.Group>(null);
-  const glowMat = useRef<THREE.MeshBasicMaterial>(null);
   const targetColor = useMemo(() => new THREE.Color(ACCENTS[accent].hex), [accent]);
 
   const bodyMat = useMemo(
-    () => new THREE.MeshStandardMaterial({ color: "#10162c", roughness: 0.5, metalness: 0.65 }),
+    () => new THREE.MeshStandardMaterial({ color: "#1a2244", roughness: 0.42, metalness: 0.7 }),
     []
   );
   const faceMat = useMemo(
-    () => new THREE.MeshStandardMaterial({ color: "#161e3a", roughness: 0.42, metalness: 0.55 }),
+    () => new THREE.MeshStandardMaterial({ color: "#232d56", roughness: 0.35, metalness: 0.6 }),
     []
   );
   const bayMat = useMemo(
-    () => new THREE.MeshStandardMaterial({ color: "#05070f", roughness: 0.8, metalness: 0.2 }),
+    () => new THREE.MeshStandardMaterial({ color: "#0a0f22", roughness: 0.8, metalness: 0.2 }),
     []
   );
   const ledA = useMemo(
@@ -44,7 +43,6 @@ function RackBody({ accent, reduced }: { accent: AccentKey; reduced: boolean }) 
       mat.emissive.lerp(targetColor, Math.min(1, delta * 4));
       mat.emissiveIntensity = 1.5 + Math.sin(t * 2.6 + i * 0.9) * 1.1;
     });
-    if (glowMat.current) glowMat.current.color.lerp(targetColor, Math.min(1, delta * 4));
     if (group.current && !reduced) group.current.rotation.y = Math.sin(t * 0.24) * 0.07;
   });
 
@@ -89,16 +87,6 @@ function RackBody({ accent, reduced }: { accent: AccentKey; reduced: boolean }) 
         </mesh>
       ))}
       {units}
-      <mesh position={[0, 0, -0.9]}>
-        <planeGeometry args={[11, 7.5]} />
-        <meshBasicMaterial
-          ref={glowMat}
-          transparent
-          opacity={0.13}
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-        />
-      </mesh>
     </group>
   );
 }
@@ -108,10 +96,18 @@ export default function ServerRack({
   accent = "lvm",
   reduced = false,
   frameloop = "always",
+  scale = 1,
+  y = 0,
+  cameraZ = 7.8,
 }: {
   accent?: AccentKey;
   reduced?: boolean;
   frameloop?: "always" | "demand";
+  /** Overall scene scale — hero uses <1 to keep the rack behind the copy. */
+  scale?: number;
+  /** Vertical offset of the whole rack (negative = lower in frame). */
+  y?: number;
+  cameraZ?: number;
 }) {
   const glowTex = useGlowTexture("rgba(255,255,255,0.9)", `${ACCENTS[accent].hex}55`);
 
@@ -119,20 +115,23 @@ export default function ServerRack({
     <Canvas
       dpr={[1, 1.5]}
       frameloop={frameloop}
-      camera={{ position: [0, 0.4, 7.8], fov: 42 }}
+      camera={{ position: [0, 0.4 + y * 0.35, cameraZ], fov: 42 }}
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       style={{ background: "transparent" }}
     >
-      <ambientLight intensity={0.5} />
-      <pointLight position={[4, 5, 6]} intensity={90} color="#cdd7ff" />
-      <pointLight position={[-5, -3, 4]} intensity={40} color={ACCENTS[accent].hex} />
-      <Float speed={1.6} rotationIntensity={reduced ? 0 : 0.25} floatIntensity={reduced ? 0 : 0.7}>
-        <RackBody accent={accent} reduced={reduced} />
-      </Float>
-      <CameraRig enabled={!reduced} strength={0.13} baseZ={7.8} />
-      <sprite position={[0, 0, -2.4]} scale={[13, 9, 1]}>
-        <spriteMaterial map={glowTex} transparent opacity={0.16} depthWrite={false} />
-      </sprite>
+      <group position={[0, y, 0]} scale={scale}>
+        <ambientLight intensity={0.75} />
+        <pointLight position={[4, 5, 6]} intensity={150} color="#cdd7ff" />
+        <pointLight position={[-5, -3, 4]} intensity={60} color={ACCENTS[accent].hex} />
+        <pointLight position={[0, 2.5, 7]} intensity={50} color="#aebbff" />
+        <Float speed={1.6} rotationIntensity={reduced ? 0 : 0.25} floatIntensity={reduced ? 0 : 0.7}>
+          <RackBody accent={accent} reduced={reduced} />
+        </Float>
+        <sprite position={[0, 0, -2.4]} scale={[13, 9, 1]}>
+          <spriteMaterial map={glowTex} transparent opacity={0.2} depthWrite={false} />
+        </sprite>
+      </group>
+      <CameraRig enabled={!reduced} strength={0.13} baseZ={cameraZ} />
       <fog attach="fog" args={["#05070f", 9, 17]} />
     </Canvas>
   );

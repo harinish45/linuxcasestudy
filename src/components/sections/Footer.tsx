@@ -1,7 +1,8 @@
 "use client";
 
-import { Github, Layers3 } from "lucide-react";
+import { Layers3, RotateCcw } from "lucide-react";
 import { scrollToSection } from "@/lib/scroll";
+import { useLabStore } from "@/lib/store";
 
 const STACK = [
   "Next.js 16 · App Router",
@@ -9,7 +10,6 @@ const STACK = [
   "TypeScript",
   "Tailwind CSS 4",
   "three.js · R3F · drei",
-  "GSAP + ScrollTrigger",
   "Framer Motion",
   "Lenis",
   "lucide-react",
@@ -25,6 +25,8 @@ const LINKS: [string, string][] = [
 ];
 
 export default function Footer() {
+  const replayIntro = useLabStore((s) => s.replayIntro);
+
   return (
     <footer className="mt-auto border-t border-white/8 bg-[#05070f]/80 backdrop-blur">
       <div className="mx-auto grid max-w-6xl gap-10 px-5 py-12 md:grid-cols-3 md:px-8">
@@ -56,6 +58,15 @@ export default function Footer() {
               </li>
             ))}
           </ul>
+          <button
+            onClick={replayIntro}
+            data-cursor="replay"
+            data-cursor-label="replay"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 font-mono text-[11px] text-[#8fa2c9] transition-colors hover:border-[#7c5cff66] hover:text-[#e8eefc]"
+          >
+            <RotateCcw className="h-3 w-3" />
+            replay the laptop intro
+          </button>
         </div>
 
         <div>
@@ -70,8 +81,7 @@ export default function Footer() {
               </span>
             ))}
           </div>
-          <p className="mt-4 flex items-center gap-2 text-[12px] text-[#64748b]">
-            <Github className="h-3.5 w-3.5" />
+          <p className="mt-4 font-mono text-[11px] text-[#64748b]">
             No images shipped — every pixel is CSS, SVG or WebGL.
           </p>
         </div>

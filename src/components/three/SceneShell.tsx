@@ -1,10 +1,20 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useIsMobile, useLowPower } from "@/lib/hooks";
 import type { ReactNode } from "react";
 
 type Frameloop = "always" | "demand";
+
+const noopSubscribe = () => () => {};
+/** QA escape hatch: /?force3d renders the WebGL scenes even on weak devices. */
+function useForce3D(): boolean {
+  return useSyncExternalStore(
+    noopSubscribe,
+    () => new URLSearchParams(window.location.search).has("force3d"),
+    () => false
+  );
+}
 
 interface Props {
   /** SVG diagram fallback for mobile / low-power devices. */
@@ -26,6 +36,7 @@ interface Props {
 export default function SceneShell({ poster, render, label, className = "" }: Props) {
   const isMobile = useIsMobile();
   const lowPower = useLowPower();
+  const force3D = useForce3D();
   const elRef = useRef<HTMLDivElement | null>(null);
   const [mounted, setMounted] = useState(false);
   const [onScreen, setOnScreen] = useState(false);
@@ -58,7 +69,7 @@ export default function SceneShell({ poster, render, label, className = "" }: Pr
     elRef.current = el;
   }, []);
 
-  if (isMobile || lowPower) {
+  if (isMobile || (lowPower && !force3D)) {
     return (
       <div
         role="img"

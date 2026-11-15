@@ -7,9 +7,21 @@
 
 const MONO = { fontFamily: "var(--font-jbmono), monospace" } as const;
 
+/** Centers a diagram inside its stage and caps its size so it never stretches. */
+function Stage({ children, maxWidth = 620 }: { children: React.ReactNode; maxWidth?: number }) {
+  return (
+    <div className="flex h-full w-full items-center justify-center p-5">
+      <div className="h-full w-full" style={{ maxWidth }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export function RackPoster() {
   return (
-    <svg viewBox="0 0 420 300" className="h-full w-full" role="img" aria-label="Server rack diagram">
+    <Stage maxWidth={560}>
+      <svg viewBox="0 0 420 300" className="h-full w-full" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Server rack diagram">
       <defs>
         <linearGradient id="rg" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#161e3a" />
@@ -40,13 +52,15 @@ export function RackPoster() {
       <text x="210" y="292" textAnchor="middle" fill="#8fa2c9" fontSize="12" style={MONO}>
         rack-01 · 7U · LEDs live
       </text>
-    </svg>
+      </svg>
+    </Stage>
   );
 }
 
 export function LvmPoster() {
   return (
-    <svg viewBox="0 0 460 320" className="h-full w-full" role="img" aria-label="LVM diagram: PVs to VG to LVs">
+    <Stage>
+      <svg viewBox="0 0 460 320" className="h-full w-full" preserveAspectRatio="xMidYMid meet" role="img" aria-label="LVM diagram: PVs to VG to LVs">
       {[
         [40, "sdb", 30],
         [40, "sdc", 130],
@@ -87,13 +101,15 @@ export function LvmPoster() {
           ext4 · 2G
         </text>
       </g>
-    </svg>
+      </svg>
+    </Stage>
   );
 }
 
 export function NfsPoster() {
   return (
-    <svg viewBox="0 0 460 320" className="h-full w-full" role="img" aria-label="NFS diagram: one server, three clients">
+    <Stage>
+      <svg viewBox="0 0 460 320" className="h-full w-full" preserveAspectRatio="xMidYMid meet" role="img" aria-label="NFS diagram: one server, three clients">
       <rect x="175" y="120" width="110" height="90" rx="14" fill="#22d3ee18" stroke="#22d3ee" />
       <text x="230" y="160" textAnchor="middle" fill="#e8eefc" fontSize="12" style={MONO}>
         n10
@@ -124,13 +140,15 @@ export function NfsPoster() {
       <text x="230" y="300" textAnchor="middle" fill="#8fa2c9" fontSize="11" style={MONO}>
         rw,sync,root_squash · 192.168.56.0/24 · tcp/2049
       </text>
-    </svg>
+      </svg>
+    </Stage>
   );
 }
 
 export function ContainerPoster() {
   return (
-    <svg viewBox="0 0 460 320" className="h-full w-full" role="img" aria-label="VM vs container boot race diagram">
+    <Stage>
+      <svg viewBox="0 0 460 320" className="h-full w-full" preserveAspectRatio="xMidYMid meet" role="img" aria-label="VM vs container boot race diagram">
       <text x="80" y="30" fill="#8fa2c9" fontSize="11" style={MONO}>
         LANE A · VM · 18s
       </text>
@@ -162,6 +180,7 @@ export function ContainerPoster() {
       <text x="230" y="300" textAnchor="middle" fill="#8fa2c9" fontSize="11" style={MONO}>
         18s vs 0.2s — the whole argument, drawn.
       </text>
-    </svg>
+      </svg>
+    </Stage>
   );
 }

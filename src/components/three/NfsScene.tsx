@@ -188,13 +188,13 @@ function Scene({ sync, squash, firewall, mounted, reduced }: SceneProps) {
           <boxGeometry args={[1.15, 1.15, 1.15]} />
           <meshBasicMaterial color={CYAN} wireframe transparent opacity={0.22} />
         </mesh>
-        <Chip position={[0, 1.05, 0]} accent={CYAN}>
+        <Chip position={[0, -1.15, 0]} accent={CYAN}>
           n10 · /srv/nfs/shared
         </Chip>
-        <Chip position={[0, -1.0, 0]} accent="#34d399" visible={sync}>
+        <Chip position={[0, -1.85, 0]} accent="#34d399" visible={sync}>
           sync · write committed before ACK
         </Chip>
-        <Chip position={[0, -1.0, 0]} accent="#f59e0b" visible={!sync}>
+        <Chip position={[0, -1.85, 0]} accent="#f59e0b" visible={!sync}>
           async · phantom writes possible
         </Chip>
         <Chip position={[0, 1.7, 0]} accent="#f87171" visible={!squash}>

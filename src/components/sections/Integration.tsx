@@ -135,7 +135,7 @@ export default function Integration() {
         <SectionHeading
           kicker="Integration — the pipeline"
           title="Three technologies, one flow"
-          description="Scroll-scrub each stage and the whole chain reacts: grow the LV at the top and the NFS df readout, client mounts and the container's free-space ring all move with it. This is the composition the lab was built to prove."
+          description="Drag the grow-storage slider and the whole chain reacts: the LV bar grows, the NFS df readout ticks up, and the container's free-space ring expands. This is the composition the lab was built to prove."
           accentHex={VIOLET}
         />
 
