@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { ROUTES, useLabStore, useProgressStore, topicRoute, type Route } from "@/lib/store";
 import { TOPICS } from "@/data/learning";
+import { LogoMark } from "@/components/Logo";
 
 const TOPIC_ICONS = { harddrive: HardDrive, network: Network, container: Container } as const;
 
@@ -83,14 +84,12 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
         className="flex items-center gap-2.5 px-5 pb-6 pt-6 transition-opacity hover:opacity-80"
         aria-label="Linux Lab home"
       >
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-          <span className="font-serif text-[15px] leading-none">L</span>
-        </span>
+        <LogoMark size={32} />
         <span className="min-w-0">
           <span className="display block whitespace-nowrap text-[16.5px] leading-tight text-foreground">
             Linux Lab
           </span>
-          <span className="block font-mono text-[9px] uppercase tracking-[0.18em] text-text-faint">
+          <span className="block whitespace-nowrap font-mono text-[9px] uppercase tracking-[0.18em] text-text-faint">
             learn · practise · master
           </span>
         </span>

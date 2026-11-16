@@ -72,13 +72,20 @@ export interface LearningProgress {
   completed: TopicKey[];
   /** Last course route visited ("continue learning"). */
   lastCourse: string | null;
+  /** Completed module-lesson keys ("topic:moduleId-lN"). */
+  lessonsDone: string[];
   markComplete: (k: TopicKey) => void;
   markIncomplete: (k: TopicKey) => void;
+  toggleLesson: (k: TopicKey, moduleId: string, lessonId: string) => void;
   setLastCourse: (route: string) => void;
   resetProgress: () => void;
 }
 
-const PROGRESS_DEFAULT = { completed: [] as TopicKey[], lastCourse: null as string | null };
+const PROGRESS_DEFAULT = {
+  completed: [] as TopicKey[],
+  lastCourse: null as string | null,
+  lessonsDone: [] as string[],
+};
 
 export const useProgressStore = create<LearningProgress>()(
   persist(
@@ -87,13 +94,26 @@ export const useProgressStore = create<LearningProgress>()(
       markComplete: (k) =>
         set((s) => ({ completed: s.completed.includes(k) ? s.completed : [...s.completed, k] })),
       markIncomplete: (k) => set((s) => ({ completed: s.completed.filter((c) => c !== k) })),
+      toggleLesson: (k, moduleId, lessonId) =>
+        set((s) => {
+          const key = `${k}:${moduleId}:${lessonId}`;
+          return {
+            lessonsDone: s.lessonsDone.includes(key)
+              ? s.lessonsDone.filter((x) => x !== key)
+              : [...s.lessonsDone, key],
+          };
+        }),
       setLastCourse: (route) => set({ lastCourse: route }),
       resetProgress: () => set(PROGRESS_DEFAULT),
     }),
     {
       name: "clu-progress-v1",
       storage: createJSONStorage(() => localStorage),
-      partialize: (s) => ({ completed: s.completed, lastCourse: s.lastCourse }),
+      partialize: (s) => ({
+        completed: s.completed,
+        lastCourse: s.lastCourse,
+        lessonsDone: s.lessonsDone,
+      }),
     }
   )
 );

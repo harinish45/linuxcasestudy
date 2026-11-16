@@ -6,6 +6,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Eye,
+  Layers,
   NotebookPen,
   Youtube,
   Target,
@@ -19,12 +20,14 @@ import {
 } from "lucide-react";
 import Reveal from "@/components/Reveal";
 import CommandChip from "@/components/CommandChip";
+import ModulesTab from "@/components/course/ModulesTab";
 import { TOPICS, type Topic, type TopicKey } from "@/data/learning";
 import { ROUTES, topicRoute, useProgressStore } from "@/lib/store";
 
-type Tab = "learn" | "notes" | "videos" | "practice";
+type Tab = "modules" | "learn" | "notes" | "videos" | "practice";
 
 const TAB_ITEMS: { key: Tab; label: string; icon: React.ReactNode }[] = [
+  { key: "modules", label: "Modules", icon: <Layers className="h-3.5 w-3.5" /> },
   { key: "learn", label: "Lesson", icon: <Eye className="h-3.5 w-3.5" /> },
   { key: "notes", label: "Notes", icon: <NotebookPen className="h-3.5 w-3.5" /> },
   { key: "videos", label: "Videos", icon: <Youtube className="h-3.5 w-3.5" /> },
@@ -211,7 +214,7 @@ function PracticeTab({ topic }: { topic: Topic }) {
 }
 
 function TabPanel({ topic }: { topic: Topic }) {
-  const [tab, setTab] = useState<Tab>("learn");
+  const [tab, setTab] = useState<Tab>("modules");
   return (
     <div className="surface overflow-hidden">
       {/* tab bar */}
@@ -223,13 +226,14 @@ function TabPanel({ topic }: { topic: Topic }) {
               key={t.key}
               role="tab"
               aria-selected={active}
+              aria-label={t.label}
               onClick={() => setTab(t.key)}
-              className={`relative flex flex-1 items-center justify-center gap-1.5 px-3 py-3 font-mono text-[11px] uppercase tracking-wider transition-colors duration-150 ${
+              className={`relative flex min-w-0 flex-1 items-center justify-center gap-1.5 px-2 py-3 font-mono text-[11px] uppercase tracking-wider transition-colors duration-150 sm:px-3 ${
                 active ? "bg-card text-foreground" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {t.icon}
-              <span>{t.label}</span>
+              <span className="hidden sm:inline">{t.label}</span>
               {active && (
                 <motion.span
                   layoutId={`tab-${topic.key}`}
@@ -253,6 +257,7 @@ function TabPanel({ topic }: { topic: Topic }) {
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
           >
+            {tab === "modules" && <ModulesTab topic={topic} />}
             {tab === "learn" && <LearnTab topic={topic} />}
             {tab === "notes" && <NotesTab topic={topic} />}
             {tab === "videos" && <VideosTab topic={topic} />}
@@ -385,7 +390,8 @@ export default function CourseView({ topicKey }: { topicKey: TopicKey }) {
 
           <div className="mt-5 flex flex-wrap gap-2">
             {[
-              `${topic.lesson.length} lessons`,
+              `${topic.modules.length} modules`,
+              `${topic.modules.reduce((a, m) => a + m.lessons.length, 0)} lessons`,
               `${topic.concepts.length} concepts`,
               `${topic.cheatsheet.length} commands`,
               `${topic.videos.length} videos`,
@@ -400,13 +406,13 @@ export default function CourseView({ topicKey }: { topicKey: TopicKey }) {
       </header>
 
       {/* ── Content grid ── */}
-      <div className="mt-8 grid gap-6 lg:grid-cols-12 lg:gap-8">
-        <Reveal className="lg:col-span-5" delay={0.03} y={8}>
+      <div className="mt-8 grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-12 lg:gap-8">
+        <Reveal className="min-w-0 lg:col-span-5" delay={0.03} y={8}>
           <div className="lg:sticky lg:top-20">
             <VisualCard topic={topic} />
           </div>
         </Reveal>
-        <Reveal className="lg:col-span-7" delay={0.06} y={8}>
+        <Reveal className="min-w-0 lg:col-span-7" delay={0.06} y={8}>
           <TabPanel topic={topic} />
         </Reveal>
       </div>

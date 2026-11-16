@@ -32,6 +32,25 @@ export interface PracticeLink {
   tag: "wargame" | "labs" | "sandbox" | "reference" | "course";
 }
 
+/* ──────────────────────────────────────────────────────────────────────── */
+/* Modules — the structured curriculum inside each course                   */
+/* ──────────────────────────────────────────────────────────────────────── */
+
+export interface ModuleLesson {
+  id: string;
+  title: string;
+  minutes: number;
+  /** copy-ready command attached to hands-on lessons */
+  cmd?: string;
+}
+
+export interface CourseModule {
+  id: string;
+  title: string;
+  summary: string;
+  lessons: ModuleLesson[];
+}
+
 export interface Topic {
   key: TopicKey;
   num: string;
@@ -47,6 +66,37 @@ export interface Topic {
   cheatsheet: CheatCommand[];
   videos: VideoPick[];
   practice: PracticeLink[];
+  modules: CourseModule[];
+}
+
+/** Stable localStorage key for a lesson: "<topic>:<moduleId>:<lessonId>". */
+export const lessonKey = (
+  topic: TopicKey,
+  moduleId: string,
+  lessonId: string
+): string => `${topic}:${moduleId}:${lessonId}`;
+
+/** Progress across a course's modules, given the set of completed lesson keys. */
+export function moduleStats(topic: Topic, done: string[] | Set<string>) {
+  const set = done instanceof Set ? done : new Set(done);
+  let doneLessons = 0;
+  let totalLessons = 0;
+  let modulesDone = 0;
+  let minutes = 0;
+  for (const m of topic.modules) {
+    let d = 0;
+    for (const l of m.lessons) {
+      totalLessons++;
+      minutes += l.minutes;
+      if (set.has(lessonKey(topic.key, m.id, l.id))) {
+        d++;
+        doneLessons++;
+      }
+    }
+    if (m.lessons.length > 0 && d === m.lessons.length) modulesDone++;
+  }
+  const pct = totalLessons > 0 ? Math.round((doneLessons / totalLessons) * 100) : 0;
+  return { doneLessons, totalLessons, modulesDone, totalModules: topic.modules.length, minutes, pct };
 }
 
 /* ──────────────────────────────────────────────────────────────────────── */
@@ -122,6 +172,49 @@ export const TOPICS: Topic[] = [
       { name: "Killercoda LVM scenarios", url: "https://killercoda.com/", blurb: "Free Ubuntu playgrounds — practise pvcreate in a real shell.", tag: "labs" },
       { name: "explainshell", url: "https://explainshell.com/", blurb: "Paste 'lvextend -L +2G -r ...' and see every flag explained.", tag: "reference" },
     ],
+    modules: [
+      {
+        id: "m1",
+        title: "Why LVM exists",
+        summary: "The partition dead-end, the three-layer model, and extents.",
+        lessons: [
+          { id: "l1", title: "The partition dead-end", minutes: 3 },
+          { id: "l2", title: "Three layers: PV → VG → LV", minutes: 3 },
+          { id: "l3", title: "Extents — the currency of storage", minutes: 2, cmd: "sudo pvs && sudo vgs && sudo lvs" },
+        ],
+      },
+      {
+        id: "m2",
+        title: "Build your first pool",
+        summary: "pvcreate → vgcreate → lvcreate → mkfs, end to end.",
+        lessons: [
+          { id: "l1", title: "Initialise disks with pvcreate", minutes: 3, cmd: "sudo pvcreate /dev/sdb /dev/sdc /dev/sdd" },
+          { id: "l2", title: "Pool them into a volume group", minutes: 3, cmd: "sudo vgcreate vg_lab /dev/sdb /dev/sdc /dev/sdd" },
+          { id: "l3", title: "Carve a logical volume", minutes: 3, cmd: "sudo lvcreate -n lv_data -L 5G vg_lab" },
+          { id: "l4", title: "Format & mount it (XFS)", minutes: 3, cmd: "sudo mkfs.xfs /dev/vg_lab/lv_data" },
+        ],
+      },
+      {
+        id: "m3",
+        title: "Grow & shrink live",
+        summary: "Online growth with -r, and why XFS never shrinks.",
+        lessons: [
+          { id: "l1", title: "lvextend -r — the money command", minutes: 4, cmd: "sudo lvextend -L +2G -r /dev/vg_lab/lv_data" },
+          { id: "l2", title: "XFS grow-only vs ext4 flexible", minutes: 3 },
+          { id: "l3", title: "Verify with lvs", minutes: 2, cmd: "sudo lvs" },
+        ],
+      },
+      {
+        id: "m4",
+        title: "Snapshots & rollback",
+        summary: "Copy-on-write undo for risky deploys.",
+        lessons: [
+          { id: "l1", title: "Copy-on-write, explained", minutes: 3 },
+          { id: "l2", title: "Snapshot before the deploy", minutes: 3, cmd: "sudo lvcreate -s -n lv_data_snap -L 1G vg_lab/lv_data" },
+          { id: "l3", title: "Merge back — byte-identical undo", minutes: 3, cmd: "sudo lvconvert --merge vg_lab/lv_data_snap" },
+        ],
+      },
+    ],
   },
   {
     key: "nfs",
@@ -190,6 +283,49 @@ export const TOPICS: Topic[] = [
       { name: "Killercoda NFS scenarios", url: "https://killercoda.com/", blurb: "Two-node Linux environments — practise server + client mounts.", tag: "labs" },
       { name: "SadServers", url: "https://sadservers.com/", blurb: "Fix broken servers (incl. storage/mount cases) in real scenarios.", tag: "wargame" },
       { name: "explainshell", url: "https://explainshell.com/", blurb: "Decode every mount -o flag and export option.", tag: "reference" },
+    ],
+    modules: [
+      {
+        id: "m1",
+        title: "How NFS fits",
+        summary: "The export/mount model and the one port NFSv4 needs.",
+        lessons: [
+          { id: "l1", title: "Server exports, clients mount", minutes: 3 },
+          { id: "l2", title: "NFSv4 — one port instead of seven", minutes: 3, cmd: "sudo ufw allow from 192.168.56.0/24 to any port 2049 proto tcp" },
+          { id: "l3", title: "Reading the export table", minutes: 2 },
+        ],
+      },
+      {
+        id: "m2",
+        title: "Export your first share",
+        summary: "Install, declare, apply — and a setgid team directory.",
+        lessons: [
+          { id: "l1", title: "Install the server package", minutes: 2, cmd: "sudo apt install -y nfs-kernel-server" },
+          { id: "l2", title: "Declare the export in /etc/exports", minutes: 4, cmd: "echo '/srv/nfs/shared 192.168.56.0/24(rw,sync,subtree_check)' | sudo tee -a /etc/exports" },
+          { id: "l3", title: "Apply it live with exportfs", minutes: 2, cmd: "sudo exportfs -ra" },
+          { id: "l4", title: "Setgid so files inherit the group", minutes: 4, cmd: "sudo mkdir -p /srv/nfs/shared && sudo chmod 2775 /srv/nfs/shared" },
+        ],
+      },
+      {
+        id: "m3",
+        title: "Mount from the client",
+        summary: "Discover, mount, and make it survive reboots.",
+        lessons: [
+          { id: "l1", title: "Ask before you mount — showmount", minutes: 3, cmd: "showmount -e 192.168.56.10" },
+          { id: "l2", title: "The mount itself", minutes: 3, cmd: "sudo mount -t nfs -o rw,sync 192.168.56.10:/srv/nfs/shared /mnt/shared" },
+          { id: "l3", title: "Survive reboots — fstab", minutes: 3, cmd: "192.168.56.10:/srv/nfs/shared /mnt/shared nfs defaults 0 0" },
+        ],
+      },
+      {
+        id: "m4",
+        title: "Permissions that behave",
+        summary: "Numeric identities, root_squash and honest writes.",
+        lessons: [
+          { id: "l1", title: "UIDs travel as numbers", minutes: 3 },
+          { id: "l2", title: "root_squash — the default safety net", minutes: 3 },
+          { id: "l3", title: "sync vs async — honest writes", minutes: 3 },
+        ],
+      },
     ],
   },
   {
@@ -271,6 +407,49 @@ export const TOPICS: Topic[] = [
       { name: "Play with Docker", url: "https://labs.play-with-docker.com/", blurb: "Free browser Docker sandbox — real Docker, zero install.", tag: "sandbox" },
       { name: "Killercoda Docker scenarios", url: "https://killercoda.com/", blurb: "Guided container scenarios right in the browser.", tag: "labs" },
       { name: "TryHackMe — Linux Fundamentals", url: "https://tryhackme.com/", blurb: "Hacker-style rooms that also cover containers & services.", tag: "course" },
+    ],
+    modules: [
+      {
+        id: "m1",
+        title: "Images are layer cakes",
+        summary: "One read-only layer per instruction, cached and shared.",
+        lessons: [
+          { id: "l1", title: "One layer per instruction", minutes: 3 },
+          { id: "l2", title: "Caching & shared layers", minutes: 3, cmd: "docker build -t lab-app:1.0 ." },
+          { id: "l3", title: "A container = writable layer on top", minutes: 2 },
+        ],
+      },
+      {
+        id: "m2",
+        title: "Run the lifecycle",
+        summary: "created → running → paused → stopped → removed.",
+        lessons: [
+          { id: "l1", title: "Run detached", minutes: 3, cmd: "docker run -d --name web -v lab_data:/data lab-app:1.0" },
+          { id: "l2", title: "See every container (ps -a)", minutes: 2, cmd: "docker ps -a" },
+          { id: "l3", title: "Freeze & resume", minutes: 2, cmd: "docker pause web && docker unpause web" },
+          { id: "l4", title: "Shell in, follow logs", minutes: 3, cmd: "docker exec -it web sh" },
+          { id: "l5", title: "Remove the container", minutes: 2, cmd: "docker rm -f web" },
+        ],
+      },
+      {
+        id: "m3",
+        title: "Data outlives containers",
+        summary: "The writable-layer trap and named volumes.",
+        lessons: [
+          { id: "l1", title: "The writable-layer trap", minutes: 3 },
+          { id: "l2", title: "Named volumes — where databases live", minutes: 4, cmd: "docker volume create lab_data" },
+          { id: "l3", title: "Bind mounts for dev", minutes: 2 },
+        ],
+      },
+      {
+        id: "m4",
+        title: "Keep it clean",
+        summary: "Reclaim space; build once, run anywhere.",
+        lessons: [
+          { id: "l1", title: "Reclaim space with prune", minutes: 3, cmd: "docker system prune -f" },
+          { id: "l2", title: "Build once, run anywhere", minutes: 3 },
+        ],
+      },
     ],
   },
 ];

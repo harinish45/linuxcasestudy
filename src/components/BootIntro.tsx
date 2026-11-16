@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { ChevronRight, SkipForward } from "lucide-react";
 import { useLabStore } from "@/lib/store";
+import { LogoMark } from "@/components/Logo";
 
 const SESSION_KEY = "clu-boot-v1";
 
@@ -174,8 +175,11 @@ export default function BootIntro() {
             <span className="h-2.5 w-2.5 rounded-full bg-[#c6613f]/70" />
             <span className="h-2.5 w-2.5 rounded-full bg-[#b08968]/60" />
             <span className="h-2.5 w-2.5 rounded-full bg-[#788c5d]/70" />
-            <span className="ml-3 font-mono text-[11px] tracking-wider text-[#8f8b80]">
-              root@lab — improve_pc — 80×24
+            <span className="ml-3 flex items-center gap-2">
+              <LogoMark size={14} />
+              <span className="font-mono text-[11px] tracking-wider text-[#8f8b80]">
+                root@lab — improve_pc — 80×24
+              </span>
             </span>
             <button
               onClick={finish}

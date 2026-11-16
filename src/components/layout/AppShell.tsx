@@ -2,8 +2,8 @@
 
 import Sidebar from "@/components/layout/Sidebar";
 import TopBar from "@/components/layout/TopBar";
-import { useProgressStore } from "@/lib/store";
-import { usePathname } from "next/navigation";
+import { ROUTES, useProgressStore } from "@/lib/store";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Footer from "@/components/sections/Footer";
 
@@ -14,6 +14,7 @@ import Footer from "@/components/sections/Footer";
  */
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const setLastCourse = useProgressStore((s) => s.setLastCourse);
   const isCourse = pathname.startsWith("/courses/");
 
@@ -21,6 +22,24 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (isCourse) setLastCourse(pathname);
   }, [isCourse, pathname, setLastCourse]);
+
+  // Warm every route while the browser is idle, so clicking LVM / NFS /
+  // Containers swaps instantly (no-op in dev where prefetching is off).
+  useEffect(() => {
+    const warm = () => {
+      for (const r of Object.values(ROUTES)) router.prefetch(r);
+    };
+    const w = window as Window & {
+      requestIdleCallback?: (cb: () => void) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    if (typeof w.requestIdleCallback === "function") {
+      const id = w.requestIdleCallback(() => warm());
+      return () => w.cancelIdleCallback?.(id);
+    }
+    const t = window.setTimeout(warm, 1500);
+    return () => window.clearTimeout(t);
+  }, [router]);
 
   return (
     <div className="min-h-screen">

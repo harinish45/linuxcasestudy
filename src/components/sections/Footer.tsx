@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { RotateCcw } from "lucide-react";
 import { ROUTES, useLabStore } from "@/lib/store";
+import { LogoMark } from "@/components/Logo";
 
 const LINKS: [string, string][] = [
   ["Dashboard", ROUTES.home],
@@ -22,7 +23,10 @@ export default function Footer() {
     <footer className="mt-auto border-t border-border">
       <div className="mx-auto grid max-w-[880px] gap-10 px-5 py-12 md:grid-cols-3 md:px-10">
         <div>
-          <p className="display text-[17px] text-foreground">Linux Lab</p>
+          <span className="flex items-center gap-2.5">
+            <LogoMark size={26} />
+            <p className="display text-[17px] text-foreground">Linux Lab</p>
+          </span>
           <p className="mt-3 max-w-xs text-[13px] leading-relaxed text-muted-foreground">
             Learn LVM, NFS and containers the hands-on way: interactive diagrams, copy-ready notes,
             verified video lessons and a practice arena that grades you.

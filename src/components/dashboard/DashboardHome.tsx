@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useMemo } from "react";
 import {
   HardDrive,
   Network,
@@ -18,7 +19,7 @@ import {
 } from "lucide-react";
 import Reveal from "@/components/Reveal";
 import Counter from "@/components/Counter";
-import { TOPICS, CHALLENGES, type Topic } from "@/data/learning";
+import { TOPICS, CHALLENGES, moduleStats, type Topic } from "@/data/learning";
 import { ROUTES, topicRoute, useProgressStore, type TopicKey } from "@/lib/store";
 
 const TOPIC_ICONS = { harddrive: HardDrive, network: Network, container: Container } as const;
@@ -49,6 +50,13 @@ function StatusPill({ done }: { done: boolean }) {
 export default function DashboardHome() {
   const completed = useProgressStore((s) => s.completed);
   const lastCourse = useProgressStore((s) => s.lastCourse);
+  const lessonsDone = useProgressStore((s) => s.lessonsDone);
+
+  const statsByKey = useMemo(() => {
+    const map = new Map<string, ReturnType<typeof moduleStats>>();
+    for (const t of TOPICS) map.set(t.key, moduleStats(t, lessonsDone));
+    return map;
+  }, [lessonsDone]);
 
   const videoCount = TOPICS.reduce((a, t) => a + t.videos.length, 0);
   const cmdCount = TOPICS.reduce((a, t) => a + t.cheatsheet.length, 0);
@@ -168,6 +176,7 @@ export default function DashboardHome() {
           {TOPICS.map((t, i) => {
             const Icon = TOPIC_ICONS[t.icon];
             const done = completed.includes(t.key);
+            const st = statsByKey.get(t.key);
             return (
               <Link
                 key={t.key}
@@ -191,8 +200,7 @@ export default function DashboardHome() {
                     </span>
                   </span>
                   <span className="mt-0.5 block truncate text-[12.5px] text-muted-foreground">
-                    {t.lesson.length} lessons · {t.cheatsheet.length} commands · {t.videos.length}{" "}
-                    videos · {t.practice.length} practice platforms
+                    {st ? `${st.modulesDone}/${st.totalModules} modules` : ""} · {st ? `${st.doneLessons}/${st.totalLessons} lessons` : ""} · {t.cheatsheet.length} commands · {t.videos.length} videos
                   </span>
                 </span>
                 <span className="hidden shrink-0 sm:block">
@@ -227,6 +235,7 @@ export default function DashboardHome() {
             <ul className="mt-4 flex flex-col gap-2">
               {TOPICS.map((t) => {
                 const done = completed.includes(t.key);
+                const st = statsByKey.get(t.key);
                 return (
                   <li key={t.key} className="flex items-center gap-2.5 text-[13px]">
                     {done ? (
@@ -238,7 +247,7 @@ export default function DashboardHome() {
                       {t.num} · {t.name}
                     </span>
                     <span className="ml-auto font-mono text-[10px] text-text-faint">
-                      {t.lesson.length} lessons
+                      {st ? `${st.doneLessons}/${st.totalLessons} lessons` : ""}
                     </span>
                   </li>
                 );
