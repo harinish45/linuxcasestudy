@@ -9,8 +9,8 @@ import Footer from "@/components/sections/Footer";
 
 /**
  * Learning-platform shell: fixed sidebar (desktop) / slide-over (mobile),
- * a slim top bar, and a centered content column with generous spacing —
- * the way a real course platform is arranged.
+ * a slim top bar, and a centered reading column with generous spacing —
+ * the way a premium course platform is arranged.
  */
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -25,9 +25,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen">
       <Sidebar />
-      <div className="flex min-h-screen flex-col lg:pl-[264px]">
+      <div className="flex min-h-screen flex-col lg:pl-[252px]">
         <TopBar />
-        <main className="relative mx-auto w-full max-w-[1060px] flex-1 px-5 pb-10 pt-8 md:px-10 md:pt-10">
+        <main className="relative mx-auto w-full max-w-[880px] flex-1 px-5 pb-16 pt-8 md:px-10 md:pt-10">
           {children}
         </main>
         <Footer />

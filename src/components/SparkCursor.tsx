@@ -85,9 +85,9 @@ export default function SparkCursor() {
       return c;
     };
     const TONES = [
-      makeSprite("rgba(255,248,222,0.95)", "rgba(255,214,120,0.55)"), // hot white-gold
-      makeSprite("rgba(255,226,150,0.92)", "rgba(255,180,80,0.5)"), // amber
-      makeSprite("rgba(255,170,90,0.85)", "rgba(255,110,60,0.4)"), // ember
+      makeSprite("rgba(255,247,235,0.95)", "rgba(235,166,120,0.5)"), // warm cream
+      makeSprite("rgba(240,186,142,0.9)", "rgba(217,119,87,0.42)"), // terracotta
+      makeSprite("rgba(224,140,109,0.82)", "rgba(198,97,63,0.38)"), // deep terracotta ember
     ];
 
     const sparks: Spark[] = [];

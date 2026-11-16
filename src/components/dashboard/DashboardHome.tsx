@@ -1,258 +1,393 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
 import {
   HardDrive,
   Network,
   Container,
   Target,
-  TerminalSquare,
-  Sparkles,
   ArrowRight,
-  Eye,
-  NotebookPen,
-  Youtube,
+  ArrowUpRight,
   CheckCircle2,
+  Circle,
   PlayCircle,
   Workflow,
+  TerminalSquare,
   Compass,
-  RotateCcw,
+  Sparkles,
 } from "lucide-react";
 import Reveal from "@/components/Reveal";
 import Counter from "@/components/Counter";
-import { TOPICS, CHALLENGES } from "@/data/learning";
-import { ROUTES, topicRoute, useLabStore, useProgressStore } from "@/lib/store";
+import { TOPICS, CHALLENGES, type Topic } from "@/data/learning";
+import { ROUTES, topicRoute, useProgressStore, type TopicKey } from "@/lib/store";
 
-const HEADLINE = "Master the Linux stack, one lab at a time.";
 const TOPIC_ICONS = { harddrive: HardDrive, network: Network, container: Container } as const;
 
-function TypedHeadline() {
-  const reduced = useReducedMotion();
-  const [n, setN] = useState(reduced ? HEADLINE.length : 0);
-  const done = n >= HEADLINE.length;
+function greeting(): string {
+  const h = new Date().getHours();
+  if (h < 5) return "Working late";
+  if (h < 12) return "Good morning";
+  if (h < 18) return "Good afternoon";
+  return "Good evening";
+}
 
-  useEffect(() => {
-    if (reduced) return;
-    let i = 0;
-    const t = window.setInterval(() => {
-      i++;
-      setN(i);
-      if (i >= HEADLINE.length) window.clearInterval(t);
-    }, 42);
-    return () => window.clearInterval(t);
-  }, [reduced]);
-
-  return (
-    <h1 className="max-w-3xl text-balance text-4xl font-semibold tracking-tight text-[#e8eefc] sm:text-5xl md:text-[54px] md:leading-[1.1]">
-      {HEADLINE.slice(0, n)}
-      {!done && <span className="caret-green" aria-hidden />}
-    </h1>
+/** Small status dot for course rows. */
+function StatusPill({ done }: { done: boolean }) {
+  return done ? (
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-sage-soft px-2.5 py-1 font-mono text-[9.5px] uppercase tracking-wider text-sage">
+      <CheckCircle2 className="h-3 w-3" />
+      complete
+    </span>
+  ) : (
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 font-mono text-[9.5px] uppercase tracking-wider text-muted-foreground">
+      <Circle className="h-3 w-3" />
+      in progress
+    </span>
   );
 }
 
 export default function DashboardHome() {
-  const replayIntro = useLabStore((s) => s.replayIntro);
   const completed = useProgressStore((s) => s.completed);
   const lastCourse = useProgressStore((s) => s.lastCourse);
+
   const videoCount = TOPICS.reduce((a, t) => a + t.videos.length, 0);
   const cmdCount = TOPICS.reduce((a, t) => a + t.cheatsheet.length, 0);
 
-  const continueHref = lastCourse ?? ROUTES.lvm;
-  const continueTopic = TOPICS.find((t) => topicRoute(t.key) === continueHref) ?? TOPICS[0];
+  const continueTopic: Topic =
+    TOPICS.find((t) => topicRoute(t.key) === lastCourse && !completed.includes(t.key)) ??
+    TOPICS.find((t) => !completed.includes(t.key)) ??
+    TOPICS[0];
+  const nextTopic: Topic | undefined = TOPICS.find((t) => !completed.includes(t.key));
+  const pct = Math.round((completed.length / TOPICS.length) * 100);
+  const allDone = completed.length === TOPICS.length;
+
+  const ContinueIcon = TOPIC_ICONS[continueTopic.icon];
+  const NextIcon = nextTopic ? TOPIC_ICONS[nextTopic.icon] : null;
+
+  const activity: { label: string; detail: string }[] = [];
+  if (lastCourse) {
+    const t = TOPICS.find((x) => topicRoute(x.key) === lastCourse);
+    if (t) activity.push({ label: `Opened ${t.name}: ${t.title}`, detail: "most recent course visit" });
+  }
+  for (const key of [...completed].reverse() as TopicKey[]) {
+    const t = TOPICS.find((x) => x.key === key);
+    if (t) activity.push({ label: `Completed ${t.name}: ${t.title}`, detail: `chapter ${t.num}` });
+  }
+  if (activity.length === 0) {
+    activity.push({ label: "Welcome to the lab", detail: "your journey starts below" });
+  }
 
   return (
-    <div className="flex flex-col gap-14 md:gap-16">
-      {/* ── Hero ─────────────────────────────────────────────── */}
+    <div className="flex flex-col gap-14">
+      {/* ── Editorial greeting ───────────────────────────────── */}
       <section aria-label="Welcome">
-        <Reveal y={10}>
-          <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#4ade8040] bg-[#4ade800d] px-4 py-1.5 font-mono text-[11px] tracking-wide text-[#4ade80]">
-            <Sparkles className="h-3.5 w-3.5" />
+        <Reveal y={8}>
+          <p className="kicker mb-4 flex items-center gap-2">
+            <Sparkles className="h-3.5 w-3.5 text-terracotta" />
             learn by doing — visuals · notes · videos · challenges
           </p>
         </Reveal>
-
-        <TypedHeadline />
-
-        <Reveal delay={0.12} y={14}>
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-[#8fa2c9] md:text-lg">
+        <Reveal delay={0.05} y={10}>
+          <h1 className="display max-w-2xl text-balance text-[34px] leading-[1.15] text-foreground md:text-[42px]">
+            {greeting()}. Ready for the next lab?
+          </h1>
+        </Reveal>
+        <Reveal delay={0.1} y={10}>
+          <p className="mt-4 max-w-xl text-[15.5px] leading-relaxed text-muted-foreground">
             Three skills that separate users from operators —{" "}
-            <span className="text-[#e8eefc]">LVM storage</span>,{" "}
-            <span className="text-[#e8eefc]">NFS sharing</span> and{" "}
-            <span className="text-[#e8eefc]">containers</span> — taught with animated diagrams you can poke,
-            cheat-sheets you can copy, verified video lessons and an arena that grades you like LeetCode.
+            <span className="text-foreground">LVM storage</span>,{" "}
+            <span className="text-foreground">NFS sharing</span> and{" "}
+            <span className="text-foreground">containers</span> — taught with interactive diagrams,
+            cheat-sheets, verified video lessons and an arena that grades you.
           </p>
         </Reveal>
+      </section>
 
-        <Reveal delay={0.2} y={14}>
-          <div className="mt-7 flex flex-wrap items-center gap-3.5">
-            <Link
-              href={continueHref}
-              className="group inline-flex items-center gap-2 rounded-xl border border-[#4ade8066] bg-[#4ade8014] px-5 py-2.5 text-sm font-medium text-[#4ade80] transition-all duration-300 hover:bg-[#4ade8026] hover:shadow-[0_0_28px_rgba(74,222,128,0.25)]"
-            >
-              <PlayCircle className="h-4 w-4" />
-              {completed.length > 0 ? `continue · ${continueTopic.name}` : "start learning"}
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-            <Link
-              href={ROUTES.practice}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-medium text-[#e8eefc] transition-all duration-300 hover:border-white/25 hover:bg-white/10"
-            >
-              <Target className="h-4 w-4 text-[#fbbf24]" />
-              challenge arena
-            </Link>
-            <button
-              onClick={replayIntro}
-              aria-label="Replay the hacker boot intro"
-              className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 font-mono text-[11px] text-[#8fa2c9] transition-colors hover:border-[#4ade8066] hover:text-[#4ade80]"
-            >
-              <RotateCcw className="h-3.5 w-3.5" />
-              replay intro
-            </button>
+      {/* ── Continue learning ────────────────────────────────── */}
+      <section aria-labelledby="continue-heading">
+        <Reveal y={8}>
+          <p className="kicker mb-3">continue learning</p>
+        </Reveal>
+        <Reveal delay={0.05} y={10}>
+          <div className="surface surface-hover p-5 md:p-6">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex min-w-0 items-center gap-4">
+                <span
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
+                  style={{
+                    color: continueTopic.accentHex,
+                    background: `${continueTopic.accentHex}14`,
+                  }}
+                >
+                  <ContinueIcon className="h-5 w-5" />
+                </span>
+                <div className="min-w-0">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-text-faint">
+                    chapter {continueTopic.num} — {continueTopic.name}
+                  </p>
+                  <p className="display mt-0.5 truncate text-[19px] text-foreground">
+                    {continueTopic.title}
+                  </p>
+                  <p className="mt-0.5 truncate text-[13px] text-muted-foreground">
+                    {continueTopic.tagline}
+                  </p>
+                </div>
+              </div>
+              <Link href={topicRoute(continueTopic.key)} className="btn-primary shrink-0">
+                <PlayCircle className="h-4 w-4" />
+                {completed.length > 0 ? "Resume" : "Start learning"}
+              </Link>
+            </div>
+            <div className="mt-5 flex items-center gap-4">
+              <div className="progress-track flex-1" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
+                <div className="progress-fill" style={{ width: `${Math.max(pct, 4)}%` }} />
+              </div>
+              <span className="font-mono text-[10.5px] text-muted-foreground">
+                {completed.length}/{TOPICS.length} chapters
+              </span>
+            </div>
           </div>
         </Reveal>
       </section>
 
-      {/* ── Learning path ────────────────────────────────────── */}
-      <section aria-labelledby="path-heading">
-        <div className="mb-5 flex items-end justify-between gap-4">
+      {/* ── My courses ───────────────────────────────────────── */}
+      <section aria-labelledby="courses-heading">
+        <div className="mb-4 flex items-end justify-between gap-4">
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-[#8fa2c9]">learning path</p>
-            <h2 id="path-heading" className="mt-1.5 text-2xl font-semibold tracking-tight text-[#e8eefc]">
+            <p className="kicker">my courses</p>
+            <h2 id="courses-heading" className="display mt-1 text-[24px] text-foreground">
               Three chapters, one stack
             </h2>
           </div>
-          <p className="hidden font-mono text-[11px] text-[#64748b] sm:block">
+          <p className="hidden font-mono text-[10.5px] text-text-faint sm:block">
             {completed.length}/3 complete
           </p>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="surface overflow-hidden">
           {TOPICS.map((t, i) => {
             const Icon = TOPIC_ICONS[t.icon];
             const done = completed.includes(t.key);
             return (
-              <Reveal key={t.key} delay={0.06 * i}>
-                <Link
-                  href={topicRoute(t.key)}
-                  aria-label={`Open the ${t.name} course`}
-                  className="group relative block h-full overflow-hidden rounded-2xl border border-white/8 bg-white/4 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-white/25 hover:bg-white/6"
+              <Link
+                key={t.key}
+                href={topicRoute(t.key)}
+                aria-label={`Open the ${t.name} course`}
+                className={`group flex items-center gap-4 px-5 py-4 transition-colors hover:bg-secondary/50 ${
+                  i > 0 ? "border-t border-border" : ""
+                }`}
+              >
+                <span
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
+                  style={{ color: t.accentHex, background: `${t.accentHex}12` }}
                 >
-                  <div
-                    aria-hidden
-                    className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                    style={{ background: `radial-gradient(240px circle at 50% 0%, rgba(${t.rgb},0.16), transparent 70%)` }}
-                  />
-                  <div className="relative flex items-start justify-between">
-                    <span
-                      className="flex h-10 w-10 items-center justify-center rounded-xl border"
-                      style={{ borderColor: `${t.accentHex}44`, background: `${t.accentHex}12`, color: t.accentHex }}
-                    >
-                      <Icon className="h-5 w-5" />
+                  <Icon className="h-[18px] w-[18px]" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-center gap-2.5">
+                    <span className="font-mono text-[10px] text-text-faint">{t.num}</span>
+                    <span className="truncate text-[14.5px] font-medium text-foreground">
+                      {t.title}
                     </span>
-                    {done ? (
-                      <span className="flex items-center gap-1.5 rounded-full border border-[#34d39955] bg-[#34d39912] px-2.5 py-1 font-mono text-[9.5px] uppercase tracking-widest text-[#34d399]">
-                        <CheckCircle2 className="h-3 w-3" />
-                        done
-                      </span>
-                    ) : (
-                      <span className="font-mono text-[10px] tracking-[0.3em] text-[#64748b]">{t.num}</span>
-                    )}
-                  </div>
-                  <p className="relative mt-4 font-mono text-[11px] uppercase tracking-[0.25em]" style={{ color: t.accentHex }}>
-                    chapter {t.num} — {t.name}
-                  </p>
-                  <p className="relative mt-1.5 text-[16px] font-semibold text-[#e8eefc]">{t.title}</p>
-                  <p className="relative mt-1.5 min-h-[36px] text-[12.5px] leading-relaxed text-[#8fa2c9]">{t.tagline}</p>
-                  <p className="relative mt-4 flex items-center justify-between border-t border-white/8 pt-3.5 font-mono text-[11px] text-[#8fa2c9]">
-                    <span>
-                      {t.lesson.length} lessons · {t.cheatsheet.length} cmds · {t.videos.length} videos
-                    </span>
-                    <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" style={{ color: t.accentHex }} />
-                  </p>
-                </Link>
-              </Reveal>
+                  </span>
+                  <span className="mt-0.5 block truncate text-[12.5px] text-muted-foreground">
+                    {t.lesson.length} lessons · {t.cheatsheet.length} commands · {t.videos.length}{" "}
+                    videos · {t.practice.length} practice platforms
+                  </span>
+                </span>
+                <span className="hidden shrink-0 sm:block">
+                  <StatusPill done={done} />
+                </span>
+                <ArrowRight
+                  className="h-4 w-4 shrink-0 text-text-faint transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-terracotta"
+                />
+              </Link>
             );
           })}
         </div>
       </section>
 
-      {/* ── How the lab works ───────────────────────────────── */}
-      <section aria-labelledby="how-heading">
-        <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-[#8fa2c9]">how the lab works</p>
-        <h2 id="how-heading" className="mt-1.5 text-2xl font-semibold tracking-tight text-[#e8eefc]">
-          Every chapter runs the same loop
-        </h2>
+      {/* ── Progress + activity ──────────────────────────────── */}
+      <section aria-labelledby="progress-heading" className="grid gap-4 md:grid-cols-2">
+        <Reveal y={8}>
+          <div className="surface h-full p-5">
+            <p className="kicker mb-4">learning progress</p>
+            <h2 id="progress-heading" className="sr-only">
+              Learning progress
+            </h2>
+            <div className="flex items-baseline gap-2">
+              <span className="display text-[36px] text-foreground">
+                <Counter value={pct} />
+              </span>
+              <span className="text-[14px] text-muted-foreground">% of the path</span>
+            </div>
+            <div className="progress-track mt-3">
+              <div className="progress-fill progress-fill-sage" style={{ width: `${pct}%` }} />
+            </div>
+            <ul className="mt-4 flex flex-col gap-2">
+              {TOPICS.map((t) => {
+                const done = completed.includes(t.key);
+                return (
+                  <li key={t.key} className="flex items-center gap-2.5 text-[13px]">
+                    {done ? (
+                      <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-sage" />
+                    ) : (
+                      <Circle className="h-3.5 w-3.5 shrink-0 text-text-faint" />
+                    )}
+                    <span className={done ? "text-muted-foreground line-through" : "text-foreground"}>
+                      {t.num} · {t.name}
+                    </span>
+                    <span className="ml-auto font-mono text-[10px] text-text-faint">
+                      {t.lesson.length} lessons
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </Reveal>
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            { icon: <Eye className="h-4.5 w-4.5" />, hex: "#7c5cff", title: "See it", body: "Interactive diagrams — drag, click and scrub the real mechanics." },
-            { icon: <NotebookPen className="h-4.5 w-4.5" />, hex: "#22d3ee", title: "Note it", body: "Concept cards + a copy-ready cheat sheet for every command." },
-            { icon: <Youtube className="h-4.5 w-4.5" />, hex: "#f472b6", title: "Watch it", body: "Hand-picked YouTube lessons, links verified before shipping." },
-            { icon: <Target className="h-4.5 w-4.5" />, hex: "#34d399", title: "Prove it", body: "Arena challenges grade your commands like LeetCode." },
-          ].map((s, i) => (
-            <Reveal key={s.title} delay={0.06 * i}>
-              <div className="h-full rounded-2xl border border-white/8 bg-white/4 p-5">
-                <div className="flex items-center justify-between">
+        <Reveal y={8} delay={0.05}>
+          <div className="surface h-full p-5">
+            <p className="kicker mb-4">recent activity</p>
+            <ul className="flex flex-col">
+              {activity.slice(0, 5).map((a, i) => (
+                <li
+                  key={`${a.label}-${i}`}
+                  className={`flex items-start gap-3 py-2.5 ${i > 0 ? "border-t border-border" : ""}`}
+                >
                   <span
-                    className="flex h-9 w-9 items-center justify-center rounded-xl border"
-                    style={{ borderColor: `${s.hex}44`, background: `${s.hex}12`, color: s.hex }}
-                  >
-                    {s.icon}
+                    className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full"
+                    style={{ background: a.detail.includes("Completed") ? "var(--sage)" : "var(--terracotta)" }}
+                  />
+                  <span className="min-w-0">
+                    <span className="block truncate text-[13.5px] text-foreground">{a.label}</span>
+                    <span className="block font-mono text-[10px] text-text-faint">{a.detail}</span>
                   </span>
-                  <span className="font-mono text-[10px] text-[#64748b]">step {i + 1}</span>
-                </div>
-                <p className="mt-3.5 text-[14.5px] font-semibold text-[#e8eefc]">{s.title}</p>
-                <p className="mt-1.5 text-[12.5px] leading-relaxed text-[#8fa2c9]">{s.body}</p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Reveal>
       </section>
 
-      {/* ── Quick links ─────────────────────────────────────── */}
+      {/* ── Recommended next ─────────────────────────────────── */}
+      <section aria-labelledby="next-heading">
+        <Reveal y={8}>
+          <p className="kicker mb-3">up next</p>
+        </Reveal>
+        <Reveal y={10} delay={0.05}>
+          <div className="surface surface-hover flex flex-wrap items-center justify-between gap-4 p-5">
+            {allDone || !nextTopic || !NextIcon ? (
+              <>
+                <div className="flex min-w-0 items-center gap-4">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-terracotta-soft text-terracotta-deep">
+                    <Target className="h-[18px] w-[18px]" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-[14.5px] font-medium text-foreground">
+                      Path complete — prove it in the arena
+                    </p>
+                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">
+                      {CHALLENGES.length} graded challenges are waiting for you.
+                    </p>
+                  </div>
+                </div>
+                <Link href={ROUTES.practice} className="btn-primary shrink-0">
+                  Open the arena
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </>
+            ) : (
+              <>
+                <div className="flex min-w-0 items-center gap-4">
+                  <span
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
+                    style={{ color: nextTopic.accentHex, background: `${nextTopic.accentHex}14` }}
+                  >
+                    <NextIcon className="h-[18px] w-[18px]" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-[14.5px] font-medium text-foreground">
+                      Recommended: chapter {nextTopic.num} — {nextTopic.name}
+                    </p>
+                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">{nextTopic.tagline}</p>
+                  </div>
+                </div>
+                <Link href={topicRoute(nextTopic.key)} className="btn-secondary shrink-0">
+                  Go to chapter
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </>
+            )}
+          </div>
+        </Reveal>
+      </section>
+
+      {/* ── Quick links ──────────────────────────────────────── */}
       <section aria-label="Quick links" className="grid gap-4 md:grid-cols-3">
         {[
-          { href: ROUTES.pipeline, icon: <Workflow className="h-4 w-4" />, hex: "#7c5cff", title: "Integration pipeline", body: "Grow one volume and watch storage → NFS → containers react live." },
-          { href: ROUTES.terminal, icon: <TerminalSquare className="h-4 w-4" />, hex: "#34d399", title: "Terminal lab", body: "Scripted scenarios type themselves — then copy or download the .sh." },
-          { href: ROUTES.resources, icon: <Compass className="h-4 w-4" />, hex: "#fbbf24", title: "More places to practise", body: "OverTheWire, Killercoda, KodeKloud and more — all verified." },
+          {
+            href: ROUTES.pipeline,
+            icon: <Workflow className="h-4 w-4" />,
+            hex: "#d97757",
+            title: "Integration pipeline",
+            body: "Grow one volume and watch storage → NFS → containers react live.",
+          },
+          {
+            href: ROUTES.terminal,
+            icon: <TerminalSquare className="h-4 w-4" />,
+            hex: "#6a9bcc",
+            title: "Terminal lab",
+            body: "Scripted scenarios type themselves — then copy or download the .sh.",
+          },
+          {
+            href: ROUTES.resources,
+            icon: <Compass className="h-4 w-4" />,
+            hex: "#788c5d",
+            title: "More places to practise",
+            body: "OverTheWire, Killercoda, KodeKloud and more — all verified.",
+          },
         ].map((q, i) => (
-          <Reveal key={q.href} delay={0.06 * i}>
+          <Reveal key={q.href} delay={0.05 * i} y={8}>
             <Link
               href={q.href}
-              className="group flex h-full items-center gap-4 rounded-2xl border border-white/8 bg-white/4 p-4 transition-all duration-300 hover:border-white/25 hover:bg-white/6"
+              className="group surface surface-hover flex h-full items-center gap-4 p-4"
             >
               <span
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border"
-                style={{ borderColor: `${q.hex}44`, background: `${q.hex}12`, color: q.hex }}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
+                style={{ color: q.hex, background: `${q.hex}12` }}
               >
                 {q.icon}
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block text-[14px] font-semibold text-[#e8eefc]">{q.title}</span>
-                <span className="mt-0.5 block text-[12px] leading-snug text-[#8fa2c9]">{q.body}</span>
+                <span className="block text-[13.5px] font-medium text-foreground">{q.title}</span>
+                <span className="mt-0.5 block text-[12px] leading-snug text-muted-foreground">
+                  {q.body}
+                </span>
               </span>
-              <ArrowRight className="h-4 w-4 shrink-0 text-[#64748b] transition-all group-hover:translate-x-1 group-hover:text-white" />
+              <ArrowUpRight className="h-4 w-4 shrink-0 text-text-faint transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-terracotta" />
             </Link>
           </Reveal>
         ))}
       </section>
 
-      {/* ── Stats strip ─────────────────────────────────────── */}
-      <Reveal>
-        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/8 bg-white/8 sm:grid-cols-4">
+      {/* ── Stats strip ──────────────────────────────────────── */}
+      <Reveal y={8}>
+        <div className="surface grid grid-cols-2 gap-px overflow-hidden sm:grid-cols-4">
           {[
             { v: 3, suffix: "", label: "deep chapters" },
             { v: cmdCount, suffix: "+", label: "copy-ready commands" },
             { v: videoCount, suffix: "", label: "verified video lessons" },
             { v: CHALLENGES.length, suffix: "", label: "arena challenges" },
           ].map((s) => (
-            <div key={s.label} className="bg-[#070a14] px-6 py-5 text-center">
-              <p className="font-mono text-2xl font-semibold text-[#e8eefc] md:text-3xl">
+            <div key={s.label} className="bg-card px-6 py-5 text-center">
+              <p className="display text-[26px] text-foreground">
                 <Counter value={s.v} suffix={s.suffix} />
               </p>
-              <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.2em] text-[#8fa2c9]">{s.label}</p>
+              <p className="mt-1 font-mono text-[9.5px] uppercase tracking-[0.18em] text-text-faint">
+                {s.label}
+              </p>
             </div>
           ))}
         </div>

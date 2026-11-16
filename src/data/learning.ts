@@ -60,8 +60,8 @@ export const TOPICS: Topic[] = [
     name: "LVM",
     title: "Storage that grows",
     tagline: "Pool disks, resize live, snapshot before risky deploys",
-    accentHex: "#7c5cff",
-    rgb: "124, 92, 255",
+    accentHex: "#d97757",
+    rgb: "217, 119, 87",
     icon: "harddrive",
     intro:
       "LVM (Logical Volume Manager) sits between your raw disks and filesystems. Instead of carving fixed partitions you can never change, you pool disks into one resizable allocation space — then slice, grow and snapshot without downtime.",
@@ -129,8 +129,8 @@ export const TOPICS: Topic[] = [
     name: "NFS",
     title: "One share, every machine",
     tagline: "Serve one directory to a whole fleet — with real permissions",
-    accentHex: "#22d3ee",
-    rgb: "34, 211, 238",
+    accentHex: "#6a9bcc",
+    rgb: "106, 155, 204",
     icon: "network",
     intro:
       "NFS (Network File System) lets remote machines mount a directory as if it were local disk. One server, many clients — the classic way teams share data, media and home directories across a lab or cluster.",
@@ -198,8 +198,8 @@ export const TOPICS: Topic[] = [
     name: "Containers",
     title: "Ship it once",
     tagline: "Images, layers, volumes — build once, run anywhere",
-    accentHex: "#34d399",
-    rgb: "52, 211, 153",
+    accentHex: "#788c5d",
+    rgb: "120, 140, 93",
     icon: "container",
     intro:
       "Containers package an app with everything it needs — libraries, runtime, config — into an image, then run it as an isolated process sharing the host kernel. No 'works on my machine': the artifact you tested is the artifact you ship.",

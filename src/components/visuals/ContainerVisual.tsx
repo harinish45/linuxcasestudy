@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Play, Pause, Square, Trash2, Box, HardDrive, Hammer, Check } from "lucide-react";
 
-const V = "#34d399";
+const V = "#788c5d";
 const sleep = (ms: number) => new Promise<void>((r) => window.setTimeout(r, ms));
 
 const LAYERS = [
@@ -69,24 +69,25 @@ export default function ContainerVisual() {
     setBuiltLayers(0);
     setUptime(0);
     setRemoved(true); // volume stays — that's the lesson
+    setVolumeExists(true);
   };
 
   const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
 
   const STATE_META: Record<State, { label: string; color: string }> = {
-    idle: { label: "no container", color: "#64748b" },
-    building: { label: "building…", color: "#fbbf24" },
-    created: { label: "created", color: "#8fa2c9" },
+    idle: { label: "no container", color: "var(--text-faint)" },
+    building: { label: "building…", color: "#c6613f" },
+    created: { label: "created", color: "var(--muted-foreground)" },
     running: { label: "running", color: V },
-    paused: { label: "paused", color: "#fbbf24" },
-    stopped: { label: "stopped", color: "#8fa2c9" },
+    paused: { label: "paused", color: "#c6613f" },
+    stopped: { label: "stopped", color: "var(--muted-foreground)" },
   };
 
   return (
     <div className="flex flex-col gap-5">
       {/* image layer stack */}
       <div>
-        <p className="mb-2 flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-[0.25em] text-[#8fa2c9]">
+        <p className="kicker mb-2 flex items-center gap-2">
           <Hammer className="h-3.5 w-3.5" style={{ color: V }} /> image — lab-app:1.0 · read-only layers
         </p>
         <div className="flex flex-col gap-1.5">
@@ -97,32 +98,33 @@ export default function ContainerVisual() {
               animate={
                 i < builtLayers
                   ? { opacity: 1, x: 0, scale: 1 }
-                  : { opacity: 0.22, x: -14, scale: 0.985 }
+                  : { opacity: 0.35, x: -10, scale: 0.99 }
               }
-              transition={{ type: "spring", stiffness: 300, damping: 24 }}
+              transition={{ type: "spring", stiffness: 300, damping: 26 }}
               className="flex items-center justify-between rounded-lg border px-3 py-2 font-mono text-[11px]"
               style={{
-                borderColor: i < builtLayers ? `${V}55` : "rgba(255,255,255,0.08)",
-                background: i < builtLayers ? `${V}12` : "rgba(255,255,255,0.02)",
-                color: i < builtLayers ? "#e8eefc" : "#64748b",
+                borderColor: i < builtLayers ? `${V}55` : "var(--border)",
+                background: i < builtLayers ? `${V}12` : "var(--secondary)",
+                color: i < builtLayers ? "var(--foreground)" : "var(--text-faint)",
               }}
             >
               <span className="flex items-center gap-2">
                 {i < builtLayers && <Check className="h-3 w-3" style={{ color: V }} />}
                 {l.label}
               </span>
-              <span className="text-[9.5px] text-[#8fa2c9]">{l.size}</span>
+              <span className="text-[9.5px] text-muted-foreground">{l.size}</span>
             </motion.div>
           ))}
           {/* writable layer — appears once container runs */}
           <AnimatePresence>
             {running && (
               <motion.div
-                initial={reduced ? { opacity: 0 } : { opacity: 0, y: -10 }}
+                initial={reduced ? { opacity: 0 } : { opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.25 }}
                 className="flex items-center justify-between rounded-lg border border-dashed px-3 py-2 font-mono text-[11px]"
-                style={{ borderColor: `${V}88`, background: `${V}0d`, color: "#e8eefc" }}
+                style={{ borderColor: `${V}88`, background: `${V}0d`, color: "var(--foreground)" }}
               >
                 <span className="flex items-center gap-2">
                   <Box className="h-3 w-3" style={{ color: V }} /> writable layer — container web
@@ -141,8 +143,7 @@ export default function ContainerVisual() {
         <button
           onClick={build}
           disabled={state === "building" || state === "created" || running}
-          className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 font-mono text-xs transition-all duration-300 disabled:opacity-45"
-          style={{ borderColor: `${V}55`, color: "#e8eefc" }}
+          className="btn-secondary font-mono !text-xs disabled:opacity-45"
         >
           <Hammer className="h-3.5 w-3.5" />
           {state === "building" ? "building…" : builtLayers ? "rebuild image" : "docker build"}
@@ -150,15 +151,14 @@ export default function ContainerVisual() {
         <button
           onClick={start}
           disabled={state !== "created"}
-          className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 font-mono text-xs transition-all duration-300 disabled:opacity-45"
-          style={{ borderColor: `${V}55`, color: "#e8eefc" }}
+          className="btn-secondary font-mono !text-xs disabled:opacity-45"
         >
           <Play className="h-3.5 w-3.5" /> docker run -d
         </button>
         <button
           onClick={() => setState((s) => (s === "running" ? "paused" : s === "paused" ? "running" : s))}
           disabled={!running}
-          className="inline-flex items-center gap-2 rounded-lg border border-white/12 px-4 py-2 font-mono text-xs text-[#e8eefc] transition-all duration-300 hover:border-[#34d39988] disabled:opacity-45"
+          className="btn-secondary font-mono !text-xs disabled:opacity-45"
         >
           {state === "paused" ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
           {state === "paused" ? "unpause" : "pause"}
@@ -166,39 +166,39 @@ export default function ContainerVisual() {
         <button
           onClick={() => setState(running || state === "created" ? "stopped" : state)}
           disabled={!running && state !== "created"}
-          className="inline-flex items-center gap-2 rounded-lg border border-white/12 px-4 py-2 font-mono text-xs text-[#e8eefc] transition-all duration-300 hover:border-[#34d39988] disabled:opacity-45"
+          className="btn-secondary font-mono !text-xs disabled:opacity-45"
         >
           <Square className="h-3.5 w-3.5" /> stop
         </button>
         <button
           onClick={rm}
           disabled={!running && state !== "created" && state !== "stopped"}
-          className="inline-flex items-center gap-2 rounded-lg border border-red-400/30 px-4 py-2 font-mono text-xs text-red-300 transition-all duration-300 hover:border-red-400/60 disabled:opacity-45"
+          className="inline-flex items-center gap-2 rounded-lg border border-destructive/30 bg-card px-4 py-2 font-mono text-xs text-destructive transition-colors duration-150 hover:border-destructive/60 disabled:opacity-45"
         >
           <Trash2 className="h-3.5 w-3.5" /> rm -f
         </button>
       </div>
 
       {/* status strip */}
-      <div className="flex items-center justify-between rounded-lg border border-white/10 bg-[#05070f]/70 px-3.5 py-2.5">
+      <div className="flex items-center justify-between rounded-lg border border-border bg-secondary/40 px-3.5 py-2.5">
         <span className="flex items-center gap-2 font-mono text-xs">
           <span
             className="led h-2 w-2 rounded-full"
             style={{
               background: STATE_META[state].color,
-              boxShadow: `0 0 8px ${STATE_META[state].color}`,
               animationDuration: running ? "1.6s" : "3s",
             }}
           />
-          <span className="text-[#e8eefc]">web</span>
+          <span className="text-foreground">web</span>
           <span style={{ color: STATE_META[state].color }}>— {STATE_META[state].label}</span>
         </span>
         <AnimatePresence>
           {removed && (
             <motion.span
-              initial={{ opacity: 0, x: 10 }}
+              initial={{ opacity: 0, x: 8 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
               className="font-mono text-[10px]"
               style={{ color: V }}
             >
@@ -209,24 +209,24 @@ export default function ContainerVisual() {
       </div>
 
       {/* volume persistence */}
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-white/10 bg-white/4 px-3.5 py-2.5">
-        <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 font-mono text-xs text-[#e8eefc]">
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-secondary/40 px-3.5 py-2.5">
+        <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 font-mono text-xs text-foreground">
           <HardDrive className="h-4 w-4 shrink-0" style={{ color: V }} />
           <span className="whitespace-nowrap">docker volume — lab_data</span>
-          <span className="hidden text-[9.5px] text-[#64748b] sm:inline">/var/lib/docker/volumes</span>
+          <span className="hidden text-[9.5px] text-text-faint sm:inline">/var/lib/docker/volumes</span>
         </span>
         <span
-          className="shrink-0 rounded-full border px-2.5 py-0.5 font-mono text-[10px] whitespace-nowrap"
-          style={{ borderColor: `${V}66`, color: V, background: `${V}14` }}
+          className="shrink-0 rounded-full px-2.5 py-0.5 font-mono text-[10px] whitespace-nowrap"
+          style={{ color: V, background: `${V}14` }}
         >
           persists ∅ docker rm
         </span>
       </div>
 
       {/* command echo */}
-      <div className="rounded-lg border border-white/10 bg-[#05070f]/80 px-3.5 py-2.5 font-mono text-[12px]" aria-live="polite">
+      <div className="term-panel rounded-lg px-3.5 py-2.5 font-mono text-[12px]" aria-live="polite">
         <span style={{ color: V }}>$ </span>
-        <span className="text-[#e8eefc]">
+        <span className="text-term-text">
           {state === "idle" && "docker build -t lab-app:1.0 ."}
           {state === "building" && "Step 3/5 — RUN apt-get install deps"}
           {state === "created" && "docker create — ready, waiting for start"}

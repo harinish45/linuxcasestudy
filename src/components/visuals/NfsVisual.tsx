@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Server, MonitorDot, ShieldCheck, ShieldAlert, Zap, Lock, Check } from "lucide-react";
 
-const V = "#22d3ee";
+const V = "#6a9bcc";
 const sleep = (ms: number) => new Promise<void>((r) => window.setTimeout(r, ms));
 
 const CLIENTS = ["web-1", "web-2", "backup"];
@@ -74,14 +74,14 @@ export default function NfsVisual() {
           onClick={() => setSquash((s) => !s)}
           label={squash ? "root_squash ON" : "no_root_squash ⚠"}
           icon={squash ? <ShieldCheck className="h-3.5 w-3.5" /> : <ShieldAlert className="h-3.5 w-3.5" />}
-          color={squash ? V : "#f87171"}
+          color={squash ? V : "#b3391b"}
         />
         <ToggleBtn
           active={firewall}
           onClick={() => setFirewall((f) => !f)}
           label={firewall ? "ufw : 2049/tcp open" : "ufw : 2049 blocked"}
           icon={<Lock className="h-3.5 w-3.5" />}
-          color={firewall ? V : "#f87171"}
+          color={firewall ? V : "#b3391b"}
         />
       </div>
 
@@ -90,19 +90,24 @@ export default function NfsVisual() {
         {/* server */}
         <div className="rounded-xl border p-4" style={{ borderColor: `${V}44`, background: `${V}0d` }}>
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="flex items-center gap-2 font-mono text-xs font-medium text-[#e8eefc]">
+            <p className="flex items-center gap-2 font-mono text-xs font-medium text-foreground">
               <Server className="h-4 w-4" style={{ color: V }} /> nfs-server
             </p>
-            <div className="flex items-center gap-2 rounded-lg bg-[#05070f]/70 px-2.5 py-1.5 font-mono text-[10px]">
-              <span className="text-[#8fa2c9]">ack&apos;d writes</span>
-              <motion.span key={writes} initial={reduced ? {} : { scale: 1.3 }} animate={{ scale: 1 }} style={{ color: V }}>
+            <div className="flex items-center gap-2 rounded-lg bg-secondary px-2.5 py-1.5 font-mono text-[10px]">
+              <span className="text-muted-foreground">ack&apos;d writes</span>
+              <motion.span
+                key={writes}
+                initial={reduced ? {} : { scale: 1.25 }}
+                animate={{ scale: 1 }}
+                style={{ color: V }}
+              >
                 {writes}
               </motion.span>
             </div>
           </div>
-          <p className="mt-1.5 font-mono text-[10px] leading-relaxed text-[#8fa2c9]">
+          <p className="mt-1.5 font-mono text-[10px] leading-relaxed text-muted-foreground">
             /srv/nfs/shared ·{" "}
-            <span style={{ color: squash ? "#86efac" : "#f87171" }}>
+            <span style={{ color: squash ? "var(--sage)" : "#b3391b" }}>
               192.168.56.0/24 (rw, {sync ? "sync" : "async"}, {squash ? "root_squash" : "no_root_squash"})
             </span>
           </p>
@@ -112,7 +117,7 @@ export default function NfsVisual() {
         <svg viewBox="0 0 360 56" fill="none" className="my-1 h-14 w-full" aria-hidden>
           {CLIENT_X.map((x, i) => {
             return (
-              <path key={i} d={`M180 2 C 180 26, ${x} 26, ${x} 54`} stroke={`${V}33`} strokeWidth="1.5" strokeDasharray="4 4" />
+              <path key={i} d={`M180 2 C 180 26, ${x} 26, ${x} 54`} stroke={`${V}44`} strokeWidth="1.5" strokeDasharray="4 4" />
             );
           })}
           <AnimatePresence>
@@ -125,7 +130,7 @@ export default function NfsVisual() {
                 x="180"
                 y="30"
                 textAnchor="middle"
-                fill="#f87171"
+                fill="#b3391b"
                 fontSize="10"
                 fontFamily="JetBrains Mono, monospace"
               >
@@ -156,10 +161,10 @@ export default function NfsVisual() {
           {CLIENTS.map((c, i) => {
             const hasPacket = packets.some((p) => p.client === i);
             return (
-              <div key={c} className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/4 px-3 py-2">
+              <div key={c} className="flex items-center gap-2 rounded-lg border border-border bg-secondary/40 px-3 py-2">
                 <MonitorDot className="h-3.5 w-3.5 shrink-0" style={{ color: V }} />
-                <span className="font-mono text-[11px] text-[#e8eefc]">{c}</span>
-                <span className="min-w-0 flex-1 truncate font-mono text-[9px] text-[#64748b]">/mnt/shared</span>
+                <span className="font-mono text-[11px] text-foreground">{c}</span>
+                <span className="min-w-0 flex-1 truncate font-mono text-[9px] text-text-faint">/mnt/shared</span>
                 <AnimatePresence>
                   {hasPacket && (
                     <motion.span
@@ -167,7 +172,7 @@ export default function NfsVisual() {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0 }}
                     >
-                      <Check className="h-3.5 w-3.5" style={{ color: sync ? V : "#f87171" }} />
+                      <Check className="h-3.5 w-3.5" style={{ color: sync ? V : "#b3391b" }} />
                     </motion.span>
                   )}
                 </AnimatePresence>
@@ -181,14 +186,15 @@ export default function NfsVisual() {
       <AnimatePresence mode="wait">
         <motion.div
           key={squash ? "safe" : "unsafe"}
-          initial={reduced ? { opacity: 0 } : { opacity: 0, y: 8 }}
+          initial={reduced ? { opacity: 0 } : { opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={reduced ? { opacity: 0 } : { opacity: 0, y: -8 }}
+          exit={reduced ? { opacity: 0 } : { opacity: 0, y: -6 }}
+          transition={{ duration: 0.2 }}
           className="rounded-lg border px-3.5 py-2.5 font-mono text-[11px] leading-relaxed"
           style={{
-            borderColor: squash ? `${V}44` : "#f8717155",
-            background: squash ? `${V}0d` : "#f8717114",
-            color: squash ? "#b9c6e4" : "#fca5a5",
+            borderColor: squash ? `${V}44` : "rgba(179,57,27,0.35)",
+            background: squash ? `${V}0d` : "rgba(179,57,27,0.06)",
+            color: squash ? "var(--text-secondary)" : "#8f2c15",
           }}
         >
           {squash
@@ -198,9 +204,9 @@ export default function NfsVisual() {
       </AnimatePresence>
 
       {/* command echo */}
-      <div className="rounded-lg border border-white/10 bg-[#05070f]/80 px-3.5 py-2.5 font-mono text-[12px]" aria-live="polite">
+      <div className="term-panel rounded-lg px-3.5 py-2.5 font-mono text-[12px]" aria-live="polite">
         <span style={{ color: V }}>$ </span>
-        <span className="text-[#e8eefc]">
+        <span className="text-term-text">
           {firewall
             ? "sudo ufw allow from 192.168.56.0/24 to any port 2049 proto tcp"
             : "mount.nfs: connection timed out — is 2049/tcp open?"}
@@ -227,11 +233,11 @@ function ToggleBtn({
     <button
       onClick={onClick}
       aria-pressed={active}
-      className="inline-flex items-center gap-2 rounded-lg border px-3.5 py-2 font-mono text-[11px] transition-all duration-300"
+      className="inline-flex items-center gap-2 rounded-lg border px-3.5 py-2 font-mono text-[11px] transition-colors duration-150"
       style={{
-        borderColor: active ? `${color}66` : "rgba(255,255,255,0.12)",
-        background: active ? `${color}14` : "transparent",
-        color: active ? "#e8eefc" : "#8fa2c9",
+        borderColor: active ? `${color}55` : "var(--border)",
+        background: active ? `${color}12` : "var(--card)",
+        color: active ? color : "var(--muted-foreground)",
       }}
     >
       {icon}

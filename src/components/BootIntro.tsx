@@ -6,7 +6,6 @@ import { ChevronRight, SkipForward } from "lucide-react";
 import { useLabStore } from "@/lib/store";
 
 const SESSION_KEY = "clu-boot-v1";
-const GREEN = "#4ade80";
 
 interface BootLine {
   text: string;
@@ -25,9 +24,9 @@ const BOOT_SCRIPT: BootLine[] = [
   { text: "mounting /dev/curiosity ....... OK", cls: "bios", hold: 340, type: false },
   { text: "root@lab:~# whoami", cls: "cmd", hold: 200 },
   { text: "root", cls: "out", hold: 220 },
-  { text: 'root@lab:~# cat /etc/motd', cls: "cmd", hold: 200 },
+  { text: "root@lab:~# cat /etc/motd", cls: "cmd", hold: 200 },
   { text: '"Those who understand the stack own the stack."', cls: "out", hold: 340 },
-  { text: "root@lab:~# ./improve_pc --mode=hacker", cls: "cmd", hold: 300 },
+  { text: "root@lab:~# ./improve_pc --mode=calm", cls: "cmd", hold: 300 },
   { text: "[1/6] kernel modules .......... lvm.ko  nfs.ko  overlay2.ko", cls: "ok", hold: 200, type: false },
   { text: "[2/6] warming terminal ........ 40+ commands staged", cls: "ok", hold: 200, type: false },
   { text: "[3/6] cueing lessons .......... 3 chapters found", cls: "ok", hold: 200, type: false },
@@ -39,71 +38,18 @@ const BOOT_SCRIPT: BootLine[] = [
 
 const sleep = (ms: number) => new Promise<void>((r) => window.setTimeout(r, ms));
 
-/** Full-screen matrix rain behind the boot terminal. */
-function MatrixRain() {
-  const ref = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const canvas = ref.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const GLYPHS = "アイウエオカキクケコサシスセソｱｲｳｴｵ01<>[]{}/\\$#%&*".split("");
-    let cols = 0;
-    let drops: number[] = [];
-    let raf = 0;
-    let last = 0;
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-
-    const resize = () => {
-      canvas.width = Math.floor(window.innerWidth * dpr);
-      canvas.height = Math.floor(window.innerHeight * dpr);
-      cols = Math.ceil(canvas.width / (14 * dpr));
-      drops = Array.from({ length: cols }, () => Math.floor(Math.random() * -60));
-      ctx.font = `${13 * dpr}px "JetBrains Mono", monospace`;
-    };
-    resize();
-    window.addEventListener("resize", resize);
-
-    const draw = (now: number) => {
-      raf = requestAnimationFrame(draw);
-      if (now - last < 66) return; // ~15fps
-      last = now;
-      ctx.fillStyle = "rgba(2, 4, 9, 0.10)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      for (let i = 0; i < cols; i++) {
-        const glyph = GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
-        const x = i * 14 * dpr;
-        const y = drops[i] * 16 * dpr;
-        ctx.fillStyle = Math.random() < 0.02 ? "rgba(232,238,252,0.9)" : "rgba(74, 222, 128, 0.85)";
-        ctx.fillText(glyph, x, y);
-        if (y > canvas.height && Math.random() > 0.975) drops[i] = Math.floor(Math.random() * -40);
-        drops[i]++;
-      }
-    };
-    raf = requestAnimationFrame(draw);
-
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("resize", resize);
-    };
-  }, []);
-
-  return <canvas ref={ref} aria-hidden className="absolute inset-0 h-full w-full opacity-25" />;
-}
-
 const LINE_CLS: Record<BootLine["cls"], string> = {
-  bios: "text-[#8fa2c9]",
-  cmd: "text-[#4ade80]",
-  out: "text-[#b9c6e4]",
-  ok: "text-[#86efac]",
-  grant: "text-[#4ade80] font-semibold",
+  bios: "text-[#8f8b80]",
+  cmd: "text-[#e08c6d]",
+  out: "text-[#c9c5ba]",
+  ok: "text-[#a7b98a]",
+  grant: "text-[#e08c6d] font-semibold",
 };
 
 /**
- * Hacker boot intro: BIOS lines → typed green "hacker" commands → ACCESS GRANTED.
- * Plays once per browser session, skippable with any key or click, replayable from the footer.
+ * Boot intro — a warm charcoal terminal types itself, then invites you in.
+ * Plays once per browser session, skippable with any key or click,
+ * replayable from the sidebar / footer.
  */
 export default function BootIntro() {
   const setIntroDone = useLabStore((s) => s.setIntroDone);
@@ -132,7 +78,7 @@ export default function BootIntro() {
     } catch {
       /* ignore */
     }
-    window.setTimeout(() => setIntroDone(true), 650);
+    window.setTimeout(() => setIntroDone(true), 450);
   };
 
   const skipTyping = () => {
@@ -196,29 +142,44 @@ export default function BootIntro() {
       data-testid="boot-intro"
       initial={{ opacity: 1 }}
       animate={{ opacity: phase === "leaving" ? 0 : 1 }}
-      transition={{ duration: 0.6, ease: "easeInOut" }}
-      className="fixed inset-0 z-[95] flex items-center justify-center overflow-hidden bg-[#020409]"
+      transition={{ duration: 0.45, ease: "easeInOut" }}
+      className="fixed inset-0 z-[95] flex items-center justify-center overflow-hidden bg-[#1c1b18]"
       onClick={() => phase === "boot" && skipTyping()}
       role="dialog"
-      aria-label="Hacker boot intro"
+      aria-label="Boot intro"
     >
-      <MatrixRain />
-      <div className="crt-vignette" aria-hidden />
+      {/* faint static grain + warm vignette */}
+      <div
+        aria-hidden
+        className="absolute inset-0 opacity-[0.05]"
+        style={{
+          backgroundImage:
+            "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='b'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23b)'/%3E%3C/svg%3E\")",
+        }}
+      />
+      <div
+        aria-hidden
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(12,11,9,0.6) 100%)",
+        }}
+      />
 
       <div className="relative z-10 w-[min(94vw,760px)] px-4">
         {/* Terminal window */}
-        <div className="scanlines relative overflow-hidden rounded-xl border border-[#4ade8033] bg-[#020409f2] shadow-[0_0_80px_rgba(74,222,128,0.12),0_24px_80px_rgba(0,0,0,0.6)]">
+        <div className="relative overflow-hidden rounded-xl border border-[#3a3833] bg-[#262421] shadow-[0_24px_80px_rgba(10,9,7,0.5)]">
           {/* Title bar */}
-          <div className="flex items-center gap-2 border-b border-white/8 bg-white/4 px-4 py-2.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
-            <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
-            <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
-            <span className="ml-3 font-mono text-[11px] tracking-wider text-[#8fa2c9]">
+          <div className="flex items-center gap-2 border-b border-[#3a3833] bg-[#2b2926] px-4 py-2.5">
+            <span className="h-2.5 w-2.5 rounded-full bg-[#c6613f]/70" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#b08968]/60" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[#788c5d]/70" />
+            <span className="ml-3 font-mono text-[11px] tracking-wider text-[#8f8b80]">
               root@lab — improve_pc — 80×24
             </span>
             <button
               onClick={finish}
-              className="ml-auto inline-flex items-center gap-1.5 rounded-md border border-white/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-[#8fa2c9] transition-colors hover:border-[#4ade8066] hover:text-[#4ade80]"
+              className="ml-auto inline-flex items-center gap-1.5 rounded-md border border-[#4a463f] px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-[#8f8b80] transition-colors hover:border-[#e08c6d66] hover:text-[#e08c6d]"
               aria-label="Skip intro"
             >
               <SkipForward className="h-3 w-3" />
@@ -228,7 +189,7 @@ export default function BootIntro() {
 
           {/* Output */}
           <div
-            className="h-[46vh] min-h-[300px] overflow-hidden px-5 py-4 font-mono text-[12.5px] leading-[1.7] sm:text-[13px]"
+            className="scanlines relative h-[46vh] min-h-[300px] overflow-hidden px-5 py-4 font-mono text-[12.5px] leading-[1.7] sm:text-[13px]"
             aria-live="polite"
           >
             {lines.map((l, i) => (
@@ -237,9 +198,9 @@ export default function BootIntro() {
               </p>
             ))}
             {phase === "boot" && (
-              <p className="text-[#4ade80]">
+              <p className="text-[#edeae2]">
                 {partial}
-                <span className="caret-green" aria-hidden />
+                <span className="caret-boot" aria-hidden />
               </p>
             )}
             {showCta && (
@@ -252,19 +213,19 @@ export default function BootIntro() {
                 <button
                   onClick={finish}
                   autoFocus
-                  className="group inline-flex items-center gap-2 rounded-lg border border-[#4ade8066] bg-[#4ade8014] px-5 py-2.5 font-mono text-[13px] font-medium tracking-wide text-[#4ade80] transition-all duration-300 hover:bg-[#4ade8026] hover:shadow-[0_0_28px_rgba(74,222,128,0.35)]"
+                  className="group inline-flex items-center gap-2 rounded-lg bg-[#d97757] px-5 py-2.5 font-mono text-[13px] font-medium tracking-wide text-white transition-all duration-200 hover:bg-[#c6613f]"
                 >
                   enter the lab
-                  <ChevronRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                  <ChevronRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
                 </button>
-                <span className="font-mono text-[11px] text-[#64748b]">or press Enter ↵</span>
+                <span className="font-mono text-[11px] text-[#6e6a61]">or press Enter ↵</span>
               </motion.div>
             )}
           </div>
         </div>
 
-        <p className="mt-4 text-center font-mono text-[10.5px] uppercase tracking-[0.3em] text-[#4ade8080]">
-          learn lvm · nfs · containers — the hacker way
+        <p className="mt-4 text-center font-mono text-[10.5px] uppercase tracking-[0.3em] text-[#6e6a61]">
+          learn lvm · nfs · containers — the calm way
         </p>
       </div>
     </motion.div>

@@ -25,9 +25,9 @@ export const topicRoute = (k: TopicKey): Route =>
   k === "docker" ? ROUTES.containers : k === "nfs" ? ROUTES.nfs : ROUTES.lvm;
 
 export const ACCENTS: Record<AccentKey, { hex: string; rgb: string; label: string }> = {
-  lvm: { hex: "#7c5cff", rgb: "124, 92, 255", label: "LVM" },
-  nfs: { hex: "#22d3ee", rgb: "34, 211, 238", label: "NFS" },
-  docker: { hex: "#34d399", rgb: "52, 211, 153", label: "Containers" },
+  lvm: { hex: "#d97757", rgb: "217, 119, 87", label: "LVM" },
+  nfs: { hex: "#6a9bcc", rgb: "106, 155, 204", label: "NFS" },
+  docker: { hex: "#788c5d", rgb: "120, 140, 93", label: "Containers" },
 };
 
 interface LabState {

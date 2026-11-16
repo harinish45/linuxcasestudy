@@ -15,11 +15,11 @@ import {
   Trophy,
 } from "lucide-react";
 import Reveal from "@/components/Reveal";
-import { CHALLENGES, TOPICS, type Challenge, type TopicKey } from "@/data/learning";
+import { CHALLENGES, type Challenge, type TopicKey } from "@/data/learning";
 import { useToast } from "@/components/providers/ToastProvider";
 
-const DIFF_COLORS: Record<string, string> = { easy: "#34d399", medium: "#fbbf24", hard: "#f87171" };
-const TOPIC_HEX: Record<TopicKey, string> = { lvm: "#7c5cff", nfs: "#22d3ee", docker: "#34d399" };
+const DIFF_COLORS: Record<string, string> = { easy: "#788c5d", medium: "#c6613f", hard: "#b3391b" };
+const TOPIC_HEX: Record<TopicKey, string> = { lvm: "#d97757", nfs: "#6a9bcc", docker: "#788c5d" };
 const STORE_KEY = "clu-arena-v1";
 
 interface Progress {
@@ -111,51 +111,58 @@ export default function PracticeArena() {
   return (
     <section id="practice" className="relative" aria-labelledby="practice-title">
       <div>
-        <Reveal>
-          <p className="mb-3 flex items-center gap-2 font-mono text-xs uppercase tracking-[0.3em] text-[#4ade80]">
-            <Target className="h-4 w-4" />
+        <Reveal y={6}>
+          <p className="kicker mb-3 flex items-center gap-2">
+            <Target className="h-4 w-4 text-terracotta" />
             practice arena — grade yourself
           </p>
         </Reveal>
-        <Reveal delay={0.08}>
-          <h1 id="practice-title" className="text-3xl font-semibold tracking-tight text-[#e8eefc] md:text-4xl">
+        <Reveal delay={0.05} y={10}>
+          <h1 id="practice-title" className="display text-[32px] leading-[1.15] text-foreground md:text-[40px]">
             LeetCode, but for the Linux terminal
           </h1>
         </Reveal>
-        <Reveal delay={0.14}>
-          <p className="mt-3 max-w-2xl text-base leading-relaxed text-[#8fa2c9] md:text-lg">
-            {CHALLENGES.length} challenges across LVM, NFS and containers — multiple-choice and real command tasks.
-            Type the command, hit run, get graded instantly. Progress is saved in your browser.
+        <Reveal delay={0.1} y={10}>
+          <p className="mt-4 max-w-2xl text-[15.5px] leading-relaxed text-muted-foreground">
+            {CHALLENGES.length} challenges across LVM, NFS and containers — multiple-choice and real
+            command tasks. Type the command, hit run, get graded instantly. Progress is saved in your
+            browser.
           </p>
         </Reveal>
 
         {/* XP bar */}
-        <Reveal delay={0.18}>
-          <div className="mt-8 flex flex-col gap-4 rounded-2xl border border-white/8 bg-white/3 px-5 py-4 sm:flex-row sm:items-center sm:gap-6">
+        <Reveal delay={0.14} y={8}>
+          <div className="surface mt-8 flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:gap-6">
             <div className="flex items-center gap-3">
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#4ade8044] bg-[#4ade8012]">
-                <Trophy className="h-5 w-5 text-[#4ade80]" />
+              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-terracotta-soft text-terracotta-deep">
+                <Trophy className="h-5 w-5" />
               </span>
               <div>
-                <p className="font-mono text-lg font-semibold text-[#e8eefc]">
-                  {progress.xp} <span className="text-sm text-[#8fa2c9]">/ {totalXp} XP</span>
+                <p className="text-[16px] font-semibold text-foreground">
+                  {progress.xp} <span className="text-[13px] font-normal text-muted-foreground">/ {totalXp} XP</span>
                 </p>
-                <p className="font-mono text-[10.5px] uppercase tracking-[0.2em] text-[#8fa2c9]">
+                <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-text-faint">
                   {solvedCount}/{CHALLENGES.length} solved
                 </p>
               </div>
             </div>
-            <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-white/8" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
+            <div
+              className="progress-track flex-1"
+              role="progressbar"
+              aria-valuenow={pct}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            >
               <motion.div
-                className="h-full rounded-full"
+                className="progress-fill progress-fill-sage"
                 animate={{ width: `${pct}%` }}
                 transition={{ type: "spring", stiffness: 90, damping: 20 }}
-                style={{ background: "linear-gradient(90deg, #4ade80, #a3e635)", boxShadow: "0 0 14px rgba(74,222,128,0.5)" }}
+                style={{ height: "100%", borderRadius: 999 }}
               />
             </div>
             <button
               onClick={reset}
-              className="inline-flex w-fit items-center gap-2 rounded-lg border border-white/12 px-3.5 py-2 font-mono text-[11px] text-[#8fa2c9] transition-colors hover:border-red-400/40 hover:text-red-300"
+              className="btn-secondary shrink-0 !px-3.5 !py-2 font-mono !text-[11px]"
             >
               <RotateCcw className="h-3.5 w-3.5" />
               reset
@@ -164,7 +171,7 @@ export default function PracticeArena() {
         </Reveal>
 
         {/* filters */}
-        <Reveal delay={0.22}>
+        <Reveal delay={0.18} y={8}>
           <div className="mt-6 flex flex-wrap gap-2">
             {[
               { key: "all" as const, label: `all ${CHALLENGES.length}` },
@@ -174,18 +181,16 @@ export default function PracticeArena() {
               { key: "solved" as const, label: `solved ${solvedCount}` },
             ].map((f) => {
               const active = filter === f.key;
-              const color = f.key === "all" || f.key === "solved" ? "#4ade80" : TOPIC_HEX[f.key as TopicKey];
               return (
                 <button
                   key={f.key}
                   onClick={() => setFilter(f.key)}
                   aria-pressed={active}
-                  className="rounded-lg border px-4 py-2 font-mono text-[11.5px] transition-all duration-300"
-                  style={{
-                    borderColor: active ? `${color}66` : "rgba(255,255,255,0.12)",
-                    background: active ? `${color}14` : "transparent",
-                    color: active ? "#e8eefc" : "#8fa2c9",
-                  }}
+                  className={`rounded-lg border px-3.5 py-1.5 font-mono text-[11.5px] transition-colors duration-150 ${
+                    active
+                      ? "border-terracotta/50 bg-terracotta-soft text-terracotta-deep"
+                      : "border-border bg-card text-muted-foreground hover:border-input hover:text-foreground"
+                  }`}
                 >
                   {f.label}
                 </button>
@@ -209,8 +214,8 @@ export default function PracticeArena() {
           ))}
         </div>
         {list.length === 0 && (
-          <p className="mt-8 rounded-2xl border border-dashed border-white/12 px-6 py-10 text-center font-mono text-sm text-[#8fa2c9]">
-            nothing here yet — solve some challenges first.
+          <p className="mt-8 rounded-xl border border-dashed border-input px-6 py-10 text-center text-sm text-muted-foreground">
+            Nothing here yet — solve some challenges first.
           </p>
         )}
       </div>
@@ -237,11 +242,11 @@ function ChallengeCard({
   const dColor = DIFF_COLORS[c.difficulty];
 
   return (
-    <Reveal delay={index * 0.04}>
+    <Reveal delay={Math.min(index * 0.03, 0.15)} y={8}>
       <motion.div
         layout
-        className={`overflow-hidden rounded-2xl border transition-colors duration-300 ${
-          open ? "border-white/25 bg-white/6" : "border-white/8 bg-white/3 hover:border-white/20"
+        className={`surface overflow-hidden transition-shadow duration-200 ${
+          open ? "shadow-[0_3px_16px_rgba(20,20,19,0.07)]" : "surface-hover"
         }`}
       >
         {/* header row — always visible */}
@@ -250,24 +255,34 @@ function ChallengeCard({
           aria-expanded={open}
           className="flex w-full items-center gap-3 px-4 py-3.5 text-left sm:px-5"
         >
-          <span className="font-mono text-[11px] text-[#64748b]">{String(index + 1).padStart(2, "0")}</span>
+          <span className="font-mono text-[11px] text-text-faint">{String(index + 1).padStart(2, "0")}</span>
           <span className="min-w-0 flex-1">
             <span className="flex flex-wrap items-center gap-2">
-              <span className="rounded-md border px-2 py-0.5 font-mono text-[9.5px] uppercase tracking-wider" style={{ borderColor: `${hex}55`, color: hex, background: `${hex}10` }}>
+              <span
+                className="rounded-md px-2 py-0.5 font-mono text-[9.5px] uppercase tracking-wider"
+                style={{ color: hex, background: `${hex}12` }}
+              >
                 {c.topic === "docker" ? "containers" : c.topic}
               </span>
-              <span className="rounded-md border px-2 py-0.5 font-mono text-[9.5px] uppercase tracking-wider" style={{ borderColor: `${dColor}55`, color: dColor, background: `${dColor}10` }}>
+              <span
+                className="rounded-md px-2 py-0.5 font-mono text-[9.5px] uppercase tracking-wider"
+                style={{ color: dColor, background: `${dColor}12` }}
+              >
                 {c.difficulty}
               </span>
-              <span className="font-mono text-[9.5px] text-[#8fa2c9]">{c.xp} xp</span>
+              <span className="font-mono text-[9.5px] text-text-faint">{c.xp} xp</span>
             </span>
-            <span className="mt-1.5 block truncate text-[14px] font-medium text-[#e8eefc]">{c.title}</span>
+            <span className="mt-1.5 block truncate text-[14px] font-medium text-foreground">{c.title}</span>
           </span>
-          {solved && <CheckCircle2 className="h-5 w-5 shrink-0 text-[#34d399]" />}
+          {solved && <CheckCircle2 className="h-4.5 w-4.5 shrink-0 text-sage" />}
           {!solved && (
-            <span className="font-mono text-[10px] uppercase tracking-widest text-[#64748b]">{c.type === "quiz" ? "quiz" : "terminal"}</span>
+            <span className="font-mono text-[10px] uppercase tracking-widest text-text-faint">
+              {c.type === "quiz" ? "quiz" : "terminal"}
+            </span>
           )}
-          <ChevronRight className={`h-4 w-4 shrink-0 text-[#8fa2c9] transition-transform duration-300 ${open ? "rotate-90" : ""}`} />
+          <ChevronRight
+            className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 ${open ? "rotate-90" : ""}`}
+          />
         </button>
 
         {/* body */}
@@ -277,9 +292,9 @@ function ChallengeCard({
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
             >
-              <div className="border-t border-white/8 px-4 pb-5 pt-4 sm:px-5">
+              <div className="border-t border-border px-4 pb-5 pt-4 sm:px-5">
                 {c.type === "quiz" ? (
                   <QuizBody challenge={c} solved={solved} onSolve={onSolve} />
                 ) : (
@@ -302,14 +317,14 @@ function HintBar({ challenge: c }: { challenge: Challenge }) {
       <div className="flex flex-wrap gap-2">
         <button
           onClick={() => setShow((s) => !s)}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-white/12 px-3 py-1.5 font-mono text-[10.5px] text-[#8fa2c9] transition-colors hover:border-[#fbbf2466] hover:text-[#fbbf24]"
+          className="btn-secondary !rounded-lg !px-3 !py-1.5 font-mono !text-[10.5px] hover:!text-[#c6613f]"
         >
           <Lightbulb className="h-3 w-3" />
           {show ? "hide hint" : "hint"}
         </button>
         <button
           onClick={() => setShowSol((s) => !s)}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-white/12 px-3 py-1.5 font-mono text-[10.5px] text-[#8fa2c9] transition-colors hover:border-[#7c5cff66] hover:text-[#b3a0ff]"
+          className="btn-secondary !rounded-lg !px-3 !py-1.5 font-mono !text-[10.5px] hover:!text-[#6a9bcc]"
         >
           <Eye className="h-3 w-3" />
           {showSol ? "hide explanation" : "explanation"}
@@ -318,20 +333,20 @@ function HintBar({ challenge: c }: { challenge: Challenge }) {
       <AnimatePresence>
         {show && (
           <motion.p
-            initial={{ opacity: 0, y: -6 }}
+            initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="rounded-lg border border-[#fbbf2440] bg-[#fbbf240d] px-3.5 py-2.5 font-mono text-[11.5px] leading-relaxed text-[#fbbf24]"
+            className="rounded-lg border border-infoblue/40 bg-infoblue-soft px-3.5 py-2.5 font-mono text-[11.5px] leading-relaxed text-text-secondary"
           >
             {c.hint}
           </motion.p>
         )}
         {showSol && (
           <motion.p
-            initial={{ opacity: 0, y: -6 }}
+            initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="rounded-lg border border-white/10 bg-white/4 px-3.5 py-2.5 text-[12.5px] leading-relaxed text-[#b9c6e4]"
+            className="rounded-lg border border-border bg-secondary/60 px-3.5 py-2.5 text-[12.5px] leading-relaxed text-text-secondary"
           >
             {c.explanation}
           </motion.p>
@@ -348,7 +363,7 @@ function QuizBody({ challenge: c, solved, onSolve }: { challenge: Challenge; sol
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-[13.5px] leading-relaxed text-[#b9c6e4]">{c.prompt}</p>
+      <p className="text-[13.5px] leading-relaxed text-text-secondary">{c.prompt}</p>
       <div className="flex flex-col gap-2" role="radiogroup" aria-label={c.title}>
         {c.options?.map((opt, i) => {
           const isAnswer = i === c.answerIndex;
@@ -363,27 +378,29 @@ function QuizBody({ challenge: c, solved, onSolve }: { challenge: Challenge; sol
                 setPicked(i);
                 if (i === c.answerIndex) onSolve();
               }}
-              className="flex items-center gap-2.5 rounded-lg border px-3.5 py-2.5 text-left text-[13px] transition-all duration-300 disabled:cursor-default"
+              className="flex items-center gap-2.5 rounded-lg border px-3.5 py-2.5 text-left text-[13px] transition-colors duration-150 disabled:cursor-default"
               style={{
                 borderColor:
                   state === "correct"
-                    ? "#34d39966"
+                    ? "rgba(120,140,93,0.5)"
                     : state === "wrong"
-                      ? "#f8717166"
-                      : "rgba(255,255,255,0.12)",
+                      ? "rgba(179,57,27,0.4)"
+                      : "var(--border)",
                 background:
                   state === "correct"
-                    ? "#34d39912"
+                    ? "var(--sage-soft)"
                     : state === "wrong"
-                      ? "#f8717112"
-                      : "rgba(255,255,255,0.03)",
-                color: state === "dim" ? "#64748b" : "#e8eefc",
-                opacity: state === "dim" ? 0.65 : 1,
+                      ? "rgba(179,57,27,0.06)"
+                      : "var(--card)",
+                color: state === "dim" ? "var(--text-faint)" : "var(--foreground)",
+                opacity: state === "dim" ? 0.7 : 1,
               }}
             >
-              {revealed && isAnswer && <CheckCircle2 className="h-4 w-4 shrink-0 text-[#34d399]" />}
-              {revealed && !isAnswer && picked === i && <XCircle className="h-4 w-4 shrink-0 text-[#f87171]" />}
-              <span className="font-mono text-[10px] text-[#8fa2c9]">{String.fromCharCode(65 + i)}</span>
+              {revealed && isAnswer && <CheckCircle2 className="h-4 w-4 shrink-0 text-sage" />}
+              {revealed && !isAnswer && picked === i && (
+                <XCircle className="h-4 w-4 shrink-0 text-destructive" />
+              )}
+              <span className="font-mono text-[10px] text-muted-foreground">{String.fromCharCode(65 + i)}</span>
               {opt}
             </button>
           );
@@ -391,10 +408,10 @@ function QuizBody({ challenge: c, solved, onSolve }: { challenge: Challenge; sol
       </div>
       {revealed && (
         <motion.p
-          initial={{ opacity: 0, scale: 0.96 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           className="flex items-center gap-2 font-mono text-[11.5px]"
-          style={{ color: correct ? "#34d399" : "#f87171" }}
+          style={{ color: correct ? "var(--sage)" : "var(--destructive)" }}
         >
           {correct ? <Zap className="h-3.5 w-3.5" /> : <XCircle className="h-3.5 w-3.5" />}
           {correct ? "correct — nicely done." : "not quite — try the next one."}
@@ -419,13 +436,17 @@ function CommandBody({ challenge: c, solved, onSolve }: { challenge: Challenge; 
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="text-[13.5px] leading-relaxed text-[#b9c6e4]">{c.prompt}</p>
+      <p className="text-[13.5px] leading-relaxed text-text-secondary">{c.prompt}</p>
       <div
-        className={`flex items-center gap-2.5 rounded-xl border bg-[#05070f]/90 px-3.5 py-3 transition-colors duration-300 ${
-          result === "pass" ? "border-[#34d39966]" : result === "fail" ? "border-[#f8717166]" : "border-white/12 focus-within:border-[#4ade8066]"
+        className={`term-panel flex items-center gap-2.5 rounded-xl px-3.5 py-3 transition-colors duration-150 ${
+          result === "pass"
+            ? "!border-sage/50"
+            : result === "fail"
+              ? "!border-destructive/50"
+              : "focus-within:!border-terracotta"
         }`}
       >
-        <span className="font-mono text-sm text-[#4ade80]">$</span>
+        <span className="font-mono text-sm text-[#e08c6d]">$</span>
         <input
           ref={inputRef}
           value={value}
@@ -439,11 +460,11 @@ function CommandBody({ challenge: c, solved, onSolve }: { challenge: Challenge; 
           autoCapitalize="off"
           autoComplete="off"
           aria-label={`Command input for: ${c.title}`}
-          className="min-w-0 flex-1 bg-transparent font-mono text-[13px] text-[#e8eefc] outline-none placeholder:text-[#64748b]"
+          className="min-w-0 flex-1 bg-transparent font-mono text-[13px] text-term-text outline-none placeholder:text-[#6e6a61]"
         />
         <button
           onClick={run}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-[#4ade8055] bg-[#4ade8014] px-3.5 py-1.5 font-mono text-[11px] text-[#4ade80] transition-all duration-300 hover:bg-[#4ade8026]"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[#d97757] px-3.5 py-1.5 font-mono text-[11px] text-white transition-colors duration-150 hover:bg-[#c6613f]"
         >
           <Flame className="h-3 w-3" />
           run
@@ -453,10 +474,10 @@ function CommandBody({ challenge: c, solved, onSolve }: { challenge: Challenge; 
         {result === "pass" && (
           <motion.p
             key="pass"
-            initial={{ opacity: 0, y: -6 }}
+            initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="flex items-center gap-2 font-mono text-[11.5px] text-[#34d399]"
+            className="flex items-center gap-2 font-mono text-[11.5px] text-sage"
           >
             <CheckCircle2 className="h-4 w-4" /> exit code 0 — correct.
           </motion.p>
@@ -464,10 +485,10 @@ function CommandBody({ challenge: c, solved, onSolve }: { challenge: Challenge; 
         {result === "fail" && (
           <motion.p
             key="fail"
-            initial={{ opacity: 0, y: -6 }}
+            initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="flex items-center gap-2 font-mono text-[11.5px] text-[#f87171]"
+            className="flex items-center gap-2 font-mono text-[11.5px] text-destructive"
           >
             <XCircle className="h-4 w-4" /> exit code 1 — not the right command. hint?
           </motion.p>
@@ -475,7 +496,9 @@ function CommandBody({ challenge: c, solved, onSolve }: { challenge: Challenge; 
       </AnimatePresence>
       <HintBar challenge={c} />
       {result === "fail" && (
-        <p className="font-mono text-[10.5px] text-[#64748b]">tip: leading sudo is optional here — both forms count.</p>
+        <p className="font-mono text-[10.5px] text-text-faint">
+          tip: leading sudo is optional here — both forms count.
+        </p>
       )}
     </div>
   );

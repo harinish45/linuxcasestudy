@@ -6,7 +6,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter);
+  --font-sans: var(--font-source);
+  --font-serif: var(--font-newsreader);
   --font-mono: var(--font-jbmono);
   --color-ring: var(--ring);
   --color-input: var(--input);
@@ -24,43 +25,99 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --color-ink: var(--ink);
-  --color-ink-muted: var(--ink-muted);
-  --color-lvm: var(--lvm);
-  --color-nfs: var(--nfs);
-  --color-docker: var(--docker);
+  --color-surface: var(--surface);
+  --color-surface-strong: var(--surface-strong);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-faint: var(--text-faint);
+  --color-terracotta: var(--terracotta);
+  --color-terracotta-deep: var(--terracotta-deep);
+  --color-terracotta-soft: var(--terracotta-soft);
+  --color-sage: var(--sage);
+  --color-sage-soft: var(--sage-soft);
+  --color-infoblue: var(--infoblue);
+  --color-infoblue-soft: var(--infoblue-soft);
+  --color-term-bg: var(--term-bg);
+  --color-term-text: var(--term-text);
+  --color-term-border: var(--term-border);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-/* ── Engineering-lab dark palette (fixed dark showcase) ─────────────── */
+/* ── Claude-inspired warm light theme (default) ─────────────────────── */
 :root {
   --radius: 0.75rem;
-  --background: #05070f;
-  --foreground: #e8eefc;
-  --ink: #e8eefc;
-  --ink-muted: #8fa2c9;
-  --lvm: #7c5cff;
-  --nfs: #22d3ee;
-  --docker: #34d399;
-  --card: rgba(255, 255, 255, 0.04);
-  --card-foreground: #e8eefc;
-  --popover: #0a0e1c;
-  --popover-foreground: #e8eefc;
-  --primary: #7c5cff;
+  --background: #faf9f5;
+  --foreground: #141413;
+  --card: #ffffff;
+  --card-foreground: #141413;
+  --popover: #ffffff;
+  --popover-foreground: #141413;
+  --primary: #d97757;
   --primary-foreground: #ffffff;
-  --secondary: rgba(255, 255, 255, 0.06);
-  --secondary-foreground: #e8eefc;
-  --muted: rgba(255, 255, 255, 0.06);
-  --muted-foreground: #8fa2c9;
-  --accent: rgba(255, 255, 255, 0.08);
-  --accent-foreground: #e8eefc;
-  --destructive: #f87171;
-  --border: rgba(255, 255, 255, 0.08);
-  --input: rgba(255, 255, 255, 0.1);
-  --ring: #7c5cff;
+  --secondary: #f0eee6;
+  --secondary-foreground: #3d3d3a;
+  --muted: #f0eee6;
+  --muted-foreground: #73726c;
+  --accent: #f5e3d9;
+  --accent-foreground: #c6613f;
+  --destructive: #b3391b;
+  --border: #e8e6dc;
+  --input: #d6d2c8;
+  --ring: #d97757;
+  /* extended editorial palette */
+  --surface: #f0eee6;
+  --surface-strong: #e8e6dc;
+  --text-secondary: #3d3d3a;
+  --text-faint: #b0aea5;
+  --terracotta: #d97757;
+  --terracotta-deep: #c6613f;
+  --terracotta-soft: #f5e3d9;
+  --sage: #788c5d;
+  --sage-soft: #e9ede0;
+  --infoblue: #6a9bcc;
+  --infoblue-soft: #e5eef5;
+  /* terminal panels stay dark in both themes (like code blocks) */
+  --term-bg: #211f1c;
+  --term-text: #edeae2;
+  --term-border: #3a3833;
+}
+
+/* ── Warm charcoal dark theme ───────────────────────────────────────── */
+.dark {
+  --background: #262624;
+  --foreground: #f5f4ee;
+  --card: #2e2d2a;
+  --card-foreground: #f5f4ee;
+  --popover: #2e2d2a;
+  --popover-foreground: #f5f4ee;
+  --primary: #d97757;
+  --primary-foreground: #ffffff;
+  --secondary: #35342f;
+  --secondary-foreground: #e5e3d9;
+  --muted: #35342f;
+  --muted-foreground: #a8a69b;
+  --accent: #3d2f27;
+  --accent-foreground: #e08c6d;
+  --destructive: #e0705a;
+  --border: #3d3b36;
+  --input: #4a4841;
+  --ring: #d97757;
+  --surface: #2e2d2a;
+  --surface-strong: #35342f;
+  --text-secondary: #d9d7cc;
+  --text-faint: #7d7b72;
+  --terracotta: #e08c6d;
+  --terracotta-deep: #d97757;
+  --terracotta-soft: #3d2f27;
+  --sage: #9aab7f;
+  --sage-soft: #333a2c;
+  --infoblue: #8ab1d6;
+  --infoblue-soft: #2b3541;
+  --term-bg: #1c1b18;
+  --term-text: #e5e1d8;
+  --term-border: #38352f;
 }
 
 * {
@@ -71,34 +128,26 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Fixed navbar clearance for any native anchor jumps */
 section[id] {
-  scroll-margin-top: 76px;
+  scroll-margin-top: 72px;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-feature-settings: "cv11", "ss01";
+  font-size: 16px;
   overflow-x: hidden;
 }
 
 ::selection {
-  background: rgba(124, 92, 255, 0.35);
-  color: #ffffff;
+  background: rgba(217, 119, 87, 0.22);
+  color: var(--foreground);
 }
 
-/* Focus rings — keyboard visibility */
 :focus-visible {
-  outline: 2px solid rgba(124, 92, 255, 0.8);
+  outline: 2px solid var(--terracotta);
   outline-offset: 2px;
   border-radius: 4px;
-}
-
-/* Custom cursor: hide native only when the JS cursor is live (fine pointers) */
-html.cursor-live,
-html.cursor-live * {
-  cursor: none !important;
 }
 
 /* ── Scrollbar ───────────────────────────────────────────────────────── */
@@ -107,168 +156,155 @@ html.cursor-live * {
   height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: #05070f;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(143, 162, 201, 0.25);
+  background: var(--input);
   border-radius: 8px;
-  border: 2px solid #05070f;
+  border: 2px solid var(--background);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(124, 92, 255, 0.55);
+  background: var(--terracotta);
 }
 
-/* ── Glass panels — noise-textured (theme: more grain) ───────────────── */
-.glass {
-  background-image: var(--noise-fine);
-  background-size: 140px 140px;
-  background-color: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+/* ── Editorial typography helpers ────────────────────────────────────── */
+.display {
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
 }
-.glass-strong {
-  background-image: var(--noise-fine);
-  background-size: 140px 140px;
-  background-color: rgba(10, 14, 28, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+.kicker {
+  font-family: var(--font-jbmono), monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--muted-foreground);
 }
 
-/* ── Cursor-following spotlight + optional tilt on cards ─────────────── */
-.spotlight-card {
-  position: relative;
-  transition: transform 0.3s ease;
-  will-change: transform;
+/* ── Buttons ─────────────────────────────────────────────────────────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 0.625rem;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  padding: 0.55rem 1.1rem;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
 }
-.spotlight-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  opacity: 0;
-  transition: opacity 0.35s ease;
-  background: radial-gradient(
-    380px circle at var(--mx, 50%) var(--my, 50%),
-    rgba(124, 92, 255, 0.12),
-    rgba(34, 211, 238, 0.05) 45%,
-    transparent 68%
-  );
-  pointer-events: none;
-  z-index: 0;
+.btn-primary:hover {
+  background: var(--terracotta-deep);
+  box-shadow: 0 2px 10px rgba(198, 97, 63, 0.28);
 }
-.spotlight-card:hover::before {
-  opacity: 1;
+.btn-primary:active {
+  transform: scale(0.98);
 }
-.spotlight-card > * {
-  position: relative;
-  z-index: 1;
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 0.625rem;
+  background: var(--card);
+  color: var(--foreground);
+  border: 1px solid var(--input);
+  padding: 0.55rem 1.1rem;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
 }
-@media (prefers-reduced-motion: reduce) {
-  .spotlight-card {
-    transition: none;
-  }
+.btn-secondary:hover {
+  background: var(--secondary);
+  border-color: var(--muted-foreground);
 }
-.hairline {
-  border: 1px solid rgba(255, 255, 255, 0.08);
+.btn-secondary:active {
+  transform: scale(0.98);
 }
-
-/* ── Glow helpers ────────────────────────────────────────────────────── */
-.glow-lvm {
-  box-shadow: 0 0 24px rgba(124, 92, 255, 0.35), 0 0 64px rgba(124, 92, 255, 0.12);
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 0.625rem;
+  color: var(--muted-foreground);
+  padding: 0.45rem 0.8rem;
+  font-size: 13.5px;
+  transition: background 0.18s ease, color 0.18s ease;
 }
-.glow-nfs {
-  box-shadow: 0 0 24px rgba(34, 211, 238, 0.35), 0 0 64px rgba(34, 211, 238, 0.12);
-}
-.glow-docker {
-  box-shadow: 0 0 24px rgba(52, 211, 153, 0.35), 0 0 64px rgba(52, 211, 153, 0.12);
-}
-.text-glow-lvm {
-  text-shadow: 0 0 18px rgba(124, 92, 255, 0.65), 0 0 60px rgba(124, 92, 255, 0.3);
-}
-.text-glow-nfs {
-  text-shadow: 0 0 18px rgba(34, 211, 238, 0.65), 0 0 60px rgba(34, 211, 238, 0.3);
-}
-.text-glow-docker {
-  text-shadow: 0 0 18px rgba(52, 211, 153, 0.65), 0 0 60px rgba(52, 211, 153, 0.3);
+.btn-ghost:hover {
+  background: var(--secondary);
+  color: var(--foreground);
 }
 
-/* ── Film grain overlay — two-layer noise (fine + coarse) ────────────── */
-:root {
-  --noise-fine: url("data:image/svg+xml,%3Csvg viewBox='0 0 140 140' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+/* ── Surfaces ────────────────────────────────────────────────────────── */
+.surface {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
 }
-.grain {
-  pointer-events: none;
-  position: fixed;
-  inset: -120px;
-  z-index: 70;
-  opacity: 0.09;
-  background-image:
-    var(--noise-fine),
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 260 260' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.34' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23c)' opacity='0.42'/%3E%3C/svg%3E");
-  background-size: 140px 140px, 300px 300px;
-  will-change: transform;
-  animation: grain-shift 0.8s steps(5) infinite;
+.surface-hover {
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
-@keyframes grain-shift {
-  0% { transform: translate(0, 0); }
-  25% { transform: translate(-38px, 22px); }
-  50% { transform: translate(24px, -30px); }
-  75% { transform: translate(-14px, -18px); }
-  100% { transform: translate(0, 0); }
+.surface-hover:hover {
+  border-color: var(--input);
+  box-shadow: 0 2px 12px rgba(20, 20, 19, 0.05);
 }
-
-/* ── Aurora background blobs — pre-softened gradients, NO blur filter
-      (filter: blur on 50vmax layers is a huge GPU cost; radial-gradient
-      falloff gives the same look for free) ───────────────────────────── */
-.aurora-blob {
-  position: absolute;
-  border-radius: 9999px;
-  will-change: transform;
-  transition: opacity 1.4s ease;
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  padding: 0.2rem 0.65rem;
+  font-family: var(--font-jbmono), monospace;
+  font-size: 10.5px;
+  color: var(--muted-foreground);
+  white-space: nowrap;
 }
 
-/* ── Ticker (infinite marquee) ───────────────────────────────────────── */
-.ticker-track {
-  display: flex;
-  width: max-content;
-  animation: ticker-scroll 46s linear infinite;
+/* ── Inputs ──────────────────────────────────────────────────────────── */
+.input-field {
+  width: 100%;
+  border-radius: 0.625rem;
+  border: 1px solid var(--input);
+  background: var(--card);
+  color: var(--foreground);
+  padding: 0.5rem 0.75rem;
+  font-size: 14px;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
-.ticker-track:hover {
-  animation-play-state: paused;
+.input-field::placeholder {
+  color: var(--text-faint);
 }
-@keyframes ticker-scroll {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-
-/* ── Floating code fragments (hero) ──────────────────────────────────── */
-.drift-frag {
-  animation: frag-drift 16s ease-in-out infinite alternate;
-  will-change: transform;
-}
-@keyframes frag-drift {
-  from { transform: translate3d(0, 0, 0) rotate(-1.5deg); }
-  to { transform: translate3d(14px, -22px, 0) rotate(2deg); }
+.input-field:focus {
+  outline: none;
+  border-color: var(--terracotta);
+  box-shadow: 0 0 0 3px rgba(217, 119, 87, 0.15);
 }
 
-/* ── Skeleton shimmer ────────────────────────────────────────────────── */
-.shimmer {
-  position: relative;
+/* ── Progress ────────────────────────────────────────────────────────── */
+.progress-track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--surface-strong);
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.045);
 }
-.shimmer::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  transform: translateX(-100%);
-  background: linear-gradient(90deg, transparent, rgba(143, 162, 201, 0.14), transparent);
-  animation: shimmer-slide 1.6s infinite;
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--terracotta);
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
-@keyframes shimmer-slide {
-  to { transform: translateX(100%); }
+.progress-fill-sage {
+  background: var(--sage);
+}
+
+/* ── Dark terminal panels (code blocks inside the light UI) ──────────── */
+.term-panel {
+  background: var(--term-bg);
+  color: var(--term-text);
+  border: 1px solid var(--term-border);
 }
 
 /* ── Terminal scanlines + cursor blink ──────────────────────────────── */
@@ -279,63 +315,62 @@ html.cursor-live * {
   pointer-events: none;
   background: repeating-linear-gradient(
     0deg,
-    rgba(255, 255, 255, 0.028) 0px,
-    rgba(255, 255, 255, 0.028) 1px,
+    rgba(255, 255, 255, 0.02) 0px,
+    rgba(255, 255, 255, 0.02) 1px,
     transparent 1px,
     transparent 3px
   );
-  mix-blend-mode: overlay;
 }
 .term-cursor {
   display: inline-block;
-  width: 9px;
-  height: 1.1em;
+  width: 8px;
+  height: 1.05em;
   margin-left: 2px;
   vertical-align: text-bottom;
-  background: #34d399;
-  animation: blink 1.05s steps(1) infinite;
+  background: var(--sage);
+  animation: blink 1.1s steps(1) infinite;
 }
 @keyframes blink {
   0%, 55% { opacity: 1; }
   56%, 100% { opacity: 0; }
 }
 
-/* ── Hacker green caret + CRT vignette (boot intro) ─────────────────── */
-.caret-green {
+/* ── Boot intro caret ────────────────────────────────────────────────── */
+.caret-boot {
   display: inline-block;
   width: 0.55em;
   height: 1.05em;
   margin-left: 3px;
   vertical-align: text-bottom;
-  background: #4ade80;
-  box-shadow: 0 0 12px rgba(74, 222, 128, 0.8);
-  animation: blink 1.05s steps(1) infinite;
-}
-.crt-vignette {
-  pointer-events: none;
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(120% 90% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.55) 100%),
-    repeating-linear-gradient(0deg, rgba(74, 222, 128, 0.02) 0px, rgba(74, 222, 128, 0.02) 1px, transparent 1px, transparent 3px);
-}
-.text-glow-green {
-  text-shadow: 0 0 18px rgba(74, 222, 128, 0.65), 0 0 60px rgba(74, 222, 128, 0.3);
+  background: var(--terracotta);
+  animation: blink 1.1s steps(1) infinite;
 }
 
-/* ── LED pulse for 3D-free fallbacks ─────────────────────────────────── */
+/* ── LED pulse ───────────────────────────────────────────────────────── */
 @keyframes led-pulse {
-  0%, 100% { opacity: 0.35; }
+  0%, 100% { opacity: 0.4; }
   50% { opacity: 1; }
 }
 .led {
-  animation: led-pulse 2.2s ease-in-out infinite;
+  animation: led-pulse 2.4s ease-in-out infinite;
 }
 
-/* ── Fine dotted grid backdrop for sections ─────────────────────────── */
-.dotgrid {
-  background-image: radial-gradient(rgba(143, 162, 201, 0.13) 1px, transparent 1px);
-  background-size: 26px 26px;
+/* ── Paper grain — one barely-there static layer, no animation ───────── */
+.grain {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  opacity: 0.022;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── Aurora washes (route-tinted, pure gradients — no blur filters) ──── */
+.aurora-blob {
+  position: absolute;
+  border-radius: 9999px;
+  will-change: transform;
+  transition: opacity 1.2s ease;
 }
 
 /* ── Range slider (grow-storage) ─────────────────────────────────────── */
@@ -344,37 +379,39 @@ input[type="range"].lab-range {
   appearance: none;
   height: 6px;
   border-radius: 999px;
-  background: linear-gradient(90deg, rgba(124, 92, 255, 0.7), rgba(34, 211, 238, 0.7));
+  background: var(--surface-strong);
   outline: none;
 }
 input[type="range"].lab-range::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  background: #e8eefc;
-  border: 3px solid #7c5cff;
-  box-shadow: 0 0 16px rgba(124, 92, 255, 0.8);
+  background: var(--card);
+  border: 2px solid var(--terracotta);
+  box-shadow: 0 1px 6px rgba(20, 20, 19, 0.18);
   cursor: pointer;
+  transition: transform 0.15s ease;
+}
+input[type="range"].lab-range::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
 }
 input[type="range"].lab-range::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  background: #e8eefc;
-  border: 3px solid #7c5cff;
-  box-shadow: 0 0 16px rgba(124, 92, 255, 0.8);
+  background: var(--card);
+  border: 2px solid var(--terracotta);
+  box-shadow: 0 1px 6px rgba(20, 20, 19, 0.18);
   cursor: pointer;
 }
 
 /* ── Reduced motion: kill decorative loops ───────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  .grain,
-  .ticker-track,
-  .drift-frag,
-  .shimmer::after,
-  .led {
+  .led,
+  .term-cursor,
+  .caret-boot {
     animation: none !important;
   }
   .aurora-blob {
