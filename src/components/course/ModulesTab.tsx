@@ -9,7 +9,7 @@ import { useProgressStore } from "@/lib/store";
 /**
  * Modules tab — the course as a structured curriculum: module accordion,
  * per-lesson ticks (persisted locally), module progress bars and the
- * copy-ready command attached to hands-on lessons.
+ * copy-ready command attached to hands-on lessons. Sized to fill the page.
  */
 export default function ModulesTab({ topic }: { topic: Topic }) {
   const lessonsDone = useProgressStore((s) => s.lessonsDone);
@@ -27,10 +27,10 @@ export default function ModulesTab({ topic }: { topic: Topic }) {
   });
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
       {/* course-level summary */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-[13.5px] text-muted-foreground">
+        <p className="text-[14.5px] text-muted-foreground">
           <span className="font-medium text-foreground">
             {stats.doneLessons} of {stats.totalLessons}
           </span>{" "}
@@ -39,7 +39,7 @@ export default function ModulesTab({ topic }: { topic: Topic }) {
         </p>
         {allDone && (
           <span
-            className="rounded-full px-2.5 py-1 font-mono text-[9.5px] uppercase tracking-wider text-sage"
+            className="rounded-full px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-sage"
             style={{ background: "var(--sage-soft)" }}
           >
             module path complete
@@ -54,7 +54,7 @@ export default function ModulesTab({ topic }: { topic: Topic }) {
       </div>
 
       {/* module accordion */}
-      <div className="flex flex-col gap-2.5">
+      <div className="flex flex-col gap-3">
         {topic.modules.map((m, mi) => {
           const doneCount = m.lessons.filter((l) => doneSet.has(lessonKey(topic.key, m.id, l.id))).length;
           const complete = doneCount === m.lessons.length && m.lessons.length > 0;
@@ -67,38 +67,38 @@ export default function ModulesTab({ topic }: { topic: Topic }) {
               <button
                 onClick={() => setOpenId(open ? "" : m.id)}
                 aria-expanded={open}
-                className="flex w-full items-center gap-3.5 px-4 py-3.5 text-left transition-colors duration-150 hover:bg-secondary/40"
+                className="flex w-full items-center gap-4 px-5 py-4 text-left transition-colors duration-150 hover:bg-secondary/40"
               >
                 <span
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg font-mono text-xs"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl font-mono text-[14px]"
                   style={
                     complete
                       ? { color: "var(--sage)", background: "var(--sage-soft)" }
                       : { color: topic.accentHex, background: `${topic.accentHex}14` }
                   }
                 >
-                  {complete ? <Check className="h-4 w-4" /> : String(mi + 1).padStart(2, "0")}
+                  {complete ? <Check className="h-5 w-5" /> : String(mi + 1).padStart(2, "0")}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="flex items-center gap-2">
-                    <span className="truncate text-[14.5px] font-medium text-foreground">
+                  <span className="flex items-center gap-2.5">
+                    <span className="truncate text-[16px] font-medium text-foreground">
                       {m.title}
                     </span>
                     {complete && (
-                      <span className="hidden font-mono text-[9px] uppercase tracking-wider text-sage sm:inline">
+                      <span className="hidden font-mono text-[9.5px] uppercase tracking-wider text-sage sm:inline">
                         done
                       </span>
                     )}
                   </span>
-                  <span className="mt-0.5 block truncate text-[12.5px] text-muted-foreground">
+                  <span className="mt-1 block truncate text-[13.5px] text-muted-foreground">
                     {m.summary}
                   </span>
                 </span>
-                <span className="hidden shrink-0 text-right font-mono text-[10px] text-text-faint sm:block">
+                <span className="hidden shrink-0 text-right font-mono text-[11px] text-text-faint sm:block">
                   {doneCount}/{m.lessons.length} · ~{mins}m
                 </span>
                 <ChevronDown
-                  className={`h-4 w-4 shrink-0 text-text-faint transition-transform duration-200 ${
+                  className={`h-5 w-5 shrink-0 text-text-faint transition-transform duration-200 ${
                     open ? "rotate-180" : ""
                   }`}
                 />
@@ -107,7 +107,7 @@ export default function ModulesTab({ topic }: { topic: Topic }) {
               {/* lessons */}
               {open && (
                 <div className="border-t border-border">
-                  <div className="px-4 pt-3">
+                  <div className="px-5 pt-3.5">
                     <div className="progress-track h-[4px]">
                       <div
                         className="h-full rounded-full"
@@ -119,29 +119,29 @@ export default function ModulesTab({ topic }: { topic: Topic }) {
                       />
                     </div>
                   </div>
-                  <ul className="flex flex-col py-2">
+                  <ul className="flex flex-col py-2.5">
                     {m.lessons.map((l, li) => {
                       const isDone = doneSet.has(lessonKey(topic.key, m.id, l.id));
                       return (
                         <li key={l.id} className={li > 0 ? "border-t border-border/60" : ""}>
-                          <div className="flex items-start gap-3 px-4 py-2.5">
+                          <div className="flex items-start gap-3.5 px-5 py-3.5">
                             <button
                               onClick={() => toggleLesson(topic.key, m.id, l.id)}
                               aria-pressed={isDone}
                               aria-label={`Mark "${l.title}" as ${isDone ? "not done" : "done"}`}
-                              className={`mt-0.5 shrink-0 rounded-sm transition-colors duration-150 ${
+                              className={`mt-1 shrink-0 rounded-sm transition-colors duration-150 ${
                                 isDone ? "text-sage" : "text-text-faint hover:text-foreground"
                               }`}
                             >
                               {isDone ? (
-                                <Check className="h-[17px] w-[17px]" strokeWidth={2.2} />
+                                <Check className="h-[19px] w-[19px]" strokeWidth={2.2} />
                               ) : (
-                                <Circle className="h-[15px] w-[15px]" strokeWidth={1.8} />
+                                <Circle className="h-[17px] w-[17px]" strokeWidth={1.8} />
                               )}
                             </button>
                             <div className="min-w-0 flex-1">
                               <p
-                                className={`text-[13.5px] leading-snug ${
+                                className={`text-[15px] leading-snug ${
                                   isDone
                                     ? "text-muted-foreground line-through decoration-border"
                                     : "text-foreground"
@@ -150,12 +150,12 @@ export default function ModulesTab({ topic }: { topic: Topic }) {
                                 {l.title}
                               </p>
                               {l.cmd && (
-                                <div className="mt-2">
+                                <div className="mt-2.5">
                                   <CommandChip cmd={l.cmd} accentHex={topic.accentHex} compact />
                                 </div>
                               )}
                             </div>
-                            <span className="mt-0.5 shrink-0 font-mono text-[10px] text-text-faint">
+                            <span className="mt-1 shrink-0 font-mono text-[11px] text-text-faint">
                               {l.minutes}m
                             </span>
                           </div>
@@ -170,7 +170,7 @@ export default function ModulesTab({ topic }: { topic: Topic }) {
         })}
       </div>
 
-      <p className="font-mono text-[10px] text-text-faint">
+      <p className="font-mono text-[10.5px] text-text-faint">
         ticks save locally as you go — your pace, your record.
       </p>
     </div>

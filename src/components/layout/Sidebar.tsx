@@ -13,6 +13,7 @@ import {
   TerminalSquare,
   Workflow,
   Compass,
+  Swords,
   Check,
   RotateCcw,
   X,
@@ -55,6 +56,7 @@ const GROUPS: { title: string; items: NavItem[] }[] = [
     title: "Practice",
     items: [
       { label: "Challenge Arena", href: ROUTES.practice, icon: <Target className="h-4 w-4" /> },
+      { label: "Quiz Battle", href: ROUTES.arena, icon: <Swords className="h-4 w-4" /> },
       { label: "Terminal Lab", href: ROUTES.terminal, icon: <TerminalSquare className="h-4 w-4" /> },
     ],
   },

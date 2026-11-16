@@ -476,9 +476,13 @@ export interface Challenge {
   hint: string;
   explanation: string;
   xp: number;
+  /** command the learner should run in the Terminal Lab to feel the concept */
+  practice?: string;
+  /** sub-topic tag (pv, vg, export, security, compose …) */
+  tag?: string;
 }
 
-export const CHALLENGES: Challenge[] = [
+const HANDMADE_CHALLENGES: Challenge[] = [
   // ── LVM ────────────────────────────────────────────────────────────────
   {
     id: "lvm-1",
@@ -493,6 +497,7 @@ export const CHALLENGES: Challenge[] = [
     explanation:
       "Volume Group. PVs are pooled into a VG (vgcreate), and LVs are carved out of the VG (lvcreate). The VG is the wallet of free extents.",
     xp: 10,
+    practice: "sudo vgs",
   },
   {
     id: "lvm-2",
@@ -506,6 +511,7 @@ export const CHALLENGES: Challenge[] = [
     explanation:
       "sudo pvcreate /dev/sdb writes the LVM header to the disk. Verify with pvs — it should show as allocatable.",
     xp: 10,
+    practice: "sudo pvcreate /dev/sdb",
   },
   {
     id: "lvm-3",
@@ -520,6 +526,7 @@ export const CHALLENGES: Challenge[] = [
     explanation:
       "lvextend -L +2G -r grows the LV and the filesystem in one step — online, no unmount. Without -r you'd need a separate xfs_growfs/resize2fs.",
     xp: 20,
+    practice: "sudo lvextend -L +2G -r /dev/vg_lab/lv_data",
   },
   {
     id: "lvm-4",
@@ -540,6 +547,7 @@ export const CHALLENGES: Challenge[] = [
     explanation:
       "XFS is grow-only by design. That's exactly why our lab formats lv_logs as ext4 — it's the one that may need to shrink.",
     xp: 20,
+    practice: "sudo lvreduce -L -1G -r /dev/vg_lab/lv_logs",
   },
   {
     id: "lvm-5",
@@ -553,6 +561,7 @@ export const CHALLENGES: Challenge[] = [
     explanation:
       "lvcreate -s -n lv_data_snap -L 1G vg_lab/lv_data is nearly free (copy-on-write). Rollback later with lvconvert --merge — our lab verified byte-identical results.",
     xp: 30,
+    practice: "sudo lvcreate -s -n lv_data_snap -L 1G vg_lab/lv_data",
   },
   // ── NFS ────────────────────────────────────────────────────────────────
   {
@@ -568,6 +577,7 @@ export const CHALLENGES: Challenge[] = [
     explanation:
       "NFSv4 listens on 2049/tcp only — one firewall rule instead of rpcbind/mountd/lockd sprawl.",
     xp: 10,
+    practice: "sudo ufw allow from 192.168.56.0/24 to any port 2049 proto tcp",
   },
   {
     id: "nfs-2",
@@ -581,6 +591,7 @@ export const CHALLENGES: Challenge[] = [
     explanation:
       "sudo exportfs -ra re-reads /etc/exports and applies every change immediately — no daemon restart needed.",
     xp: 10,
+    practice: "sudo exportfs -ra",
   },
   {
     id: "nfs-3",
@@ -600,6 +611,7 @@ export const CHALLENGES: Challenge[] = [
     explanation:
       "root_squash maps UID 0 on the client to the anonymous (nobody) user server-side — a compromised client can't own your share. no_root_squash disables that safety net.",
     xp: 20,
+    practice: "sudo mount -t nfs 192.168.56.10:/srv/nfs/shared /mnt/shared",
   },
   {
     id: "nfs-4",
@@ -613,6 +625,7 @@ export const CHALLENGES: Challenge[] = [
     explanation:
       "showmount -e 192.168.56.10 lists the export table — always test before writing fstab lines.",
     xp: 20,
+    practice: "sudo exportfs -v",
   },
   {
     id: "nfs-5",
@@ -633,6 +646,7 @@ export const CHALLENGES: Challenge[] = [
     explanation:
       "NFS transmits numeric UID/GIDs. If user 'maya' is UID 1000 on the client but UID 1000 is unknown on the server, files look like 'nobody'. Fix identity centrally (LDAP/same UIDs) or align the idmapd domain on NFSv4.",
     xp: 30,
+    practice: "showmount -e 192.168.56.10",
   },
   // ── Containers ─────────────────────────────────────────────────────────
   {
@@ -653,6 +667,7 @@ export const CHALLENGES: Challenge[] = [
     explanation:
       "Image = immutable layer stack. Container = image + a thin writable layer, running (or stopped). docker ps -a lists instances.",
     xp: 10,
+    practice: "docker run -d --name web -p 8080:80 nginx:1.27",
   },
   {
     id: "dkr-2",
@@ -667,6 +682,7 @@ export const CHALLENGES: Challenge[] = [
     explanation:
       "docker run -d --name web -p 8080:80 nginx — -d survives your terminal, -p publishes the port. Open http://localhost:8080 and nginx answers.",
     xp: 10,
+    practice: "docker build -t lab-app:1.0 .",
   },
   {
     id: "dkr-3",
@@ -680,6 +696,7 @@ export const CHALLENGES: Challenge[] = [
     explanation:
       "docker ps -q prints just the IDs — perfect for piping: docker rm -f $(docker ps -q).",
     xp: 20,
+    practice: "docker exec -it web bash",
   },
   {
     id: "dkr-4",
@@ -694,6 +711,7 @@ export const CHALLENGES: Challenge[] = [
     explanation:
       "Named volumes live in /var/lib/docker/volumes, are managed by Docker, and outlive containers. Bind mounts survive too but map an exact host path you choose.",
     xp: 20,
+    practice: "docker logs -f web",
   },
   {
     id: "dkr-5",
@@ -713,6 +731,7 @@ export const CHALLENGES: Challenge[] = [
     explanation:
       "Containers are supposed to be single-purpose and immutable. exec uses the container's existing namespaces (no sshd, no credentials), keeping the attack surface tiny — the Docker philosophy in one command.",
     xp: 30,
+    practice: "docker stop web && docker rm web",
   },
 ];
 
@@ -829,3 +848,15 @@ export const HACKER_VIDEOS: VideoPick[] = [
     blurb: "Shortcuts, aliases and terminal speed — pure fun fuel.",
   },
 ];
+
+/* ── Generated bank: 200 questions per topic, every one with a practice command.
+   Produced by scripts/gen-bank.mjs — regenerate it to extend or rebalance. ── */
+import bankJson from "./bank.json";
+
+export const CHALLENGES: Challenge[] = [...HANDMADE_CHALLENGES, ...(bankJson as Challenge[])];
+
+export const TOPIC_COUNTS: Record<TopicKey, number> = {
+  lvm: CHALLENGES.filter((c) => c.topic === "lvm").length,
+  nfs: CHALLENGES.filter((c) => c.topic === "nfs").length,
+  docker: CHALLENGES.filter((c) => c.topic === "docker").length,
+};

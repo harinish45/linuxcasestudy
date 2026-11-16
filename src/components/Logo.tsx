@@ -1,7 +1,7 @@
 /**
- * Linux Lab brand mark — a flat terracotta tile carrying three stacked
- * layers: storage (LVM) → share (NFS) → ship (containers). Deliberately
- * gradient-free so it renders identically in light and dark themes.
+ * Linux Lab brand mark — a flat terracotta tile carrying a terminal prompt
+ * with a blinking-cursor block. A deliberate departure from the previous
+ * three-bar mark; gradient-free so it renders identically in both themes.
  */
 export function LogoMark({ size = 32, className }: { size?: number; className?: string }) {
   return (
@@ -15,10 +15,17 @@ export function LogoMark({ size = 32, className }: { size?: number; className?: 
       focusable="false"
     >
       <rect x="1.5" y="1.5" width="29" height="29" rx="8" fill="#d97757" />
-      {/* three stacked layers — top / middle (offset) / bottom */}
-      <rect x="7.5" y="7.6" width="17" height="3.6" rx="1.8" fill="#faf9f5" />
-      <rect x="11" y="13.9" width="10.5" height="3.6" rx="1.8" fill="#faf9f5" opacity="0.92" />
-      <rect x="7.5" y="20.2" width="17" height="3.6" rx="1.8" fill="#faf9f5" opacity="0.8" />
+      {/* terminal prompt "> " carved from the tile */}
+      <path
+        d="M8 10.4 L14.2 16 L8 21.6"
+        stroke="#faf9f5"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+      {/* cursor block */}
+      <rect x="17.5" y="18.6" width="7" height="3.4" rx="1.7" fill="#faf9f5" opacity="0.85" />
     </svg>
   );
 }

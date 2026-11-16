@@ -13,6 +13,7 @@ export const ROUTES = {
   nfs: "/courses/nfs",
   containers: "/courses/containers",
   practice: "/practice",
+  arena: "/arena",
   terminal: "/terminal",
   pipeline: "/pipeline",
   resources: "/resources",

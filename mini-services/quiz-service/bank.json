@@ -1,0 +1,4104 @@
+[
+ {
+  "id": "lvm-b095",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "You ran lvreduce on an XFS logical volume and it refused. Why?",
+  "options": [
+   "XFS cannot shrink at all — it is grow-only",
+   "You must unmount first, always",
+   "Also resizes the filesystem inside the LV in the same step",
+   "Nothing — the flag is ignored"
+  ],
+  "answerIndex": 0,
+  "explanation": "XFS is grow-only by design. That is why our lab pairs lv_data (XFS, grows) with lv_logs (ext4, grows and shrinks)."
+ },
+ {
+  "id": "lvm-b096",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "Which filesystem grows ONLINE while mounted and can also shrink later?",
+  "options": [
+   "You must unmount first, always",
+   "ext4",
+   "Also resizes the filesystem inside the LV in the same step",
+   "Nothing — the flag is ignored"
+  ],
+  "answerIndex": 1,
+  "explanation": "ext4 grows and shrinks (shrink needs the volume unmounted). XFS grows online but never shrinks."
+ },
+ {
+  "id": "lvm-b089",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "With the default extent size, how many 4 MiB extents does a 5 GiB logical volume use?",
+  "options": [
+   "5120",
+   "1280",
+   "2560",
+   "640"
+  ],
+  "answerIndex": 1,
+  "explanation": "5 GiB = 5120 MiB; 5120 ÷ 4 = 1280 extents. That is why vgs and lvs count in extents — the math stays integer-simple."
+ },
+ {
+  "id": "lvm-b110",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "A 12G VG holds lv_data at 5G and lv_logs at 2G. How much free space remains for new volumes?",
+  "options": [
+   "2G",
+   "5G",
+   "6G",
+   "7G"
+  ],
+  "answerIndex": 1,
+  "explanation": "12G − 5G − 2G = 5G of VFree. vgs reports it directly — that is what lvcreate spends."
+ },
+ {
+  "id": "lvm-b082",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "What is a Physical Volume?",
+  "options": [
+   "A raw disk (or partition) initialised with an LVM header",
+   "The VG's allocation unit",
+   "A mounted logical volume",
+   "A formatted partition with a filesystem"
+  ],
+  "answerIndex": 0,
+  "explanation": "A PV is a raw disk initialised by pvcreate — it contributes its space to a VG but holds no filesystem itself."
+ },
+ {
+  "id": "lvm-b158",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "You want a logical volume of exactly 1 GiB. How many 4 MiB extents will lvcreate consume?",
+  "options": [
+   "260",
+   "256",
+   "100",
+   "128"
+  ],
+  "answerIndex": 1,
+  "explanation": "1 GiB → 1024 MiB ÷ 4 = 256 extents. lvextend -l accepts extent counts, -L accepts sizes — both land on the same result."
+ },
+ {
+  "id": "lvm-b112",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "A 16G VG holds lv_data at 6G and lv_logs at 3G. How much free space remains for new volumes?",
+  "options": [
+   "8G",
+   "10G",
+   "7G",
+   "3G"
+  ],
+  "answerIndex": 2,
+  "explanation": "16G − 6G − 3G = 7G of VFree. vgs reports it directly — that is what lvcreate spends."
+ },
+ {
+  "id": "lvm-b109",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "You pool three disks of 4G, 4G and 2G into one volume group. What is the VG's total size?",
+  "options": [
+   "16G",
+   "4G",
+   "9G",
+   "10G"
+  ],
+  "answerIndex": 3,
+  "explanation": "vgcreate pools all PV space: three disks of 4G, 4G and 2G → 10G of extents (a tiny sliver goes to LVM metadata, invisible to vgs rounding). lvcreate spends that space."
+ },
+ {
+  "id": "lvm-b178",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "A 12G VG runs lv_data (4G), lv_logs (2G) and a 1G snapshot. How much VFree remains?",
+  "options": [
+   "6G",
+   "5G",
+   "1G",
+   "8G"
+  ],
+  "answerIndex": 1,
+  "explanation": "12 − 4 − 2 − 1 = 5G. Snapshots consume real extents — plan VFree for them, not just for LVs."
+ },
+ {
+  "id": "lvm-b177",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "After vgcreate, where does the VG's device directory appear?",
+  "options": [
+   "/dev/<vg-name>/ with one symlink per LV",
+   "The /dev/mapper directory directly",
+   "A filesystem — it optimises the superblock for LVM",
+   "It overwrites silently without warning"
+  ],
+  "answerIndex": 0,
+  "explanation": "/dev/<vg-name>/ with one symlink per LV Layers stack: disk → pvcreate (PV) → vgcreate (VG) → lvcreate (LV) → mkfs → mount. Each tool targets exactly one layer."
+ },
+ {
+  "id": "lvm-b088",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "With the default extent size, how many 4 MiB extents does a 4 GiB logical volume use?",
+  "options": [
+   "4096",
+   "512",
+   "2048",
+   "1024"
+  ],
+  "answerIndex": 3,
+  "explanation": "4 GiB = 4096 MiB; 4096 ÷ 4 = 1024 extents. That is why vgs and lvs count in extents — the math stays integer-simple."
+ },
+ {
+  "id": "lvm-b090",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "Which command is used to carve a new logical volume out of a VG?",
+  "options": [
+   "lvcreate",
+   "lvextend",
+   "lvresize",
+   "vgcreate"
+  ],
+  "answerIndex": 0,
+  "explanation": "lvcreate is the right tool. Run the LVM commands with sudo, then verify with pvs/vgs/lvs."
+ },
+ {
+  "id": "lvm-b126",
+  "topic": "lvm",
+  "difficulty": "hard",
+  "prompt": "What is /dev/mapper/ in an LVM system?",
+  "options": [
+   "PSize and PFree",
+   "It mirrors extents to their new PV while IO continues, then swaps atomically",
+   "It only works while the PV is completely empty",
+   "The real device-mapper nodes that /dev/vg/lv symlinks point to"
+  ],
+  "answerIndex": 3,
+  "explanation": "The kernel exposes LVM volumes as device-mapper devices; /dev/vg_lab/lv_data is a udev symlink to the mapper node. Either path works for mounting."
+ },
+ {
+  "id": "lvm-b120",
+  "topic": "lvm",
+  "difficulty": "hard",
+  "prompt": "lvextend/lvcreate fails with: \"Insufficient free extents (5) required: 1280\". What is the actual problem?",
+  "options": [
+   "The VG has no free extents left — extend it (vgextend / lvreduce something) first",
+   "LVM is not installed",
+   "SELinux is blocking the operation",
+   "The kernel lacks device-mapper support"
+  ],
+  "answerIndex": 0,
+  "explanation": "The VG has no free extents left — extend it (vgextend / lvreduce something) first — LVM's error text is terse but precise. pvs/vgs/lvs tell you which of the numbers does not add up."
+ },
+ {
+  "id": "lvm-b085",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "With the default extent size, how many 4 MiB extents does a 1 GiB logical volume use?",
+  "options": [
+   "512",
+   "1024",
+   "256",
+   "128"
+  ],
+  "answerIndex": 2,
+  "explanation": "1 GiB = 1024 MiB; 1024 ÷ 4 = 256 extents. That is why vgs and lvs count in extents — the math stays integer-simple."
+ },
+ {
+  "id": "lvm-b193",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "An LV's Data% snapshot-style reporting is climbing. Which lvs command shows the LAST time each LV changed (to audit who resized what)?",
+  "options": [
+   "Nothing — LVM has no timestamps",
+   "vgs --timestamps",
+   "lvs -o name,lv_time — creation/resize timestamps",
+   "lvs --history with full audit log"
+  ],
+  "answerIndex": 2,
+  "explanation": "lvs -o name,lv_time shows when each LV was created/last configured; /etc/lvm/archive stores every metadata change — an audit trail by design."
+ },
+ {
+  "id": "lvm-b134",
+  "topic": "lvm",
+  "difficulty": "hard",
+  "prompt": "Which lvs attribute marks a snapshot volume?",
+  "options": [
+   "'s' in the first Attr position (and 'S' for sealed/merged states)",
+   "'c' for copy-on-write",
+   "df -h on each thin volume",
+   "The underlying pool can run out of physical blocks and start failing writes"
+  ],
+  "answerIndex": 0,
+  "explanation": "lvs shows snapshots with type 's' — lv_snapshot — plus their origin via the Origin column and usage via Data%."
+ },
+ {
+  "id": "lvm-b165",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "Why does lvcreate fail with 'Volume group vg_lab not found' after a reboot?",
+  "options": [
+   "The data survives in the VG's free extents",
+   "The VG was not activated — run vgchange -ay (the boot service normally does this)",
+   "pvremove → vgremove → lvremove → umount",
+   "Order does not matter — LVM figures it out"
+  ],
+  "answerIndex": 1,
+  "explanation": "The VG was not activated — run vgchange -ay (the boot service normally does this) Destroy top-down, pvmove before vgreduce, and remember: /etc/lvm/backup holds METADATA only — data always needs a real backup."
+ },
+ {
+  "id": "lvm-b080",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "Which layer POOLS physical disks into one resizable allocation space?",
+  "options": [
+   "Logical Volume (LV)",
+   "Extent group (EG)",
+   "Physical Volume (PV)",
+   "Volume Group (VG)"
+  ],
+  "answerIndex": 3,
+  "explanation": "Volume Group. PVs are pooled into a VG (vgcreate), and LVs are carved out of the VG (lvcreate) — the VG is the wallet of free extents."
+ },
+ {
+  "id": "lvm-b127",
+  "topic": "lvm",
+  "difficulty": "hard",
+  "prompt": "Why is pvmove considered an online operation?",
+  "options": [
+   "The real device-mapper nodes that /dev/vg/lv symlinks point to",
+   "A compatibility layer for iSCSI devices",
+   "It mirrors extents to their new PV while IO continues, then swaps atomically",
+   "Both grow and shrink — LVM pauses IO for both"
+  ],
+  "answerIndex": 2,
+  "explanation": "pvmove copies each used extent to the destination and updates the mapping live — no downtime, just slower IO while it runs."
+ },
+ {
+  "id": "lvm-b111",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "A 20G VG holds lv_data at 8G and lv_logs at 4G. How much free space remains for new volumes?",
+  "options": [
+   "4G",
+   "12G",
+   "9G",
+   "8G"
+  ],
+  "answerIndex": 3,
+  "explanation": "20G − 8G − 4G = 8G of VFree. vgs reports it directly — that is what lvcreate spends."
+ },
+ {
+  "id": "lvm-b121",
+  "topic": "lvm",
+  "difficulty": "hard",
+  "prompt": "lvextend/lvcreate fails with: \"Device /dev/sdc excluded by a filter\". What is the actual problem?",
+  "options": [
+   "The disk was never initialised as a PV — run pvcreate /dev/sdc first",
+   "The kernel lacks device-mapper support",
+   "LVM is not installed",
+   "SELinux is blocking the operation"
+  ],
+  "answerIndex": 0,
+  "explanation": "The disk was never initialised as a PV — run pvcreate /dev/sdc first — LVM's error text is terse but precise. pvs/vgs/lvs tell you which of the numbers does not add up."
+ },
+ {
+  "id": "lvm-b187",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "Which command pair manually grows XFS after lvextend WITHOUT -r?",
+  "options": [
+   "df caches its results for 5 minutes",
+   "mount it (if needed) then xfs_growfs /mountpoint",
+   "You forgot to unmount first",
+   "-l +50%VG always does it"
+  ],
+  "answerIndex": 1,
+  "explanation": "mount it (if needed) then xfs_growfs /mountpoint The LV and the filesystem are two different sizes — -r keeps them in sync; without it, run the grower yourself."
+ },
+ {
+  "id": "lvm-b103",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "Which command rolls a volume back to its snapshot state?",
+  "options": [
+   "About 200M — only changed blocks are stored",
+   "lvconvert --merge vg/lab_snap",
+   "Only the new blocks written after the snapshot",
+   "Because snapshots compress the volume before deploy"
+  ],
+  "answerIndex": 1,
+  "explanation": "lvconvert --merge replays the snapshot into the origin — in our lab the rollback was verified byte-identical with sha256sum."
+ },
+ {
+  "id": "lvm-b185",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "What does lvextend -l +100%VG do?",
+  "options": [
+   "Grows the filesystem to match the LV",
+   "-L 50% does it",
+   "You forgot mkfs.xfs",
+   "Grows the LV to consume every extent of the whole VG — dangerous if other LVs exist"
+  ],
+  "answerIndex": 3,
+  "explanation": "Grows the LV to consume every extent of the whole VG — dangerous if other LVs exist The LV and the filesystem are two different sizes — -r keeps them in sync; without it, run the grower yourself."
+ },
+ {
+  "id": "lvm-b098",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "Which command resizes an ext4 filesystem after lvextend?",
+  "options": [
+   "Also resizes the filesystem inside the LV in the same step",
+   "resize2fs",
+   "xfs_growfs",
+   "Nothing — the flag is ignored"
+  ],
+  "answerIndex": 1,
+  "explanation": "resize2fs works on ext filesystems — and with the -r flag on lvextend/lvreduce it runs automatically."
+ },
+ {
+  "id": "lvm-b094",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "Which command is used to replay a snapshot back into its origin volume?",
+  "options": [
+   "vgmerge",
+   "lvconvert --merge",
+   "lvrestore",
+   "lvmerge"
+  ],
+  "answerIndex": 1,
+  "explanation": "lvconvert --merge is the right tool. Run the LVM commands with sudo, then verify with pvs/vgs/lvs."
+ },
+ {
+  "id": "lvm-b191",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "vgs shows 13G VFree. What is the largest single logical volume you can still create?",
+  "options": [
+   "13G",
+   "14G",
+   "26G",
+   "12G"
+  ],
+  "answerIndex": 0,
+  "explanation": "lvcreate can spend up to the whole VFree: 13G. In practice keep headroom for snapshots and future lvextends."
+ },
+ {
+  "id": "lvm-b118",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "What does the Attr column in lvs tell you?",
+  "options": [
+   "pvsave",
+   "Space reserved for snapshots",
+   "Volume type and state flags — e.g. 'a' active, 'o' open, 's' snapshot, 'i' inactive",
+   "vgbackup --all"
+  ],
+  "answerIndex": 2,
+  "explanation": "Attr packs type/state into a few characters ('awi-aor' is a typical active linear LV). Man lvs(8) decodes every position."
+ },
+ {
+  "id": "lvm-b189",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "vgs shows 9G VFree. What is the largest single logical volume you can still create?",
+  "options": [
+   "18G",
+   "10G",
+   "9G",
+   "8G"
+  ],
+  "answerIndex": 2,
+  "explanation": "lvcreate can spend up to the whole VFree: 9G. In practice keep headroom for snapshots and future lvextends."
+ },
+ {
+  "id": "lvm-b115",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "Where does LVM keep automatic metadata backups of your VG definitions?",
+  "options": [
+   "In the superblock of each PV",
+   "lvrecover",
+   "/etc/lvm/backup",
+   "The filesystem type of the LV"
+  ],
+  "answerIndex": 2,
+  "explanation": "Every VG change is archived under /etc/lvm/backup (and /etc/lvm/archive). vgcfgrestore can rebuild a VG from those files."
+ },
+ {
+  "id": "lvm-b166",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "You deleted an LV by mistake. What restores its DATA?",
+  "options": [
+   "The disk is failing",
+   "pvremove → vgremove → lvremove → umount",
+   "The kernel module lvm_mod was unloaded",
+   "Nothing automatically — metadata can be rebuilt with vgcfgrestore, but data needs your backup"
+  ],
+  "answerIndex": 3,
+  "explanation": "Nothing automatically — metadata can be rebuilt with vgcfgrestore, but data needs your backup Destroy top-down, pvmove before vgreduce, and remember: /etc/lvm/backup holds METADATA only — data always needs a real backup."
+ },
+ {
+  "id": "lvm-b183",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "Why keep ext4 on lv_logs while lv_data uses XFS?",
+  "options": [
+   "Grows to 100% of FREE extents",
+   "XFS cannot shrink — if logs ever need to shrink, only ext4 allows it",
+   "ext4 cannot shrink — XFS can",
+   "There is no such flag pair"
+  ],
+  "answerIndex": 1,
+  "explanation": "XFS cannot shrink — if logs ever need to shrink, only ext4 allows it The LV and the filesystem are two different sizes — -r keeps them in sync; without it, run the grower yourself."
+ },
+ {
+  "id": "lvm-b084",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "Which sequence makes a mounted filesystem from three raw disks?",
+  "options": [
+   "mkfs → pvcreate → vgcreate → mount",
+   "pvcreate → vgcreate → lvcreate → mkfs",
+   "lvcreate → pvcreate → vgcreate → mount",
+   "vgcreate → pvcreate → lvcreate → mkfs"
+  ],
+  "answerIndex": 1,
+  "explanation": "pvcreate each disk, vgcreate to pool them, lvcreate to carve a volume, mkfs to build the filesystem — then mount."
+ },
+ {
+  "id": "lvm-b172",
+  "topic": "lvm",
+  "difficulty": "hard",
+  "prompt": "Which command shows ALL LV rows including hidden internal ones (like COW metadata volumes)?",
+  "options": [
+   "How much of the origin volume has changed",
+   "lvs -a",
+   "vgmigrate then vgaccept",
+   "The VG is deleted automatically"
+  ],
+  "answerIndex": 1,
+  "explanation": "lvs -a These details separate careful operators from lucky ones — vgexport/vgimport, Data% on snapshots, missing-PV handling and Attr flags."
+ },
+ {
+  "id": "lvm-b123",
+  "topic": "lvm",
+  "difficulty": "hard",
+  "prompt": "lvextend/lvcreate fails with: \"Logical volume vg_lab/lv_data not found\". What is the actual problem?",
+  "options": [
+   "The kernel lacks device-mapper support",
+   "LVM is not installed",
+   "SELinux is blocking the operation",
+   "Wrong VG or LV name — check with lvs and use the exact path"
+  ],
+  "answerIndex": 3,
+  "explanation": "Wrong VG or LV name — check with lvs and use the exact path — LVM's error text is terse but precise. pvs/vgs/lvs tell you which of the numbers does not add up."
+ },
+ {
+  "id": "lvm-b173",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "Which layer does pvcreate initialise — a disk or a filesystem?",
+  "options": [
+   "A disk (or partition) — it writes the LVM label; filesystems come later",
+   "A filesystem — it optimises the superblock for LVM",
+   "Only if the partition is type 8e",
+   "The VG itself"
+  ],
+  "answerIndex": 0,
+  "explanation": "A disk (or partition) — it writes the LVM label; filesystems come later Layers stack: disk → pvcreate (PV) → vgcreate (VG) → lvcreate (LV) → mkfs → mount. Each tool targets exactly one layer."
+ },
+ {
+  "id": "lvm-b199",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "pvs shows sdb with VG column empty. What does that mean?",
+  "options": [
+   "The disk has no partition table",
+   "The VG was deleted along with its disks",
+   "The PV is corrupted and must be recreated",
+   "sdb is a PV but not yet added to any volume group"
+  ],
+  "answerIndex": 3,
+  "explanation": "pvcreate alone leaves the disk as a free-floating PV (empty VG column). vgcreate vg_lab sdb would pool it into a group."
+ },
+ {
+  "id": "lvm-b164",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "What must be true about a PV before vgreduce can remove it from the VG?",
+  "options": [
+   "The disk is failing",
+   "vgcfgrestore rebuilds everything including data",
+   "The kernel module lvm_mod was unloaded",
+   "All its extents must be free — pvmove them elsewhere first"
+  ],
+  "answerIndex": 3,
+  "explanation": "All its extents must be free — pvmove them elsewhere first Destroy top-down, pvmove before vgreduce, and remember: /etc/lvm/backup holds METADATA only — data always needs a real backup."
+ },
+ {
+  "id": "lvm-b116",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "Which command writes a fresh metadata backup of all VGs on demand?",
+  "options": [
+   "lvrecover",
+   "vgcfgbackup",
+   "In the superblock of each PV",
+   "The VG's metadata overhead"
+  ],
+  "answerIndex": 1,
+  "explanation": "vgcfgbackup dumps VG metadata to /etc/lvm/backup — do it before risky reorganisations."
+ },
+ {
+  "id": "lvm-b168",
+  "topic": "lvm",
+  "difficulty": "hard",
+  "prompt": "Which command moves a VG to another machine in two steps?",
+  "options": [
+   "vgexport on the old host, then vgimport on the new one",
+   "vgs --all with metadata dump",
+   "Copy /etc/lvm/backup to the new host and reboot",
+   "How many extents are free in the VG"
+  ],
+  "answerIndex": 0,
+  "explanation": "vgexport on the old host, then vgimport on the new one These details separate careful operators from lucky ones — vgexport/vgimport, Data% on snapshots, missing-PV handling and Attr flags."
+ },
+ {
+  "id": "lvm-b200",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "pvs shows sdc with VG column empty. What does that mean?",
+  "options": [
+   "The PV is corrupted and must be recreated",
+   "sdc is a PV but not yet added to any volume group",
+   "The VG was deleted along with its disks",
+   "The disk has no partition table"
+  ],
+  "answerIndex": 1,
+  "explanation": "pvcreate alone leaves the disk as a free-floating PV (empty VG column). vgcreate vg_app sdc would pool it into a group."
+ },
+ {
+  "id": "lvm-b128",
+  "topic": "lvm",
+  "difficulty": "hard",
+  "prompt": "What does vgchange -ay do?",
+  "options": [
+   "Nothing is online-safe; unmount everything first",
+   "Both grow and shrink — LVM pauses IO for both",
+   "A compatibility layer for iSCSI devices",
+   "Activates every logical volume in all VGs (commonly run at boot)"
+  ],
+  "answerIndex": 3,
+  "explanation": "vgchange -ay makes all LVs available under /dev; -an deactivates. activation is what creates the device nodes."
+ },
+ {
+  "id": "lvm-b169",
+  "topic": "lvm",
+  "difficulty": "hard",
+  "prompt": "What does the Data% column of a SNAPSHOT row in lvs mean?",
+  "options": [
+   "All LVs on the missing PV are reformatted",
+   "vgclone then vgmove",
+   "LSize and Origin",
+   "How full the snapshot's copy-on-write area is — at 100% the snapshot invalidates"
+  ],
+  "answerIndex": 3,
+  "explanation": "How full the snapshot's copy-on-write area is — at 100% the snapshot invalidates These details separate careful operators from lucky ones — vgexport/vgimport, Data% on snapshots, missing-PV handling and Attr flags."
+ },
+ {
+  "id": "lvm-b119",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "What does VFree mean in vgs output?",
+  "options": [
+   "/etc/lvm.conf",
+   "The filesystem type of the LV",
+   "Extents not yet allocated to any LV — available for lvcreate/lvextend",
+   "The mount point of the LV"
+  ],
+  "answerIndex": 2,
+  "explanation": "VFree is the unspent part of the VG. VSize is total, VFree is what lvextend can still spend."
+ },
+ {
+  "id": "lvm-b176",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "Which devices does mkfs.xfs target?",
+  "options": [
+   "/var/run/lvm/<vg-name>/",
+   "It formats the disk immediately",
+   "/dev/vg/<lv-name>/",
+   "A logical volume or partition — never a raw PV that is in a VG"
+  ],
+  "answerIndex": 3,
+  "explanation": "A logical volume or partition — never a raw PV that is in a VG Layers stack: disk → pvcreate (PV) → vgcreate (VG) → lvcreate (LV) → mkfs → mount. Each tool targets exactly one layer."
+ },
+ {
+  "id": "lvm-b192",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "vgs shows 15G VFree. What is the largest single logical volume you can still create?",
+  "options": [
+   "30G",
+   "16G",
+   "14G",
+   "15G"
+  ],
+  "answerIndex": 3,
+  "explanation": "lvcreate can spend up to the whole VFree: 15G. In practice keep headroom for snapshots and future lvextends."
+ },
+ {
+  "id": "lvm-b179",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "A 20G VG runs lv_data (6G), lv_logs (2G) and a 1G snapshot. How much VFree remains?",
+  "options": [
+   "12G",
+   "14G",
+   "1G",
+   "11G"
+  ],
+  "answerIndex": 3,
+  "explanation": "20 − 6 − 2 − 1 = 11G. Snapshots consume real extents — plan VFree for them, not just for LVs."
+ },
+ {
+  "id": "lvm-b099",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "What does the -r flag on lvextend do?",
+  "options": [
+   "You must unmount first, always",
+   "ext4",
+   "XFS cannot shrink at all — it is grow-only",
+   "Also resizes the filesystem inside the LV in the same step"
+  ],
+  "answerIndex": 3,
+  "explanation": "-r (via fsadm) calls xfs_growfs or resize2fs for you — the LV and the filesystem stay in lockstep, online."
+ },
+ {
+  "id": "lvm-b091",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "Which command is used to relocate all used extents off one PV onto the others, online?",
+  "options": [
+   "pvchange",
+   "lvmove",
+   "vgmove",
+   "pvmove"
+  ],
+  "answerIndex": 3,
+  "explanation": "pvmove is the right tool. Run the LVM commands with sudo, then verify with pvs/vgs/lvs."
+ },
+ {
+  "id": "lvm-b170",
+  "topic": "lvm",
+  "difficulty": "hard",
+  "prompt": "A PV physically dies. What does LVM show in vgs?",
+  "options": [
+   "The VG appears with 'PV missing' / missing device — it still works if enough redundancy existed",
+   "vgs --all with metadata dump",
+   "pvs -m",
+   "How much of the origin volume has changed"
+  ],
+  "answerIndex": 0,
+  "explanation": "The VG appears with 'PV missing' / missing device — it still works if enough redundancy existed These details separate careful operators from lucky ones — vgexport/vgimport, Data% on snapshots, missing-PV handling and Attr flags."
+ },
+ {
+  "id": "lvm-b108",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "You pool two disks of 8G and 8G into one volume group. What is the VG's total size?",
+  "options": [
+   "64G",
+   "15G",
+   "16G",
+   "8G"
+  ],
+  "answerIndex": 2,
+  "explanation": "vgcreate pools all PV space: two disks of 8G and 8G → 16G of extents (a tiny sliver goes to LVM metadata, invisible to vgs rounding). lvcreate spends that space."
+ },
+ {
+  "id": "lvm-b113",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "A 24G VG holds lv_data at 10G and lv_logs at 5G. How much free space remains for new volumes?",
+  "options": [
+   "14G",
+   "9G",
+   "10G",
+   "5G"
+  ],
+  "answerIndex": 1,
+  "explanation": "24G − 10G − 5G = 9G of VFree. vgs reports it directly — that is what lvcreate spends."
+ },
+ {
+  "id": "lvm-b104",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "Why take a snapshot before a risky deploy?",
+  "options": [
+   "Only the metadata, data is regenerated on merge",
+   "A full byte-for-byte copy of the volume taken at snapshot time",
+   "Because snapshots compress the volume before deploy",
+   "Because merge rolls back byte-identical in seconds — cheaper than restore-from-backup"
+  ],
+  "answerIndex": 3,
+  "explanation": "Snapshots are near-instant and near-free (COW). If the deploy goes wrong, lvconvert --merge undoes it faster than any backup restore."
+ },
+ {
+  "id": "lvm-b081",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "Which layer is the slice you actually format and mount?",
+  "options": [
+   "Physical Volume (PV)",
+   "Logical Volume (LV)",
+   "The extent table",
+   "Volume Group (VG)"
+  ],
+  "answerIndex": 1,
+  "explanation": "Logical Volume. You never mount a PV or VG directly — lvcreate carves an LV and /dev/vg_lab/lv_data behaves like a normal disk."
+ },
+ {
+  "id": "lvm-b086",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "With the default extent size, how many 4 MiB extents does a 2 GiB logical volume use?",
+  "options": [
+   "512",
+   "256",
+   "1024",
+   "2048"
+  ],
+  "answerIndex": 0,
+  "explanation": "2 GiB = 2048 MiB; 2048 ÷ 4 = 512 extents. That is why vgs and lvs count in extents — the math stays integer-simple."
+ },
+ {
+  "id": "lvm-b100",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "What does a COW snapshot store when it is first taken?",
+  "options": [
+   "lvconvert --merge vg/lab_snap",
+   "About 200M — only changed blocks are stored",
+   "Nothing but metadata — it records a point-in-time and copies only blocks as they change",
+   "dd if=/dev/vg/origin of=/dev/vg/snap"
+  ],
+  "answerIndex": 2,
+  "explanation": "Copy-on-write snapshots start almost empty: the moment a block on the origin changes, the OLD block is saved to the snapshot area."
+ },
+ {
+  "id": "lvm-b162",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "You want a logical volume of exactly 5 GiB. How many 4 MiB extents will lvcreate consume?",
+  "options": [
+   "1280",
+   "1284",
+   "500",
+   "640"
+  ],
+  "answerIndex": 0,
+  "explanation": "5 GiB → 5120 MiB ÷ 4 = 1280 extents. lvextend -l accepts extent counts, -L accepts sizes — both land on the same result."
+ },
+ {
+  "id": "lvm-b174",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "Can you pvcreate a partition like /dev/sdb1 instead of a whole disk?",
+  "options": [
+   "It converts the data to extents",
+   "/dev/lvm/<vg-name>/",
+   "A filesystem — it optimises the superblock for LVM",
+   "Yes — partitions work as PVs just like whole disks"
+  ],
+  "answerIndex": 3,
+  "explanation": "Yes — partitions work as PVs just like whole disks Layers stack: disk → pvcreate (PV) → vgcreate (VG) → lvcreate (LV) → mkfs → mount. Each tool targets exactly one layer."
+ },
+ {
+  "id": "lvm-b122",
+  "topic": "lvm",
+  "difficulty": "hard",
+  "prompt": "lvextend/lvcreate fails with: \"Filesystem resize failed: xfs cannot shrink\". What is the actual problem?",
+  "options": [
+   "LVM is not installed",
+   "You tried lvreduce -r on an XFS volume — XFS is grow-only; migrate data or use ext4",
+   "SELinux is blocking the operation",
+   "The kernel lacks device-mapper support"
+  ],
+  "answerIndex": 1,
+  "explanation": "You tried lvreduce -r on an XFS volume — XFS is grow-only; migrate data or use ext4 — LVM's error text is terse but precise. pvs/vgs/lvs tell you which of the numbers does not add up."
+ },
+ {
+  "id": "lvm-b133",
+  "topic": "lvm",
+  "difficulty": "hard",
+  "prompt": "What is the risk of heavily overcommitted thin volumes?",
+  "options": [
+   "lvs -a — the pool row's Data% shows how much of the pool is actually written",
+   "Snapshots become impossible inside a thin pool",
+   "The underlying pool can run out of physical blocks and start failing writes",
+   "Thin pools disable the write cache"
+  ],
+  "answerIndex": 2,
+  "explanation": "Thin overcommit is powerful but the pool must be monitored (Data%) and extended with lvextend before it fills."
+ },
+ {
+  "id": "lvm-b180",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "A 8G VG runs lv_data (2G), lv_logs (2G) and a 1G snapshot. How much VFree remains?",
+  "options": [
+   "6G",
+   "4G",
+   "3G",
+   "1G"
+  ],
+  "answerIndex": 2,
+  "explanation": "8 − 2 − 2 − 1 = 3G. Snapshots consume real extents — plan VFree for them, not just for LVs."
+ },
+ {
+  "id": "lvm-b161",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "You want a logical volume of exactly 4 GiB. How many 4 MiB extents will lvcreate consume?",
+  "options": [
+   "1028",
+   "400",
+   "512",
+   "1024"
+  ],
+  "answerIndex": 3,
+  "explanation": "4 GiB → 4096 MiB ÷ 4 = 1024 extents. lvextend -l accepts extent counts, -L accepts sizes — both land on the same result."
+ },
+ {
+  "id": "lvm-b175",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "What happens if you pvcreate a disk that already holds data?",
+  "options": [
+   "pvcreate refuses until you confirm -f (it would destroy the old signature)",
+   "A filesystem — it optimises the superblock for LVM",
+   "A mountpoint",
+   "/var/run/lvm/<vg-name>/"
+  ],
+  "answerIndex": 0,
+  "explanation": "pvcreate refuses until you confirm -f (it would destroy the old signature) Layers stack: disk → pvcreate (PV) → vgcreate (VG) → lvcreate (LV) → mkfs → mount. Each tool targets exactly one layer."
+ },
+ {
+  "id": "lvm-b190",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "vgs shows 11G VFree. What is the largest single logical volume you can still create?",
+  "options": [
+   "22G",
+   "10G",
+   "12G",
+   "11G"
+  ],
+  "answerIndex": 3,
+  "explanation": "lvcreate can spend up to the whole VFree: 11G. In practice keep headroom for snapshots and future lvextends."
+ },
+ {
+  "id": "lvm-b087",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "With the default extent size, how many 4 MiB extents does a 3 GiB logical volume use?",
+  "options": [
+   "768",
+   "384",
+   "3072",
+   "1536"
+  ],
+  "answerIndex": 0,
+  "explanation": "3 GiB = 3072 MiB; 3072 ÷ 4 = 768 extents. That is why vgs and lvs count in extents — the math stays integer-simple."
+ },
+ {
+  "id": "lvm-b101",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "What happens if a snapshot area completely fills up?",
+  "options": [
+   "The snapshot becomes invalid and must be deleted (or auto-extended via lvm.conf)",
+   "Because snapshots compress the volume before deploy",
+   "Because LVM requires a snapshot before any write",
+   "lvconvert --merge vg/lab_snap"
+  ],
+  "answerIndex": 0,
+  "explanation": "A full COW snapshot cannot track further changes. lvm.conf snapshot_autoextend can grow it automatically — monitor with lvs Data%."
+ },
+ {
+  "id": "lvm-b097",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "Which command grows a MOUNTED XFS filesystem after lvextend?",
+  "options": [
+   "xfs_growfs",
+   "Also resizes the filesystem inside the LV in the same step",
+   "XFS cannot shrink at all — it is grow-only",
+   "ext4"
+  ],
+  "answerIndex": 0,
+  "explanation": "xfs_growfs /mount/point grows the XFS filesystem into the newly extended LV — online, no unmount."
+ },
+ {
+  "id": "lvm-b167",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "What does PSize slightly smaller than the disk size indicate?",
+  "options": [
+   "Order does not matter — LVM figures it out",
+   "pvcreate reserved a small area for LVM metadata on the disk",
+   "A filesystem lives there now",
+   "vgcfgrestore rebuilds everything including data"
+  ],
+  "answerIndex": 1,
+  "explanation": "pvcreate reserved a small area for LVM metadata on the disk Destroy top-down, pvmove before vgreduce, and remember: /etc/lvm/backup holds METADATA only — data always needs a real backup."
+ },
+ {
+  "id": "lvm-b106",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "You pool two disks of 8G and 4G into one volume group. What is the VG's total size?",
+  "options": [
+   "32G",
+   "12G",
+   "8G",
+   "11G"
+  ],
+  "answerIndex": 1,
+  "explanation": "vgcreate pools all PV space: two disks of 8G and 4G → 12G of extents (a tiny sliver goes to LVM metadata, invisible to vgs rounding). lvcreate spends that space."
+ },
+ {
+  "id": "lvm-b125",
+  "topic": "lvm",
+  "difficulty": "hard",
+  "prompt": "Which LVM operations are safe to run while the filesystem is mounted and serving traffic?",
+  "options": [
+   "Archives VG metadata to /etc/lvm/backup",
+   "Only lvcreate — anything touching an existing LV needs unmount",
+   "lvextend (grow) — shrinking and merging need the volume quiet",
+   "Both grow and shrink — LVM pauses IO for both"
+  ],
+  "answerIndex": 2,
+  "explanation": "Growing is online-safe: lvextend -r handles LV + filesystem. Shrink (ext4) and snapshot merge want the volume unmounted or at least quiesced."
+ },
+ {
+  "id": "lvm-b181",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "A 16G VG runs lv_data (5G), lv_logs (2G) and a 1G snapshot. How much VFree remains?",
+  "options": [
+   "8G",
+   "1G",
+   "11G",
+   "9G"
+  ],
+  "answerIndex": 0,
+  "explanation": "16 − 5 − 2 − 1 = 8G. Snapshots consume real extents — plan VFree for them, not just for LVs."
+ },
+ {
+  "id": "lvm-b114",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "A 10G VG holds lv_data at 4G and lv_logs at 2G. How much free space remains for new volumes?",
+  "options": [
+   "4G",
+   "5G",
+   "2G",
+   "6G"
+  ],
+  "answerIndex": 0,
+  "explanation": "10G − 4G − 2G = 4G of VFree. vgs reports it directly — that is what lvcreate spends."
+ },
+ {
+  "id": "lvm-b131",
+  "topic": "lvm",
+  "difficulty": "hard",
+  "prompt": "Which command creates a thin pool named thin_pool of 10G in vg_lab?",
+  "options": [
+   "The underlying pool can run out of physical blocks and start failing writes",
+   "df -h on each thin volume",
+   "lvcreate -T -n thin_pool -L 10G vg_lab",
+   "Snapshots become impossible inside a thin pool"
+  ],
+  "answerIndex": 2,
+  "explanation": "lvcreate -T builds a thin pool; thin LVs are then created from it with --thin or -V virtual sizes."
+ },
+ {
+  "id": "lvm-b160",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "You want a logical volume of exactly 3 GiB. How many 4 MiB extents will lvcreate consume?",
+  "options": [
+   "384",
+   "768",
+   "772",
+   "300"
+  ],
+  "answerIndex": 1,
+  "explanation": "3 GiB → 3072 MiB ÷ 4 = 768 extents. lvextend -l accepts extent counts, -L accepts sizes — both land on the same result."
+ },
+ {
+  "id": "lvm-b102",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "A 5G logical volume changes 200M of blocks after a snapshot. How much snapshot space is used?",
+  "options": [
+   "Only the metadata, data is regenerated on merge",
+   "The origin volume is frozen until you delete the snapshot",
+   "Because LVM requires a snapshot before any write",
+   "About 200M — only changed blocks are stored"
+  ],
+  "answerIndex": 3,
+  "explanation": "COW stores just the overwritten old blocks: 200M changed ≈ 200M used. A 1G snapshot is plenty for a deploy window."
+ },
+ {
+  "id": "lvm-b092",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "Which command is used to add a PV to an existing volume group?",
+  "options": [
+   "vgcreate",
+   "vgextend",
+   "lvextend",
+   "pvextend"
+  ],
+  "answerIndex": 1,
+  "explanation": "vgextend is the right tool. Run the LVM commands with sudo, then verify with pvs/vgs/lvs."
+ },
+ {
+  "id": "lvm-b171",
+  "topic": "lvm",
+  "difficulty": "hard",
+  "prompt": "Which lvs field tells you an LV is currently active and open?",
+  "options": [
+   "How many extents are free in the VG",
+   "Nothing — LVM hides failures by design",
+   "Attr — 'a' (active) plus 'o' (open) flags",
+   "LSize and Origin"
+  ],
+  "answerIndex": 2,
+  "explanation": "Attr — 'a' (active) plus 'o' (open) flags These details separate careful operators from lucky ones — vgexport/vgimport, Data% on snapshots, missing-PV handling and Attr flags."
+ },
+ {
+  "id": "lvm-b129",
+  "topic": "lvm",
+  "difficulty": "hard",
+  "prompt": "Which pair of columns in pvs tells you a disk's contribution and remaining space?",
+  "options": [
+   "Alloc and Used",
+   "Both grow and shrink — LVM pauses IO for both",
+   "Archives VG metadata to /etc/lvm/backup",
+   "PSize and PFree"
+  ],
+  "answerIndex": 3,
+  "explanation": "PSize is what the disk contributes to the VG; PFree is its unallocated part. 'Allocated 100%' means every extent is used."
+ },
+ {
+  "id": "lvm-b105",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "You pool three disks of 4G, 4G and 4G into one volume group. What is the VG's total size?",
+  "options": [
+   "4G",
+   "12G",
+   "16G",
+   "11G"
+  ],
+  "answerIndex": 1,
+  "explanation": "vgcreate pools all PV space: three disks of 4G, 4G and 4G → 12G of extents (a tiny sliver goes to LVM metadata, invisible to vgs rounding). lvcreate spends that space."
+ },
+ {
+  "id": "lvm-b184",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "Which flag pair extends an LV by exactly half of its current size?",
+  "options": [
+   "df caches its results for 5 minutes",
+   "lvextend -l +50%FREE would need free space; -L +<half>G works regardless",
+   "Deletes all free extents",
+   "ext4 cannot shrink — XFS can"
+  ],
+  "answerIndex": 1,
+  "explanation": "lvextend -l +50%FREE would need free space; -L +<half>G works regardless The LV and the filesystem are two different sizes — -r keeps them in sync; without it, run the grower yourself."
+ },
+ {
+  "id": "lvm-b093",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "Which command is used to drop an (empty) PV from a volume group?",
+  "options": [
+   "pvshrink",
+   "vgremove",
+   "pvremove",
+   "vgreduce"
+  ],
+  "answerIndex": 3,
+  "explanation": "vgreduce is the right tool. Run the LVM commands with sudo, then verify with pvs/vgs/lvs."
+ },
+ {
+  "id": "lvm-b130",
+  "topic": "lvm",
+  "difficulty": "hard",
+  "prompt": "What is the main benefit of an LVM thin pool over classic (thick) LVs?",
+  "options": [
+   "Thin volumes cannot be extended after creation",
+   "The filesystem inside shrinks automatically",
+   "Thin volumes slow down by 50% when over half full",
+   "Volumes can be oversized beyond physical space — blocks are only consumed as written"
+  ],
+  "answerIndex": 3,
+  "explanation": "Thin pools allocate blocks on first write, so a 100G thin LV costs nothing until used. Monitor the pool — overcommit cuts both ways."
+ },
+ {
+  "id": "lvm-b117",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "Which command restores a VG's metadata from a backup file?",
+  "options": [
+   "vgcfgbackup",
+   "vgrestore",
+   "vgcfgrestore",
+   "The VG's metadata overhead"
+  ],
+  "answerIndex": 2,
+  "explanation": "vgcfgrestore -f /etc/lvm/backup/vg_lab vg_lab rebuilds the VG definition. Metadata loss is recoverable — data loss is not."
+ },
+ {
+  "id": "lvm-b182",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "A 24G VG runs lv_data (8G), lv_logs (2G) and a 1G snapshot. How much VFree remains?",
+  "options": [
+   "14G",
+   "16G",
+   "1G",
+   "13G"
+  ],
+  "answerIndex": 3,
+  "explanation": "24 − 8 − 2 − 1 = 13G. Snapshots consume real extents — plan VFree for them, not just for LVs."
+ },
+ {
+  "id": "lvm-b124",
+  "topic": "lvm",
+  "difficulty": "hard",
+  "prompt": "lvextend/lvcreate fails with: \"Snapshot origin is busy / open\". What is the actual problem?",
+  "options": [
+   "The kernel lacks device-mapper support",
+   "LVM is not installed",
+   "SELinux is blocking the operation",
+   "Something is using the volume — unmount it (or stop the service) before merging"
+  ],
+  "answerIndex": 3,
+  "explanation": "Something is using the volume — unmount it (or stop the service) before merging — LVM's error text is terse but precise. pvs/vgs/lvs tell you which of the numbers does not add up."
+ },
+ {
+  "id": "lvm-b132",
+  "topic": "lvm",
+  "difficulty": "hard",
+  "prompt": "How do you watch a thin pool's real consumption?",
+  "options": [
+   "lvs -a — the pool row's Data% shows how much of the pool is actually written",
+   "vgcreate -T thin_pool vg_lab",
+   "lvcreate --pool thin_pool -L 10G vg_lab",
+   "Snapshots become impossible inside a thin pool"
+  ],
+  "answerIndex": 0,
+  "explanation": "Data% climbing towards 100% means the pool is filling; snapshot_autoextend-style monitoring or alerts should act on it."
+ },
+ {
+  "id": "lvm-b163",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "Which is the correct order to DESTROY an LVM stack completely?",
+  "options": [
+   "umount → lvremove → vgremove → pvremove",
+   "The disk must be unpartitioned",
+   "Order does not matter — LVM figures it out",
+   "The PV must be brand new"
+  ],
+  "answerIndex": 0,
+  "explanation": "umount → lvremove → vgremove → pvremove Destroy top-down, pvmove before vgreduce, and remember: /etc/lvm/backup holds METADATA only — data always needs a real backup."
+ },
+ {
+  "id": "lvm-b107",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "You pool two disks of 10G and 2G into one volume group. What is the VG's total size?",
+  "options": [
+   "11G",
+   "10G",
+   "20G",
+   "12G"
+  ],
+  "answerIndex": 3,
+  "explanation": "vgcreate pools all PV space: two disks of 10G and 2G → 12G of extents (a tiny sliver goes to LVM metadata, invisible to vgs rounding). lvcreate spends that space."
+ },
+ {
+  "id": "lvm-b188",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "vgs shows 7G VFree. What is the largest single logical volume you can still create?",
+  "options": [
+   "8G",
+   "6G",
+   "7G",
+   "14G"
+  ],
+  "answerIndex": 2,
+  "explanation": "lvcreate can spend up to the whole VFree: 7G. In practice keep headroom for snapshots and future lvextends."
+ },
+ {
+  "id": "lvm-b159",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "You want a logical volume of exactly 2 GiB. How many 4 MiB extents will lvcreate consume?",
+  "options": [
+   "516",
+   "512",
+   "256",
+   "200"
+  ],
+  "answerIndex": 1,
+  "explanation": "2 GiB → 2048 MiB ÷ 4 = 512 extents. lvextend -l accepts extent counts, -L accepts sizes — both land on the same result."
+ },
+ {
+  "id": "lvm-b083",
+  "topic": "lvm",
+  "difficulty": "easy",
+  "prompt": "What is an extent in LVM?",
+  "options": [
+   "The VG's unit of allocation — 4 MiB by default",
+   "A RAID stripe",
+   "A snapshot delta",
+   "A filesystem block"
+  ],
+  "answerIndex": 0,
+  "explanation": "Extents (4 MiB by default) are LVM's currency: LVs are built from them and lvextend -l counts them, not bytes."
+ },
+ {
+  "id": "lvm-b186",
+  "topic": "lvm",
+  "difficulty": "medium",
+  "prompt": "You extended the LV but df still shows the old size. What did you forget?",
+  "options": [
+   "Deletes all free extents",
+   "The filesystem resize — run xfs_growfs or lvextend -r next time",
+   "ext4 cannot shrink — XFS can",
+   "resize2fs /dev/vg/lv"
+  ],
+  "answerIndex": 1,
+  "explanation": "The filesystem resize — run xfs_growfs or lvextend -r next time The LV and the filesystem are two different sizes — -r keeps them in sync; without it, run the grower yourself."
+ },
+ {
+  "id": "nfs-b195",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "Which export style needs subtree_check the LEAST?",
+  "options": [
+   "Exporting whole dedicated filesystems (their own mountpoint)",
+   "It turns off write caching",
+   "It only costs on reads",
+   "Nothing — it is free"
+  ],
+  "answerIndex": 0,
+  "explanation": "Exporting whole dedicated filesystems (their own mountpoint) no_subtree_check trades a wall-off guarantee for stability under renames — export dedicated mounts and keep it off."
+ },
+ {
+  "id": "nfs-b103",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "A server's nfsd threads are all busy. What symptom do clients see?",
+  "options": [
+   "Clients get 'stale file handle' instantly",
+   "/proc/mounts",
+   "/etc/rpc",
+   "High response latency on every operation"
+  ],
+  "answerIndex": 3,
+  "explanation": "High response latency on every operation nfsstat -c/-s, nfsiostat and /proc/net/rpc are the observability trio for NFS performance work."
+ },
+ {
+  "id": "nfs-b110",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "A legacy appliance only speaks v3. What must the firewall open?",
+  "options": [
+   "v3 relies on NFS itself for locks",
+   "Nothing — v3 works over 2049 alone",
+   "2049/tcp plus rpcbind 111 and the helper ports (mountd, statd, lockd)",
+   "The mount silently falls back to v3"
+  ],
+  "answerIndex": 2,
+  "explanation": "2049/tcp plus rpcbind 111 and the helper ports (mountd, statd, lockd) vers= pins the protocol; v4 integrated locking and sessions; v3 legacy means rpcbind + helper ports."
+ },
+ {
+  "id": "nfs-b092",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "What does rsize/wsize tune?",
+  "options": [
+   "The mount fails outright",
+   "The maximum bytes per READ/WRITE transfer — bigger helps throughput on fast networks",
+   "UDP for speed",
+   "It disables the page cache"
+  ],
+  "answerIndex": 1,
+  "explanation": "The maximum bytes per READ/WRITE transfer — bigger helps throughput on fast networks Effective access = export ∩ mount; rsize/wsize/actimeo are the perf dials; noexec/nosuid are hardening; v4 is TCP-only."
+ },
+ {
+  "id": "nfs-b128",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "Which client-side credential decides a user's write access over NFS?",
+  "options": [
+   "The numeric uid/gid of the user on the client",
+   "Deletes files of other users",
+   "The client ran out of file descriptors",
+   "Forces uid 1500 read-only"
+  ],
+  "answerIndex": 0,
+  "explanation": "The numeric uid/gid of the user on the client NFS identity is numeric end-to-end: squash rules map uids, idmapd maps NAMES in v4, setgid keeps groups sane."
+ },
+ {
+  "id": "nfs-b048",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "Which write mode do modern NFS servers default to when neither sync nor async is set?",
+  "options": [
+   "It disables the network stack until writes finish",
+   "No default — the server refuses to start",
+   "sync",
+   "There is nothing to verify — async is always fine"
+  ],
+  "answerIndex": 2,
+  "explanation": "sync sync = ack after stable storage (safe); async = ack early (fast, risky on crash). Choose by what the data can afford to lose."
+ },
+ {
+  "id": "nfs-b135",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "You hardened the firewall to only 2049/tcp. Which protocol version still works?",
+  "options": [
+   "Only UDP-based v2",
+   "NFSv4 — v3 needs rpcbind 111 and the helper ports",
+   "rpcbind is built into the kernel now",
+   "showmount -a server"
+  ],
+  "answerIndex": 1,
+  "explanation": "NFSv4 — v3 needs rpcbind 111 and the helper ports rpcbind = port 111 directory for v3 RPC services; v4 collapsed everything into 2049/tcp."
+ },
+ {
+  "id": "nfs-b143",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "Why is NFS caching safe enough for most workloads?",
+  "options": [
+   "Caching is unsafe for shared files",
+   "Clients validate cache freshness (actimeo) and flush on close — conflicts are rare and bounded",
+   "Clients poll the server once per second",
+   "Caching works per-user only"
+  ],
+  "answerIndex": 1,
+  "explanation": "Clients validate cache freshness (actimeo) and flush on close — conflicts are rare and bounded NFS consistency is close-to-open by default; noac/actimeo=0 trades speed for byte-exact freshness when a workload truly demands it."
+ },
+ {
+  "id": "nfs-b151",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "What does the intr mount option do today?",
+  "options": [
+   "It closes open files for you",
+   "Nothing — it is a deprecated no-op; signals to interrupted hard mounts are always allowed now",
+   "Restart the network service",
+   "Timeouts only affect reads"
+  ],
+  "answerIndex": 1,
+  "explanation": "Nothing — it is a deprecated no-op; signals to interrupted hard mounts are always allowed now intr is history; processes can be signalled, umount -f/-l handle dead mounts, and soft mounts risk corruption on writes."
+ },
+ {
+  "id": "nfs-b067",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "A client hits: \"mount.nfs: Connection timed out\". What is the most likely cause?",
+  "options": [
+   "SELinux labels are wrong on the client",
+   "The client disk is full",
+   "Port 2049/tcp is blocked by a firewall or the server IP is wrong",
+   "NFS is disabled in the kernel"
+  ],
+  "answerIndex": 2,
+  "explanation": "Port 2049/tcp is blocked by a firewall or the server IP is wrong — triage order: showmount -e server (exports), ping/port 2049 (network), mount options (flags), then ownership (uid/gid)."
+ },
+ {
+  "id": "nfs-b050",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "You see async on a production export. What is the FIRST thing to verify?",
+  "options": [
+   "Whether the data on it can survive being partially lost — if not, move to sync",
+   "No default — the server refuses to start",
+   "async uses less CPU on clients",
+   "It picks randomly per client"
+  ],
+  "answerIndex": 0,
+  "explanation": "Whether the data on it can survive being partially lost — if not, move to sync sync = ack after stable storage (safe); async = ack early (fast, risky on crash). Choose by what the data can afford to lose."
+ },
+ {
+  "id": "nfs-b051",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "What does mode 2775 on a shared directory achieve?",
+  "options": [
+   "Enabling async on the export",
+   "Each user's files get their personal group — teammates hit permission denied",
+   "Only root can create files there",
+   "New files inherit the directory's group (setgid) while group stays writable"
+  ],
+  "answerIndex": 3,
+  "explanation": "New files inherit the directory's group (setgid) while group stays writable setgid (2775) + consistent group membership across clients = a team share that just works."
+ },
+ {
+  "id": "nfs-b063",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "A client mounts server:/ and works under v4. What is it actually mounting?",
+  "options": [
+   "rpcbind",
+   "The fsid=0 pseudo-root, with real exports bound beneath it",
+   "It force-mounts the export on boot",
+   "That subtrees are checked for viruses"
+  ],
+  "answerIndex": 1,
+  "explanation": "The fsid=0 pseudo-root, with real exports bound beneath it v4's single-port design (2049) plus fsid=0 pseudo-roots replaced the v3 rpcbind port parade."
+ },
+ {
+  "id": "nfs-b064",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "Which daemon maps user names to ids for NFSv4 ownership strings?",
+  "options": [
+   "nfs-idmapd (idmapd)",
+   "It force-mounts the export on boot",
+   "It allocates the first free file handle",
+   "The physical root filesystem of the server"
+  ],
+  "answerIndex": 0,
+  "explanation": "nfs-idmapd (idmapd) v4's single-port design (2049) plus fsid=0 pseudo-roots replaced the v3 rpcbind port parade."
+ },
+ {
+  "id": "nfs-b187",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "What must the server resolve for netgroups to work?",
+  "options": [
+   "Restart the NFS daemon",
+   "The netgroup definitions (via NIS/LDAP or /etc/netgroup)",
+   "The mount succeeds for root only",
+   "/srv/nfs/shared #builders(rw,sync)"
+  ],
+  "answerIndex": 1,
+  "explanation": "The netgroup definitions (via NIS/LDAP or /etc/netgroup) @netgroup specs centralise host access control; they resolve through NIS/LDAP — test with getent netgroup."
+ },
+ {
+  "id": "nfs-b075",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "What does nfsstat -s summarise?",
+  "options": [
+   "A map file like /etc/auto.nfs referenced from auto.master",
+   "Inside the systemd unit file only",
+   "Server-side NFS operation counters (getattr, read, write…)",
+   "Per-mount RPC statistics — counts, latency and errors"
+  ],
+  "answerIndex": 2,
+  "explanation": "Server-side NFS operation counters (getattr, read, write…) autofs for on-demand mounts; nfsstat/mountstats/nfsiostat for performance truth."
+ },
+ {
+  "id": "nfs-b186",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "Which /etc/exports syntax grants access to the netgroup 'builders'?",
+  "options": [
+   "Only the DNS zone",
+   "The mount succeeds read-only",
+   "/srv/nfs/shared @builders(rw,sync)",
+   "They enable Kerberos automatically"
+  ],
+  "answerIndex": 2,
+  "explanation": "/srv/nfs/shared @builders(rw,sync) @netgroup specs centralise host access control; they resolve through NIS/LDAP — test with getent netgroup."
+ },
+ {
+  "id": "nfs-b105",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "Clients hang since a network blip. First diagnostic for a hard mount?",
+  "options": [
+   "netstat -an",
+   "Client disk cache hit rates",
+   "/etc/rpc",
+   "Check if the server answers on 2049 — the mount will recover when it does"
+  ],
+  "answerIndex": 3,
+  "explanation": "Check if the server answers on 2049 — the mount will recover when it does nfsstat -c/-s, nfsiostat and /proc/net/rpc are the observability trio for NFS performance work."
+ },
+ {
+  "id": "nfs-b100",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "Why can wildcard/CIDR client specs be risky?",
+  "options": [
+   "It skips Kerberos checks",
+   "mount build01:/srv/nfs/shared",
+   "They slow down every lookup",
+   "They trust whatever the network says — a spoofed or new host inherits access"
+  ],
+  "answerIndex": 3,
+  "explanation": "They trust whatever the network says — a spoofed or new host inherits access /etc/exports client specs: host, CIDR, wildcard, @netgroup — every broad spec widens who the server trusts."
+ },
+ {
+  "id": "nfs-b129",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "Why does a file created via NFS show group 'team' instead of the creator's group?",
+  "options": [
+   "A firewall rule dropped the mount port",
+   "Forces uid 1500 read-only",
+   "Deletes files of other users",
+   "The directory has setgid (2775) — new files inherit the directory's group"
+  ],
+  "answerIndex": 3,
+  "explanation": "The directory has setgid (2775) — new files inherit the directory's group NFS identity is numeric end-to-end: squash rules map uids, idmapd maps NAMES in v4, setgid keeps groups sane."
+ },
+ {
+  "id": "nfs-b168",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "Which master entry mounts every user's home from the server?",
+  "options": [
+   "60 seconds, fixed forever",
+   "It needs one line per user in fstab",
+   "/home /etc/auto.home --timeout=60 (indirect map keyed by user)",
+   "autofs cannot do NFS"
+  ],
+  "answerIndex": 2,
+  "explanation": "/home /etc/auto.home --timeout=60 (indirect map keyed by user) autofs = demand mounting with idle timeouts: direct maps for absolute paths, indirect maps keyed per user."
+ },
+ {
+  "id": "nfs-b194",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "What is the performance cost of subtree_check?",
+  "options": [
+   "Exporting the root filesystem",
+   "Using wildcards",
+   "Extra path validation on every file handle use",
+   "Enabling async"
+  ],
+  "answerIndex": 2,
+  "explanation": "Extra path validation on every file handle use no_subtree_check trades a wall-off guarantee for stability under renames — export dedicated mounts and keep it off."
+ },
+ {
+  "id": "nfs-b165",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "Why prefer /proc/mounts over `mount` output in scripts?",
+  "options": [
+   "It excludes /mnt paths",
+   "It is the kernel's live table — no tool formatting surprises",
+   "nfsstat --mounts",
+   "It sorts alphabetically"
+  ],
+  "answerIndex": 1,
+  "explanation": "It is the kernel's live table — no tool formatting surprises mount -t nfs,nfs4 for quick looks; /proc/mounts for truth; showmount -a for who is connected NOW."
+ },
+ {
+  "id": "nfs-b134",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "rpcinfo fails but ping works. What does that indicate?",
+  "options": [
+   "showmount -a server",
+   "Only UDP-based v2",
+   "Port 111 (rpcbind) is blocked or the RPC service is down — traffic flows but RPC cannot negotiate",
+   "It caches exports on the client"
+  ],
+  "answerIndex": 2,
+  "explanation": "Port 111 (rpcbind) is blocked or the RPC service is down — traffic flows but RPC cannot negotiate rpcbind = port 111 directory for v3 RPC services; v4 collapsed everything into 2049/tcp."
+ },
+ {
+  "id": "nfs-b166",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "What is an autofs direct map?",
+  "options": [
+   "It unmounts on every logout",
+   "A map that mounts specific absolute paths (/-) rather than everything under one parent",
+   "A DNS-based map",
+   "It prompts the user first"
+  ],
+  "answerIndex": 1,
+  "explanation": "A map that mounts specific absolute paths (/-) rather than everything under one parent autofs = demand mounting with idle timeouts: direct maps for absolute paths, indirect maps keyed per user."
+ },
+ {
+  "id": "nfs-b171",
+  "topic": "nfs",
+  "difficulty": "easy",
+  "prompt": "What provides showmount on Debian?",
+  "options": [
+   "kernel-nfsd",
+   "mount.nfs4",
+   "nfs-common",
+   "nfs-common — the client package"
+  ],
+  "answerIndex": 3,
+  "explanation": "nfs-common — the client package Debian splits client (nfs-common) from server (nfs-kernel-server); RHEL keeps one nfs-utils for both."
+ },
+ {
+  "id": "nfs-b164",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "Which mountinfo field reveals the NFS export's fsid?",
+  "options": [
+   "The RPC program number",
+   "df --all-nfs",
+   "The TCP window scale",
+   "The 'fid' / mount options show fsid= for v4 pseudo-roots"
+  ],
+  "answerIndex": 3,
+  "explanation": "The 'fid' / mount options show fsid= for v4 pseudo-roots mount -t nfs,nfs4 for quick looks; /proc/mounts for truth; showmount -a for who is connected NOW."
+ },
+ {
+  "id": "nfs-b175",
+  "topic": "nfs",
+  "difficulty": "easy",
+  "prompt": "You installed nfs-kernel-server on a client by mistake. What happens?",
+  "options": [
+   "cifs-utils",
+   "mount.nfs4",
+   "It works but runs unneeded server daemons — nfs-common was enough",
+   "nfs-client-core"
+  ],
+  "answerIndex": 2,
+  "explanation": "It works but runs unneeded server daemons — nfs-common was enough Debian splits client (nfs-common) from server (nfs-kernel-server); RHEL keeps one nfs-utils for both."
+ },
+ {
+  "id": "nfs-b191",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "What does no_subtree_check skip?",
+  "options": [
+   "Exporting the root filesystem",
+   "It fixes permission errors",
+   "Using wildcards",
+   "Verifying each file access still belongs inside the exported subtree"
+  ],
+  "answerIndex": 3,
+  "explanation": "Verifying each file access still belongs inside the exported subtree no_subtree_check trades a wall-off guarantee for stability under renames — export dedicated mounts and keep it off."
+ },
+ {
+  "id": "nfs-b172",
+  "topic": "nfs",
+  "difficulty": "easy",
+  "prompt": "Which package serves NFS on Debian?",
+  "options": [
+   "It blocks mounting entirely",
+   "rpcbind",
+   "nfs-kernel-server (userspace daemons + kernel nfsd)",
+   "nfs-client-core"
+  ],
+  "answerIndex": 2,
+  "explanation": "nfs-kernel-server (userspace daemons + kernel nfsd) Debian splits client (nfs-common) from server (nfs-kernel-server); RHEL keeps one nfs-utils for both."
+ },
+ {
+  "id": "nfs-b178",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "Can you have more than one fsid=0 per server?",
+  "options": [
+   "Clients cannot mount pseudo-roots",
+   "Yes, up to 255",
+   "Kerberos realms",
+   "No — exactly one v4 pseudo-root per server"
+  ],
+  "answerIndex": 3,
+  "explanation": "No — exactly one v4 pseudo-root per server fsid=0 designates the single v4 pseudo-root; everything else hangs beneath it as one namespace."
+ },
+ {
+  "id": "nfs-b043",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "Which export option maps ALL client users to the anonymous identity?",
+  "options": [
+   "root_squash_all",
+   "Kerberos tickets carry the username",
+   "all_squash",
+   "map_everyone"
+  ],
+  "answerIndex": 2,
+  "explanation": "all_squash Identity on NFS is numeric: keep uid/gid consistent (LDAP/NIS) and leave root_squash on unless you have a very specific lab reason."
+ },
+ {
+  "id": "nfs-b139",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "How do you grant one host ro while the subnet keeps rw?",
+  "options": [
+   "The server picks randomly for load balancing",
+   "Put them in a single line with commas",
+   "The mount succeeds read-only",
+   "Two lines: the specific host with (ro) first-class, then the CIDR with (rw)"
+  ],
+  "answerIndex": 3,
+  "explanation": "Two lines: the specific host with (ro) first-class, then the CIDR with (rw) Export matching is most-specific-wins: host beats subnet beats wildcard. Verify the result with exportfs -v."
+ },
+ {
+  "id": "nfs-b036",
+  "topic": "nfs",
+  "difficulty": "easy",
+  "prompt": "Which file defines what an NFS server shares, and with whom?",
+  "options": [
+   "/etc/exports",
+   "showmount -l <server>",
+   "exportfs -ua",
+   "exportfs -q <server>"
+  ],
+  "answerIndex": 0,
+  "explanation": "/etc/exports — the core workflow is: define exports in /etc/exports, apply with exportfs -ra, open 2049/tcp, and clients mount with nfs-common installed."
+ },
+ {
+  "id": "nfs-b193",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "When does subtree_check actually matter?",
+  "options": [
+   "It only costs on reads",
+   "Only with Kerberos",
+   "Nothing — it is free",
+   "Exporting part of a filesystem with sensitive sibling data you must wall off"
+  ],
+  "answerIndex": 3,
+  "explanation": "Exporting part of a filesystem with sensitive sibling data you must wall off no_subtree_check trades a wall-off guarantee for stability under renames — export dedicated mounts and keep it off."
+ },
+ {
+  "id": "nfs-b102",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "Which tool shows per-mount NFS IO like iostat?",
+  "options": [
+   "iostat -x",
+   "nfsiostat",
+   "Clients get 'stale file handle' instantly",
+   "Clients disconnect and unmount"
+  ],
+  "answerIndex": 1,
+  "explanation": "nfsiostat nfsstat -c/-s, nfsiostat and /proc/net/rpc are the observability trio for NFS performance work."
+ },
+ {
+  "id": "nfs-b037",
+  "topic": "nfs",
+  "difficulty": "easy",
+  "prompt": "After editing /etc/exports, which command applies the changes without restarting the service?",
+  "options": [
+   "exportfs -q <server>",
+   "mount -a",
+   "exportfs -ra",
+   "nfs-client"
+  ],
+  "answerIndex": 2,
+  "explanation": "exportfs -ra — the core workflow is: define exports in /etc/exports, apply with exportfs -ra, open 2049/tcp, and clients mount with nfs-common installed."
+ },
+ {
+  "id": "nfs-b152",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "A hard mount hangs a process on dead server. The modern way to free the process?",
+  "options": [
+   "Kill the process (INT/KILL works) — it stays blocked until the server returns",
+   "It unmounts after 10 seconds",
+   "Soft is faster so it is safer",
+   "Nothing — the process must be killed at boot"
+  ],
+  "answerIndex": 0,
+  "explanation": "Kill the process (INT/KILL works) — it stays blocked until the server returns intr is history; processes can be signalled, umount -f/-l handle dead mounts, and soft mounts risk corruption on writes."
+ },
+ {
+  "id": "nfs-b058",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "What does timeo=50 mean for an NFS mount?",
+  "options": [
+   "Soft mounts are always slower than hard",
+   "The mount switches to local disk transparently",
+   "A 5-second timeout — timeo is measured in deciseconds",
+   "The client reboots the server automatically"
+  ],
+  "answerIndex": 2,
+  "explanation": "A 5-second timeout — timeo is measured in deciseconds hard = never give up (integrity); soft = fail fast (risk). timeo is deciseconds; retrans counts attempts."
+ },
+ {
+  "id": "nfs-b131",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "What is rpcbind's job for NFSv3?",
+  "options": [
+   "mount --list-rpc",
+   "rpcbind is built into the kernel now",
+   "showmount -a server",
+   "A directory service on port 111 that tells clients which port each RPC service uses"
+  ],
+  "answerIndex": 3,
+  "explanation": "A directory service on port 111 that tells clients which port each RPC service uses rpcbind = port 111 directory for v3 RPC services; v4 collapsed everything into 2049/tcp."
+ },
+ {
+  "id": "nfs-b141",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "What does the noac mount option do?",
+  "options": [
+   "Nothing — concurrent writes always corrupt",
+   "Forces NFSv3 fallback",
+   "Database-style shared storage",
+   "Disables attribute/result caching — every access re-queries the server (slow, always-consistent)"
+  ],
+  "answerIndex": 3,
+  "explanation": "Disables attribute/result caching — every access re-queries the server (slow, always-consistent) NFS consistency is close-to-open by default; noac/actimeo=0 trades speed for byte-exact freshness when a workload truly demands it."
+ },
+ {
+  "id": "nfs-b161",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "Which command lists ALL currently mounted NFS filesystems compactly?",
+  "options": [
+   "It survives reboots",
+   "mount -t nfs,nfs4 (or grep nfs /proc/mounts)",
+   "/etc/mtab.lock",
+   "The server's log"
+  ],
+  "answerIndex": 1,
+  "explanation": "mount -t nfs,nfs4 (or grep nfs /proc/mounts) mount -t nfs,nfs4 for quick looks; /proc/mounts for truth; showmount -a for who is connected NOW."
+ },
+ {
+  "id": "nfs-b098",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "Which syntax shares an export with a single host named build01?",
+  "options": [
+   "Reloads /etc/fstab",
+   "/srv/nfs/shared build01(rw,sync)",
+   "mount build01:/srv/nfs/shared",
+   "/srv/nfs/shared @build01(rw,sync)"
+  ],
+  "answerIndex": 1,
+  "explanation": "/srv/nfs/shared build01(rw,sync) /etc/exports client specs: host, CIDR, wildcard, @netgroup — every broad spec widens who the server trusts."
+ },
+ {
+  "id": "nfs-b045",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "Files created through NFS show up owned by UID 1001 on every client. Why?",
+  "options": [
+   "Kerberos tickets carry the username",
+   "A compromised client's root keeps UID 0 and owns every file on the share",
+   "Forces all clients to authenticate with Kerberos",
+   "NFS passes numeric uid/gid straight through — clients must share a consistent identity source"
+  ],
+  "answerIndex": 3,
+  "explanation": "NFS passes numeric uid/gid straight through — clients must share a consistent identity source Identity on NFS is numeric: keep uid/gid consistent (LDAP/NIS) and leave root_squash on unless you have a very specific lab reason."
+ },
+ {
+  "id": "nfs-b039",
+  "topic": "nfs",
+  "difficulty": "easy",
+  "prompt": "Which package does a Debian CLIENT need to mount NFS shares?",
+  "options": [
+   "2049/udp",
+   "exportfs -ua",
+   "nfs-common",
+   "Both 111 and 2049 on tcp+udp"
+  ],
+  "answerIndex": 2,
+  "explanation": "nfs-common — the core workflow is: define exports in /etc/exports, apply with exportfs -ra, open 2049/tcp, and clients mount with nfs-common installed."
+ },
+ {
+  "id": "nfs-b192",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "Why is no_subtree_check the common default today?",
+  "options": [
+   "Exporting the root filesystem",
+   "It is required for v4",
+   "Subtree checks cause 'stale file handle' storms when files are renamed in exported subtrees",
+   "It only costs on reads"
+  ],
+  "answerIndex": 2,
+  "explanation": "Subtree checks cause 'stale file handle' storms when files are renamed in exported subtrees no_subtree_check trades a wall-off guarantee for stability under renames — export dedicated mounts and keep it off."
+ },
+ {
+  "id": "nfs-b107",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "What does mounting with -o vers=4.1 guarantee?",
+  "options": [
+   "It enables Kerberos",
+   "The client refuses older versions — useful when auditing protocol compliance",
+   "Locking is not possible in v3",
+   "Only v3 for compatibility"
+  ],
+  "answerIndex": 1,
+  "explanation": "The client refuses older versions — useful when auditing protocol compliance vers= pins the protocol; v4 integrated locking and sessions; v3 legacy means rpcbind + helper ports."
+ },
+ {
+  "id": "nfs-b146",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "What does sec=krb5i add over sec=krb5?",
+  "options": [
+   "Nothing — it only changes logs",
+   "The export mounts read-only",
+   "Integrity — every RPC is cryptographically signed against tampering",
+   "NFS is legacy — pick sys"
+  ],
+  "answerIndex": 2,
+  "explanation": "Integrity — every RPC is cryptographically signed against tampering sec=sys trusts numeric identity; krb5 authenticates, krb5i signs, krb5p encrypts — each step needs a real Kerberos realm."
+ },
+ {
+  "id": "nfs-b169",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "What happens when a user accesses an automounted path that is currently unmounted?",
+  "options": [
+   "autofs mounts it on demand — the first access pays the latency",
+   "It fails the access with ENOENT",
+   "fstab handles stale mounts better",
+   "A map mounted from the registry"
+  ],
+  "answerIndex": 0,
+  "explanation": "autofs mounts it on demand — the first access pays the latency autofs = demand mounting with idle timeouts: direct maps for absolute paths, indirect maps keyed per user."
+ },
+ {
+  "id": "nfs-b068",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "A client hits: \"stale file handle\". What is the most likely cause?",
+  "options": [
+   "NFS is disabled in the kernel",
+   "The client disk is full",
+   "The export changed or the server restarted — unmount and remount",
+   "SELinux labels are wrong on the client"
+  ],
+  "answerIndex": 2,
+  "explanation": "The export changed or the server restarted — unmount and remount — triage order: showmount -e server (exports), ping/port 2049 (network), mount options (flags), then ownership (uid/gid)."
+ },
+ {
+  "id": "nfs-b042",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "Why is no_root_squash called a production landmine?",
+  "options": [
+   "Blocks client root from connecting at all",
+   "all_squash",
+   "Forces all clients to authenticate with Kerberos",
+   "A compromised client's root keeps UID 0 and owns every file on the share"
+  ],
+  "answerIndex": 3,
+  "explanation": "A compromised client's root keeps UID 0 and owns every file on the share Identity on NFS is numeric: keep uid/gid consistent (LDAP/NIS) and leave root_squash on unless you have a very specific lab reason."
+ },
+ {
+  "id": "nfs-b180",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "What did the v4 pseudo-root replace?",
+  "options": [
+   "By exporting each with fsid=0 too",
+   "/export/data *(rw,sync,root=0)",
+   "The portmapper",
+   "The v3 model where every export was a separate mountable handle"
+  ],
+  "answerIndex": 3,
+  "explanation": "The v3 model where every export was a separate mountable handle fsid=0 designates the single v4 pseudo-root; everything else hangs beneath it as one namespace."
+ },
+ {
+  "id": "nfs-b132",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "Which command shows what services an NFSv3 server registered with rpcbind?",
+  "options": [
+   "Only UDP-based v2",
+   "The export went read-only",
+   "rpcinfo -p server",
+   "The client disk is full"
+  ],
+  "answerIndex": 2,
+  "explanation": "rpcinfo -p server rpcbind = port 111 directory for v3 RPC services; v4 collapsed everything into 2049/tcp."
+ },
+ {
+  "id": "nfs-b157",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "What does nohide do (v3 style)?",
+  "options": [
+   "It crosses VLAN boundaries",
+   "You must export each level",
+   "It deletes the child mount",
+   "Similar to crossmnt — child mounts are not hidden inside the parent export"
+  ],
+  "answerIndex": 3,
+  "explanation": "Similar to crossmnt — child mounts are not hidden inside the parent export Mount boundaries hide child filesystems — crossmnt/nohide open them up; v4's pseudo-root does this natively."
+ },
+ {
+  "id": "nfs-b047",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "What is the trade-off of the async export option?",
+  "options": [
+   "It disables the network stack until writes finish",
+   "Latency is irrelevant for this workload",
+   "It compresses data before sending it",
+   "Faster responses, but recent writes may be lost if the server crashes"
+  ],
+  "answerIndex": 3,
+  "explanation": "Faster responses, but recent writes may be lost if the server crashes sync = ack after stable storage (safe); async = ack early (fast, risky on crash). Choose by what the data can afford to lose."
+ },
+ {
+  "id": "nfs-b096",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "When is exportfs -ua useful?",
+  "options": [
+   "Reloads /etc/fstab",
+   "/srv/nfs/shared @build01(rw,sync)",
+   "mount build01:/srv/nfs/shared",
+   "Un-exporting everything cleanly before maintenance or shutdown"
+  ],
+  "answerIndex": 3,
+  "explanation": "Un-exporting everything cleanly before maintenance or shutdown /etc/exports client specs: host, CIDR, wildcard, @netgroup — every broad spec widens who the server trusts."
+ },
+ {
+  "id": "nfs-b174",
+  "topic": "nfs",
+  "difficulty": "easy",
+  "prompt": "What is in nfs-common besides mount.nfs?",
+  "options": [
+   "nfs-common",
+   "statd, idmapd client parts, rpc.statd, showmount, nfsstat",
+   "nfs-utils",
+   "nfs-client-core"
+  ],
+  "answerIndex": 1,
+  "explanation": "statd, idmapd client parts, rpc.statd, showmount, nfsstat Debian splits client (nfs-common) from server (nfs-kernel-server); RHEL keeps one nfs-utils for both."
+ },
+ {
+  "id": "nfs-b167",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "What timeout does autofs apply to idle mounts by default?",
+  "options": [
+   "It needs one line per user in fstab",
+   "It unmounts after an idle timeout (often 300s, configurable per map)",
+   "A map that runs at boot only",
+   "It prompts the user first"
+  ],
+  "answerIndex": 1,
+  "explanation": "It unmounts after an idle timeout (often 300s, configurable per map) autofs = demand mounting with idle timeouts: direct maps for absolute paths, indirect maps keyed per user."
+ },
+ {
+  "id": "nfs-b127",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "Files on the share show owner 'nobody' for EVERYONE. First thing to check?",
+  "options": [
+   "idmapd domain mismatch (v4) or missing uid/gid consistency (classic)",
+   "Deletes files of other users",
+   "Forces uid 1500 read-only",
+   "NFS switched to UDP"
+  ],
+  "answerIndex": 0,
+  "explanation": "idmapd domain mismatch (v4) or missing uid/gid consistency (classic) NFS identity is numeric end-to-end: squash rules map uids, idmapd maps NAMES in v4, setgid keeps groups sane."
+ },
+ {
+  "id": "nfs-b160",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "A bind-mounted subdirectory must be exported separately AND be visible. Which option helps?",
+  "options": [
+   "Only symlinks can cross",
+   "crossmnt on the parent (or explicit child exports)",
+   "Clients get stale handles",
+   "It replaces fsid=0"
+  ],
+  "answerIndex": 1,
+  "explanation": "crossmnt on the parent (or explicit child exports) Mount boundaries hide child filesystems — crossmnt/nohide open them up; v4's pseudo-root does this natively."
+ },
+ {
+  "id": "nfs-b053",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "Which numeric mode makes a directory group-writable AND setgid with no world write?",
+  "options": [
+   "stat shows a '+' sign",
+   "2775 (or 2770 for private teams)",
+   "1755 — sticky only",
+   "The mount silently fails"
+  ],
+  "answerIndex": 1,
+  "explanation": "2775 (or 2770 for private teams) setgid (2775) + consistent group membership across clients = a team share that just works."
+ },
+ {
+  "id": "nfs-b040",
+  "topic": "nfs",
+  "difficulty": "easy",
+  "prompt": "Which command asks a server to list its exports from a client?",
+  "options": [
+   "rpcinfo --exports",
+   "showmount -e <server>",
+   "/etc/nfs.conf.d/exports",
+   "/etc/default/nfs"
+  ],
+  "answerIndex": 1,
+  "explanation": "showmount -e <server> — the core workflow is: define exports in /etc/exports, apply with exportfs -ra, open 2049/tcp, and clients mount with nfs-common installed."
+ },
+ {
+  "id": "nfs-b133",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "Why does NFSv4 not need rpcbind at all?",
+  "options": [
+   "Everything runs on the fixed port 2049 — no dynamic ports to look up",
+   "mount --list-rpc",
+   "None — v4 needs 111 too",
+   "Only UDP-based v2"
+  ],
+  "answerIndex": 0,
+  "explanation": "Everything runs on the fixed port 2049 — no dynamic ports to look up rpcbind = port 111 directory for v3 RPC services; v4 collapsed everything into 2049/tcp."
+ },
+ {
+  "id": "nfs-b073",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "Which file configures what autofs should mount (indirect map)?",
+  "options": [
+   "Users get their share only on login, and stale mounts disappear automatically",
+   "A map file like /etc/auto.nfs referenced from auto.master",
+   "It encrypts the mount automatically",
+   "It makes mounts read-only"
+  ],
+  "answerIndex": 1,
+  "explanation": "A map file like /etc/auto.nfs referenced from auto.master autofs for on-demand mounts; nfsstat/mountstats/nfsiostat for performance truth."
+ },
+ {
+  "id": "nfs-b163",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "What does showmount -a server list that -e does not?",
+  "options": [
+   "Clients CURRENTLY mounted from the server (and the dirs they hold)",
+   "It excludes /mnt paths",
+   "It hides stale handles",
+   "nfsstat --mounts"
+  ],
+  "answerIndex": 0,
+  "explanation": "Clients CURRENTLY mounted from the server (and the dirs they hold) mount -t nfs,nfs4 for quick looks; /proc/mounts for truth; showmount -a for who is connected NOW."
+ },
+ {
+  "id": "nfs-b049",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "Why do the lab shares use sync despite being slower?",
+  "options": [
+   "Crash-safety beats throughput for shared team data",
+   "It disables the network stack until writes finish",
+   "No default — the server refuses to start",
+   "It serialises writes from all clients"
+  ],
+  "answerIndex": 0,
+  "explanation": "Crash-safety beats throughput for shared team data sync = ack after stable storage (safe); async = ack early (fast, risky on crash). Choose by what the data can afford to lose."
+ },
+ {
+  "id": "nfs-b072",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "Why do labs love autofs for home directories?",
+  "options": [
+   "Users get their share only on login, and stale mounts disappear automatically",
+   "Inside the systemd unit file only",
+   "Client disk cache hit rates",
+   "It mirrors the export to local disk"
+  ],
+  "answerIndex": 0,
+  "explanation": "Users get their share only on login, and stale mounts disappear automatically autofs for on-demand mounts; nfsstat/mountstats/nfsiostat for performance truth."
+ },
+ {
+  "id": "nfs-b069",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "A client hits: \"mount: /mnt/shared is already mounted / busy\". What is the most likely cause?",
+  "options": [
+   "The client disk is full",
+   "A previous mount is still active — use the existing mount or umount first",
+   "NFS is disabled in the kernel",
+   "SELinux labels are wrong on the client"
+  ],
+  "answerIndex": 1,
+  "explanation": "A previous mount is still active — use the existing mount or umount first — triage order: showmount -e server (exports), ping/port 2049 (network), mount options (flags), then ownership (uid/gid)."
+ },
+ {
+  "id": "nfs-b059",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "Which mount option pair is the classic 'give up eventually but try hard first'?",
+  "options": [
+   "soft,retrans=3 — retry 3 times then error",
+   "After retrans/timeo expires, IO returns an error mid-write — possible data corruption",
+   "Soft mounts are always slower than hard",
+   "soft,timeo=0"
+  ],
+  "answerIndex": 0,
+  "explanation": "soft,retrans=3 — retry 3 times then error hard = never give up (integrity); soft = fail fast (risk). timeo is deciseconds; retrans counts attempts."
+ },
+ {
+  "id": "nfs-b066",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "A client hits: \"mount.nfs: access denied by server\". What is the most likely cause?",
+  "options": [
+   "SELinux labels are wrong on the client",
+   "NFS is disabled in the kernel",
+   "The server's /etc/exports has no line allowing this client (or wrong options)",
+   "The client disk is full"
+  ],
+  "answerIndex": 2,
+  "explanation": "The server's /etc/exports has no line allowing this client (or wrong options) — triage order: showmount -e server (exports), ping/port 2049 (network), mount options (flags), then ownership (uid/gid)."
+ },
+ {
+  "id": "nfs-b142",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "Two clients write the same file simultaneously. What keeps them consistent?",
+  "options": [
+   "Maximum caching",
+   "NFS close-to-open consistency: changes are visible to others after close/reopen",
+   "Caching works per-user only",
+   "Forces NFSv3 fallback"
+  ],
+  "answerIndex": 1,
+  "explanation": "NFS close-to-open consistency: changes are visible to others after close/reopen NFS consistency is close-to-open by default; noac/actimeo=0 trades speed for byte-exact freshness when a workload truly demands it."
+ },
+ {
+  "id": "nfs-b144",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "Which workload genuinely needs noac?",
+  "options": [
+   "The server broadcasts every change",
+   "Shared files where two hosts must see byte-exact state immediately (rare!)",
+   "Caching works per-user only",
+   "Read-only media mounts"
+  ],
+  "answerIndex": 1,
+  "explanation": "Shared files where two hosts must see byte-exact state immediately (rare!) NFS consistency is close-to-open by default; noac/actimeo=0 trades speed for byte-exact freshness when a workload truly demands it."
+ },
+ {
+  "id": "nfs-b126",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "You write a file as root on a root_squashed client. Who owns it on the server?",
+  "options": [
+   "The client ran out of file descriptors",
+   "The server's /etc/fstab",
+   "Forces uid 1500 read-only",
+   "nobody (the anonymous uid) — root is squashed"
+  ],
+  "answerIndex": 3,
+  "explanation": "nobody (the anonymous uid) — root is squashed NFS identity is numeric end-to-end: squash rules map uids, idmapd maps NAMES in v4, setgid keeps groups sane."
+ },
+ {
+  "id": "nfs-b056",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "A hard mount hangs when the server dies. What is the point of that behaviour?",
+  "options": [
+   "The server rate-limits soft clients",
+   "Soft mounts are always slower than hard",
+   "The client keeps retrying forever so writes are not silently lost",
+   "soft,timeo=0"
+  ],
+  "answerIndex": 2,
+  "explanation": "The client keeps retrying forever so writes are not silently lost hard = never give up (integrity); soft = fail fast (risk). timeo is deciseconds; retrans counts attempts."
+ },
+ {
+  "id": "nfs-b099",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "Which syntax shares with a whole DNS domain?",
+  "options": [
+   "They disable root_squash automatically",
+   "/srv/nfs/shared *.example.com(rw,sync)",
+   "Restarts nfsd threads",
+   "It enables UDP mounts"
+  ],
+  "answerIndex": 1,
+  "explanation": "/srv/nfs/shared *.example.com(rw,sync) /etc/exports client specs: host, CIDR, wildcard, @netgroup — every broad spec widens who the server trusts."
+ },
+ {
+  "id": "nfs-b173",
+  "topic": "nfs",
+  "difficulty": "easy",
+  "prompt": "Which single package covers both roles on RHEL-family?",
+  "options": [
+   "rpcbind",
+   "Only config examples",
+   "nfs-utils",
+   "nfs-kernel-server"
+  ],
+  "answerIndex": 2,
+  "explanation": "nfs-utils Debian splits client (nfs-common) from server (nfs-kernel-server); RHEL keeps one nfs-utils for both."
+ },
+ {
+  "id": "nfs-b093",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "What does the actimeo mount option control?",
+  "options": [
+   "It depends on the client's uid",
+   "How long attribute caches (sizes, times) are trusted before re-querying",
+   "SCTP only",
+   "The client's RAM cache size"
+  ],
+  "answerIndex": 1,
+  "explanation": "How long attribute caches (sizes, times) are trusted before re-querying Effective access = export ∩ mount; rsize/wsize/actimeo are the perf dials; noexec/nosuid are hardening; v4 is TCP-only."
+ },
+ {
+  "id": "nfs-b148",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "What must both client and server share for sec=krb5?",
+  "options": [
+   "Matching uid numbers",
+   "NTP-synced clocks only",
+   "It works only on v3",
+   "Kerberos realm and host/service credentials in a KDC (keytabs)"
+  ],
+  "answerIndex": 3,
+  "explanation": "Kerberos realm and host/service credentials in a KDC (keytabs) sec=sys trusts numeric identity; krb5 authenticates, krb5i signs, krb5p encrypts — each step needs a real Kerberos realm."
+ },
+ {
+  "id": "nfs-b176",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "Which /etc/exports line shares /export/data as an NFSv4 pseudo-root?",
+  "options": [
+   "mount server:// — double slash",
+   "Clients cannot mount pseudo-roots",
+   "/export/data *(rw,sync,fsid=0)",
+   "/export/data *(rw,sync,fsid=1)"
+  ],
+  "answerIndex": 2,
+  "explanation": "/export/data *(rw,sync,fsid=0) fsid=0 designates the single v4 pseudo-root; everything else hangs beneath it as one namespace."
+ },
+ {
+  "id": "nfs-b154",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "What is umount -l for NFS?",
+  "options": [
+   "It reboots nfsd on the client",
+   "It works identically on hard mounts",
+   "Lazy unmount — detaches the name now, cleans up when the last user exits",
+   "Timeouts only affect reads"
+  ],
+  "answerIndex": 2,
+  "explanation": "Lazy unmount — detaches the name now, cleans up when the last user exits intr is history; processes can be signalled, umount -f/-l handle dead mounts, and soft mounts risk corruption on writes."
+ },
+ {
+  "id": "nfs-b044",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "Which options set the identity that squashed users map to?",
+  "options": [
+   "anonuid= and anongid=",
+   "anon_user= and anon_group=",
+   "Forces all clients to authenticate with Kerberos",
+   "A compromised client's root keeps UID 0 and owns every file on the share"
+  ],
+  "answerIndex": 0,
+  "explanation": "anonuid= and anongid= Identity on NFS is numeric: keep uid/gid consistent (LDAP/NIS) and leave root_squash on unless you have a very specific lab reason."
+ },
+ {
+  "id": "nfs-b149",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "Why does sec=sys remain the default?",
+  "options": [
+   "It needs no infrastructure — but trusts the network's uid claims",
+   "Encryption of the whole session",
+   "NTP-synced clocks only",
+   "NFS is legacy — pick sys"
+  ],
+  "answerIndex": 0,
+  "explanation": "It needs no infrastructure — but trusts the network's uid claims sec=sys trusts numeric identity; krb5 authenticates, krb5i signs, krb5p encrypts — each step needs a real Kerberos realm."
+ },
+ {
+  "id": "nfs-b137",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "What is the default behaviour when two export lines match a client equally?",
+  "options": [
+   "NFS merges the options (and the safest effective access applies)",
+   "It mounts but writes vanish on remount",
+   "The server auto-creates an export line",
+   "Put them in a single line with commas"
+  ],
+  "answerIndex": 0,
+  "explanation": "NFS merges the options (and the safest effective access applies) Export matching is most-specific-wins: host beats subnet beats wildcard. Verify the result with exportfs -v."
+ },
+ {
+  "id": "nfs-b071",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "What does autofs add over a plain fstab entry?",
+  "options": [
+   "Users get their share only on login, and stale mounts disappear automatically",
+   "It encrypts the mount automatically",
+   "Inside the systemd unit file only",
+   "Mounts happen on demand when the path is accessed — and time out when idle"
+  ],
+  "answerIndex": 3,
+  "explanation": "Mounts happen on demand when the path is accessed — and time out when idle autofs for on-demand mounts; nfsstat/mountstats/nfsiostat for performance truth."
+ },
+ {
+  "id": "nfs-b162",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "Where does the kernel record mounts (ground truth, no cache)?",
+  "options": [
+   "It is shorter",
+   "It hides stale handles",
+   "/proc/mounts (or /proc/self/mountinfo)",
+   "It excludes /mnt paths"
+  ],
+  "answerIndex": 2,
+  "explanation": "/proc/mounts (or /proc/self/mountinfo) mount -t nfs,nfs4 for quick looks; /proc/mounts for truth; showmount -a for who is connected NOW."
+ },
+ {
+  "id": "nfs-b153",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "What does umount -f do on a hung NFS mount?",
+  "options": [
+   "Forces the unmount of a soft mount (hard mounts may still hang on in-use files)",
+   "It converts the mount to ro",
+   "Nothing — the process must be killed at boot",
+   "NFSv4 prevents timeouts"
+  ],
+  "answerIndex": 0,
+  "explanation": "Forces the unmount of a soft mount (hard mounts may still hang on in-use files) intr is history; processes can be signalled, umount -f/-l handle dead mounts, and soft mounts risk corruption on writes."
+ },
+ {
+  "id": "nfs-b065",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "What does subtree_check compare?",
+  "options": [
+   "rpcbind balanced load across servers",
+   "That accessed files stay inside the exported subtree (guards .. escapes)",
+   "It allocates the first free file handle",
+   "A read-only snapshot of the export"
+  ],
+  "answerIndex": 1,
+  "explanation": "That accessed files stay inside the exported subtree (guards .. escapes) v4's single-port design (2049) plus fsid=0 pseudo-roots replaced the v3 rpcbind port parade."
+ },
+ {
+  "id": "nfs-b041",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "What does root_squash do on an NFS export?",
+  "options": [
+   "squash_uid=/squash_gid=",
+   "Maps a client's root to the anonymous user 'nobody' on the share",
+   "root_squash_all",
+   "It disables write caching for root processes"
+  ],
+  "answerIndex": 1,
+  "explanation": "Maps a client's root to the anonymous user 'nobody' on the share Identity on NFS is numeric: keep uid/gid consistent (LDAP/NIS) and leave root_squash on unless you have a very specific lab reason."
+ },
+ {
+  "id": "nfs-b060",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "For a build server reading from NFS, which mount choice keeps CI honest?",
+  "options": [
+   "A 5-second timeout — timeo is measured in deciseconds",
+   "hard (or hard,intr) — a hung build beats a silently corrupted one",
+   "After retrans/timeo expires, IO returns an error mid-write — possible data corruption",
+   "The server rate-limits soft clients"
+  ],
+  "answerIndex": 1,
+  "explanation": "hard (or hard,intr) — a hung build beats a silently corrupted one hard = never give up (integrity); soft = fail fast (risk). timeo is deciseconds; retrans counts attempts."
+ },
+ {
+  "id": "nfs-b177",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "How do clients address a fsid=0 export?",
+  "options": [
+   "The portmapper",
+   "mount server:/ — the pseudo-root IS the mount target",
+   "/export/data *(rw,sync,root=0)",
+   "/export/data *(rw,fsid)"
+  ],
+  "answerIndex": 1,
+  "explanation": "mount server:/ — the pseudo-root IS the mount target fsid=0 designates the single v4 pseudo-root; everything else hangs beneath it as one namespace."
+ },
+ {
+  "id": "nfs-b094",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "Why mount with noexec on an archive share?",
+  "options": [
+   "Both TCP and UDP",
+   "It stops binaries on the share from being executed — a malware-speed-bump",
+   "How long file data caches on the server",
+   "The TCP window size between hosts"
+  ],
+  "answerIndex": 1,
+  "explanation": "It stops binaries on the share from being executed — a malware-speed-bump Effective access = export ∩ mount; rsize/wsize/actimeo are the perf dials; noexec/nosuid are hardening; v4 is TCP-only."
+ },
+ {
+  "id": "nfs-b138",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "A client not matching any export line tries to mount. Result?",
+  "options": [
+   "It mounts but writes vanish on remount",
+   "mount.nfs: access denied by server",
+   "Only netgroups can express this",
+   "The server auto-creates an export line"
+  ],
+  "answerIndex": 1,
+  "explanation": "mount.nfs: access denied by server Export matching is most-specific-wins: host beats subnet beats wildcard. Verify the result with exportfs -v."
+ },
+ {
+  "id": "nfs-b074",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "What does mountstats report for NFS mounts?",
+  "options": [
+   "It converts NFS to SMB transparently",
+   "The kernel's TCP retransmit log",
+   "Per-mount RPC statistics — counts, latency and errors",
+   "Server-side NFS operation counters (getattr, read, write…)"
+  ],
+  "answerIndex": 2,
+  "explanation": "Per-mount RPC statistics — counts, latency and errors autofs for on-demand mounts; nfsstat/mountstats/nfsiostat for performance truth."
+ },
+ {
+  "id": "nfs-b155",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "Why avoid soft mounts for writes?",
+  "options": [
+   "Restart the network service",
+   "Nothing — the process must be killed at boot",
+   "It closes open files for you",
+   "A timeout mid-write returns errors to the app — silent data corruption risk"
+  ],
+  "answerIndex": 3,
+  "explanation": "A timeout mid-write returns errors to the app — silent data corruption risk intr is history; processes can be signalled, umount -f/-l handle dead mounts, and soft mounts risk corruption on writes."
+ },
+ {
+  "id": "nfs-b159",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "How does NFSv4 handle nested filesystems differently?",
+  "options": [
+   "It needs no parent option at all",
+   "It merges all mounts into one filesystem",
+   "Bind mounts export automatically",
+   "One pseudo-root namespace — children show up automatically when exported"
+  ],
+  "answerIndex": 3,
+  "explanation": "One pseudo-root namespace — children show up automatically when exported Mount boundaries hide child filesystems — crossmnt/nohide open them up; v4's pseudo-root does this natively."
+ },
+ {
+  "id": "nfs-b188",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "Why are netgroups loved in enterprise NFS?",
+  "options": [
+   "/srv/nfs/shared builders(rw,sync)",
+   "One symbol controls access for hundreds of hosts — update once, everywhere",
+   "They enable Kerberos automatically",
+   "Only the DNS zone"
+  ],
+  "answerIndex": 1,
+  "explanation": "One symbol controls access for hundreds of hosts — update once, everywhere @netgroup specs centralise host access control; they resolve through NIS/LDAP — test with getent netgroup."
+ },
+ {
+  "id": "nfs-b170",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "Why do labs prefer autofs over fstab for lab shares?",
+  "options": [
+   "autofs cannot do NFS",
+   "It unmounts on every logout",
+   "A map mounted from the registry",
+   "No mount storm at boot, no stale mounts — shares appear only when used"
+  ],
+  "answerIndex": 3,
+  "explanation": "No mount storm at boot, no stale mounts — shares appear only when used autofs = demand mounting with idle timeouts: direct maps for absolute paths, indirect maps keyed per user."
+ },
+ {
+  "id": "nfs-b095",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "Which transport does NFSv4 require?",
+  "options": [
+   "It blocks setuid execution only",
+   "It forces synchronous metadata",
+   "The NFS version to negotiate",
+   "TCP — UDP is not part of v4"
+  ],
+  "answerIndex": 3,
+  "explanation": "TCP — UDP is not part of v4 Effective access = export ∩ mount; rsize/wsize/actimeo are the perf dials; noexec/nosuid are hardening; v4 is TCP-only."
+ },
+ {
+  "id": "nfs-b055",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "A client writes a file and the server-local group is wrong. What fixed it?",
+  "options": [
+   "2775 (or 2770 for private teams)",
+   "stat shows a '+' sign",
+   "chmod 2775 on the shared directory (setgid) plus a matching group on clients",
+   "Each user's files get their personal group — teammates hit permission denied"
+  ],
+  "answerIndex": 2,
+  "explanation": "chmod 2775 on the shared directory (setgid) plus a matching group on clients setgid (2775) + consistent group membership across clients = a team share that just works."
+ },
+ {
+  "id": "nfs-b147",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "Which sec= flavor also encrypts the data?",
+  "options": [
+   "krb5p — privacy",
+   "The export mounts read-only",
+   "It works only on v3",
+   "A shared /etc/exports file"
+  ],
+  "answerIndex": 0,
+  "explanation": "krb5p — privacy sec=sys trusts numeric identity; krb5 authenticates, krb5i signs, krb5p encrypts — each step needs a real Kerberos realm."
+ },
+ {
+  "id": "nfs-b109",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "What are the v4.1/4.2 headline features?",
+  "options": [
+   "Locking is not possible in v3",
+   "Compression (4.1), quantum-safe crypto (4.2)",
+   "Nothing — vers= is deprecated",
+   "Sessions, pNFS parallel access, server-side copy (4.2)"
+  ],
+  "answerIndex": 3,
+  "explanation": "Sessions, pNFS parallel access, server-side copy (4.2) vers= pins the protocol; v4 integrated locking and sessions; v3 legacy means rpcbind + helper ports."
+ },
+ {
+  "id": "nfs-b140",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "Why reorder /etc/exports so specific hosts come first?",
+  "options": [
+   "Matching follows file order strictly",
+   "Wildcard lines never match specific hosts",
+   "Readability — but matching is by specificity, not line order",
+   "The server auto-creates an export line"
+  ],
+  "answerIndex": 2,
+  "explanation": "Readability — but matching is by specificity, not line order Export matching is most-specific-wins: host beats subnet beats wildcard. Verify the result with exportfs -v."
+ },
+ {
+  "id": "nfs-b130",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "What does all_squash + anonuid=1500 do to every client user?",
+  "options": [
+   "nfsnobody only if the export is read-only",
+   "Maps them all to uid 1500 on the share",
+   "The export was unmounted and re-exported",
+   "Grants uid 1500 full root rights"
+  ],
+  "answerIndex": 1,
+  "explanation": "Maps them all to uid 1500 on the share NFS identity is numeric end-to-end: squash rules map uids, idmapd maps NAMES in v4, setgid keeps groups sane."
+ },
+ {
+  "id": "nfs-b097",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "What does 'insecure' on an export allow?",
+  "options": [
+   "/srv/nfs/shared example.com(rw,sync)",
+   "Clients to mount from ports above 1024 — needed by some non-root clients",
+   "mount build01:/srv/nfs/shared",
+   "They disable root_squash automatically"
+  ],
+  "answerIndex": 1,
+  "explanation": "Clients to mount from ports above 1024 — needed by some non-root clients /etc/exports client specs: host, CIDR, wildcard, @netgroup — every broad spec widens who the server trusts."
+ },
+ {
+  "id": "nfs-b145",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "What does actimeo=0 equal to?",
+  "options": [
+   "noac for attributes — maximum freshness, maximum latency",
+   "Read-only mode",
+   "Maximum caching",
+   "Read-only media mounts"
+  ],
+  "answerIndex": 0,
+  "explanation": "noac for attributes — maximum freshness, maximum latency NFS consistency is close-to-open by default; noac/actimeo=0 trades speed for byte-exact freshness when a workload truly demands it."
+ },
+ {
+  "id": "nfs-b156",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "What does crossmnt do on a parent export?",
+  "options": [
+   "Bind mounts export automatically",
+   "It needs no parent option at all",
+   "Makes filesystems mounted INSIDE the export visible to clients without separate lines",
+   "It replaces fsid=0"
+  ],
+  "answerIndex": 2,
+  "explanation": "Makes filesystems mounted INSIDE the export visible to clients without separate lines Mount boundaries hide child filesystems — crossmnt/nohide open them up; v4's pseudo-root does this natively."
+ },
+ {
+  "id": "nfs-b190",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "How do you debug a netgroup that should match but doesn't?",
+  "options": [
+   "Check the netgroup resolution (ypmatch / getent netgroup builders)",
+   "/srv/nfs/shared +builders(rw)",
+   "Rewrite /etc/exports from scratch",
+   "/srv/nfs/shared #builders(rw,sync)"
+  ],
+  "answerIndex": 0,
+  "explanation": "Check the netgroup resolution (ypmatch / getent netgroup builders) @netgroup specs centralise host access control; they resolve through NIS/LDAP — test with getent netgroup."
+ },
+ {
+  "id": "nfs-b179",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "What binds real exports under the v4 tree?",
+  "options": [
+   "/export/data *(rw,fsid)",
+   "They are exported with paths under the pseudo-root (bind mounts or real subdirs)",
+   "By DNS CNAMEs",
+   "Only with Kerberos"
+  ],
+  "answerIndex": 1,
+  "explanation": "They are exported with paths under the pseudo-root (bind mounts or real subdirs) fsid=0 designates the single v4 pseudo-root; everything else hangs beneath it as one namespace."
+ },
+ {
+  "id": "nfs-b189",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "A client is in no matching netgroup and no export line. Mount result?",
+  "options": [
+   "/srv/nfs/shared #builders(rw,sync)",
+   "/srv/nfs/shared builders(rw,sync)",
+   "They speed up every RPC",
+   "Access denied by server"
+  ],
+  "answerIndex": 3,
+  "explanation": "Access denied by server @netgroup specs centralise host access control; they resolve through NIS/LDAP — test with getent netgroup."
+ },
+ {
+  "id": "nfs-b091",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "Export says ro, client mounts with rw. What can the client actually do?",
+  "options": [
+   "Read only — the server's ro wins (options intersect)",
+   "The Kerberos ticket lifetime",
+   "It forces synchronous metadata",
+   "Both TCP and UDP"
+  ],
+  "answerIndex": 0,
+  "explanation": "Read only — the server's ro wins (options intersect) Effective access = export ∩ mount; rsize/wsize/actimeo are the perf dials; noexec/nosuid are hardening; v4 is TCP-only."
+ },
+ {
+  "id": "nfs-b104",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "Which /proc file shows this server's exported list at runtime?",
+  "options": [
+   "/etc/rpc",
+   "Clients disconnect and unmount",
+   "/proc/mounts",
+   "/proc/fs/nfs/exports (or /proc/net/rpc/nfsd for stats)"
+  ],
+  "answerIndex": 3,
+  "explanation": "/proc/fs/nfs/exports (or /proc/net/rpc/nfsd for stats) nfsstat -c/-s, nfsiostat and /proc/net/rpc are the observability trio for NFS performance work."
+ },
+ {
+  "id": "nfs-b062",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "In NFSv3, why did you need rpcbind (port 111) plus several helper ports?",
+  "options": [
+   "A read-only snapshot of the export",
+   "It force-mounts the export on boot",
+   "v3 services (mountd, lockd, statd) register dynamic ports with rpcbind",
+   "nfs-idmapd (idmapd)"
+  ],
+  "answerIndex": 2,
+  "explanation": "v3 services (mountd, lockd, statd) register dynamic ports with rpcbind v4's single-port design (2049) plus fsid=0 pseudo-roots replaced the v3 rpcbind port parade."
+ },
+ {
+  "id": "nfs-b061",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "What is the purpose of fsid=0 on an NFSv4 export?",
+  "options": [
+   "v3 used a binary protocol needing many channels",
+   "It marks that export as the v4 pseudo-root that clients mount as server:/",
+   "That accessed files stay inside the exported subtree (guards .. escapes)",
+   "The fsid=0 pseudo-root, with real exports bound beneath it"
+  ],
+  "answerIndex": 1,
+  "explanation": "It marks that export as the v4 pseudo-root that clients mount as server:/ v4's single-port design (2049) plus fsid=0 pseudo-roots replaced the v3 rpcbind port parade."
+ },
+ {
+  "id": "nfs-b101",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "What does nfsstat -c report?",
+  "options": [
+   "Clients switch to UDP automatically",
+   "Client-side RPC/NFS operation counters and error rates",
+   "Clients disconnect and unmount",
+   "vmstat"
+  ],
+  "answerIndex": 1,
+  "explanation": "Client-side RPC/NFS operation counters and error rates nfsstat -c/-s, nfsiostat and /proc/net/rpc are the observability trio for NFS performance work."
+ },
+ {
+  "id": "nfs-b054",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "How do you confirm a directory has the setgid bit set?",
+  "options": [
+   "Only root can create files there",
+   "The mount silently fails",
+   "stat shows a '+' sign",
+   "ls -ld — an 's' replaces the group's execute bit"
+  ],
+  "answerIndex": 3,
+  "explanation": "ls -ld — an 's' replaces the group's execute bit setgid (2775) + consistent group membership across clients = a team share that just works."
+ },
+ {
+  "id": "nfs-b150",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "What breaks first when you enable sec=krb5 without client keytabs?",
+  "options": [
+   "Anonymous access mapping",
+   "A shared /etc/exports file",
+   "The mount fails authentication — clients need machine credentials",
+   "It works only on v3"
+  ],
+  "answerIndex": 2,
+  "explanation": "The mount fails authentication — clients need machine credentials sec=sys trusts numeric identity; krb5 authenticates, krb5i signs, krb5p encrypts — each step needs a real Kerberos realm."
+ },
+ {
+  "id": "nfs-b038",
+  "topic": "nfs",
+  "difficulty": "easy",
+  "prompt": "Which port does NFSv4 need open in the firewall?",
+  "options": [
+   "4045/tcp",
+   "systemctl reload nfs",
+   "Both 111 and 2049 on tcp+udp",
+   "2049/tcp — the only one"
+  ],
+  "answerIndex": 3,
+  "explanation": "2049/tcp — the only one — the core workflow is: define exports in /etc/exports, apply with exportfs -ra, open 2049/tcp, and clients mount with nfs-common installed."
+ },
+ {
+  "id": "nfs-b057",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "What is the danger of soft mounts?",
+  "options": [
+   "soft — fail fast and retry the pipeline",
+   "After retrans/timeo expires, IO returns an error mid-write — possible data corruption",
+   "50 milliseconds — timeo is milliseconds",
+   "soft,retrans=3 — retry 3 times then error"
+  ],
+  "answerIndex": 1,
+  "explanation": "After retrans/timeo expires, IO returns an error mid-write — possible data corruption hard = never give up (integrity); soft = fail fast (risk). timeo is deciseconds; retrans counts attempts."
+ },
+ {
+  "id": "nfs-b108",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "Why did NFSv4 move locking into the protocol itself?",
+  "options": [
+   "The mount silently falls back to v3",
+   "Nothing — vers= is deprecated",
+   "v3 needed separate lockd/statd daemons — v4 integrates lease-based locking",
+   "Whatever the first client requests, permanently"
+  ],
+  "answerIndex": 2,
+  "explanation": "v3 needed separate lockd/statd daemons — v4 integrates lease-based locking vers= pins the protocol; v4 integrated locking and sessions; v3 legacy means rpcbind + helper ports."
+ },
+ {
+  "id": "nfs-b046",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "What does the sync export option guarantee?",
+  "options": [
+   "It caches reads on the client",
+   "It picks randomly per client",
+   "The server acknowledges writes only after they reach stable storage",
+   "It disables the network stack until writes finish"
+  ],
+  "answerIndex": 2,
+  "explanation": "The server acknowledges writes only after they reach stable storage sync = ack after stable storage (safe); async = ack early (fast, risky on crash). Choose by what the data can afford to lose."
+ },
+ {
+  "id": "nfs-b158",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "Without crossmnt, what does a client see of a nested mount?",
+  "options": [
+   "It disables subtree_check",
+   "It allows root to mount",
+   "Only symlinks can cross",
+   "An empty directory where the child filesystem should appear"
+  ],
+  "answerIndex": 3,
+  "explanation": "An empty directory where the child filesystem should appear Mount boundaries hide child filesystems — crossmnt/nohide open them up; v4's pseudo-root does this natively."
+ },
+ {
+  "id": "nfs-b052",
+  "topic": "nfs",
+  "difficulty": "medium",
+  "prompt": "Without setgid on a team share, what commonly goes wrong?",
+  "options": [
+   "Each user's files get their personal group — teammates hit permission denied",
+   "1755 — sticky only",
+   "ls -ld — an 's' replaces the group's execute bit",
+   "stat shows a '+' sign"
+  ],
+  "answerIndex": 0,
+  "explanation": "Each user's files get their personal group — teammates hit permission denied setgid (2775) + consistent group membership across clients = a team share that just works."
+ },
+ {
+  "id": "nfs-b070",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "A client hits: \"Permission denied when creating files as a normal user\". What is the most likely cause?",
+  "options": [
+   "SELinux labels are wrong on the client",
+   "Directory mode or uid/gid mismatch — check 2775 + setgid and consistent group ids",
+   "NFS is disabled in the kernel",
+   "The client disk is full"
+  ],
+  "answerIndex": 1,
+  "explanation": "Directory mode or uid/gid mismatch — check 2775 + setgid and consistent group ids — triage order: showmount -e server (exports), ping/port 2049 (network), mount options (flags), then ownership (uid/gid)."
+ },
+ {
+  "id": "nfs-b136",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "Export lines: /srv 10.0.0.0/8(ro) and /srv/nfs 10.0.0.5(rw). What can 10.0.0.5 do with /srv/nfs?",
+  "options": [
+   "The server picks randomly for load balancing",
+   "Wildcard lines never match specific hosts",
+   "Read-write — the most specific matching export line wins",
+   "It mounts but writes vanish on remount"
+  ],
+  "answerIndex": 2,
+  "explanation": "Read-write — the most specific matching export line wins Export matching is most-specific-wins: host beats subnet beats wildcard. Verify the result with exportfs -v."
+ },
+ {
+  "id": "nfs-b106",
+  "topic": "nfs",
+  "difficulty": "hard",
+  "prompt": "Which versions does a modern Linux server speak by default?",
+  "options": [
+   "Only 111/udp",
+   "v3 and v4.x — the version is negotiated per mount (vers= pins it)",
+   "Locks live in /var/lock/nfs",
+   "The mount silently falls back to v3"
+  ],
+  "answerIndex": 1,
+  "explanation": "v3 and v4.x — the version is negotiated per mount (vers= pins it) vers= pins the protocol; v4 integrated locking and sessions; v3 legacy means rpcbind + helper ports."
+ },
+ {
+  "id": "docker-b075",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "What is the point of a multi-stage build?",
+  "options": [
+   "Before — manifest + install layer caches while source churns",
+   "They are identical in modern Docker",
+   "Build in a fat toolchain stage, copy only artifacts into a small final image",
+   "It builds ARM images on x86 hosts"
+  ],
+  "answerIndex": 2,
+  "explanation": "Build in a fat toolchain stage, copy only artifacts into a small final image COPY > ADD; cache flows downward so stable layers go first; .dockerignore and multi-stage keep images lean and safe."
+ },
+ {
+  "id": "docker-b178",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "What does DOCKER_HOST override?",
+  "options": [
+   "They encrypt traffic",
+   "It needs an agent on the target",
+   "They run builds remotely",
+   "The endpoint for a single shell — a per-command context switch"
+  ],
+  "answerIndex": 3,
+  "explanation": "The endpoint for a single shell — a per-command context switch contexts switch WHERE the CLI points — local socket or remote daemon — without per-command flags."
+ },
+ {
+  "id": "docker-b087",
+  "topic": "docker",
+  "difficulty": "hard",
+  "prompt": "Which restart policy also restarts containers after a daemon reboot?",
+  "options": [
+   "always — and unless-stopped, except for ones you manually stopped",
+   "A shell spawned by Docker",
+   "It publishes a /health HTTP route",
+   "The image's ENTRYPOINT/CMD — signals only reach it, so zombies linger without an init"
+  ],
+  "answerIndex": 0,
+  "explanation": "always — and unless-stopped, except for ones you manually stopped healthchecks express real readiness; policies control restarts; pause freezes; PID 1 owns signals; --memory is a hard cap."
+ },
+ {
+  "id": "docker-b073",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "Where should COPY package.json + RUN npm install go relative to COPY src/?",
+  "options": [
+   "They are identical in modern Docker",
+   "Before — manifest + install cache-hit while source churns",
+   "Neither — use RUN cp",
+   "Signs the image with a checksum"
+  ],
+  "answerIndex": 1,
+  "explanation": "Before — manifest + install cache-hit while source churns COPY > ADD; cache flows downward so stable layers go first; .dockerignore and multi-stage keep images lean and safe."
+ },
+ {
+  "id": "docker-b074",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "What does .dockerignore do?",
+  "options": [
+   "Keeps files out of the build context — smaller uploads, fewer cache busts, no secret leaks",
+   "Neither — use RUN cp",
+   "It parallelises builds across stages",
+   "Build in a fat toolchain stage, copy only artifacts into a small final image"
+  ],
+  "answerIndex": 0,
+  "explanation": "Keeps files out of the build context — smaller uploads, fewer cache busts, no secret leaks COPY > ADD; cache flows downward so stable layers go first; .dockerignore and multi-stage keep images lean and safe."
+ },
+ {
+  "id": "docker-b078",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "What survives docker rm on a container with a named volume?",
+  "options": [
+   "Docker runs an embedded DNS server resolving container/service names",
+   "host — sharing the host's stack",
+   "Nothing — volumes die with the container",
+   "The volume and its data — only the container's writable layer disappears"
+  ],
+  "answerIndex": 3,
+  "explanation": "The volume and its data — only the container's writable layer disappears -p is host:container; volumes are managed and persistent, binds are literal host paths; custom networks give free DNS."
+ },
+ {
+  "id": "docker-b199",
+  "topic": "docker",
+  "difficulty": "easy",
+  "prompt": "docker run exits immediately with code 127. What does 127 mean?",
+  "options": [
+   "The container is unhealthy",
+   "The image was pulled twice",
+   "The command inside was not found",
+   "The volume is read-only"
+  ],
+  "answerIndex": 2,
+  "explanation": "125 → daemon-level failure; 126 → command found but not executable; 127 → command not found. Everything else comes from the app itself."
+ },
+ {
+  "id": "docker-b065",
+  "topic": "docker",
+  "difficulty": "easy",
+  "prompt": "Why do containers start fast compared to VMs?",
+  "options": [
+   "Stores everything the container changes at runtime — deleted with the container",
+   "Read-only filesystem diffs stacked by Dockerfile instructions and shared between images",
+   "It persists data across container removal",
+   "No guest kernel — containers share the host kernel and only isolate namespaces/cgroups"
+  ],
+  "answerIndex": 3,
+  "explanation": "No guest kernel — containers share the host kernel and only isolate namespaces/cgroups image = immutable layers; container = those layers + one writable layer, isolated by namespaces, limited by cgroups."
+ },
+ {
+  "id": "docker-b139",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "What does compose do with named volumes declared at the bottom of the file?",
+  "options": [
+   "Creates/manages them for the project — they persist across down",
+   "Nothing — purely documentation",
+   "Full readiness ordering",
+   "Only crashed services"
+  ],
+  "answerIndex": 0,
+  "explanation": "Creates/manages them for the project — they persist across down compose = project-scoped network + DNS + lifecycle. depends_on orders starts; healthchecks express readiness."
+ },
+ {
+  "id": "docker-b138",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "Which compose command rebuilds a service image after Dockerfile edits?",
+  "options": [
+   "They are deleted on compose down",
+   "Full readiness ordering",
+   "docker compose build <service> (or up --build)",
+   "The compose file's YAML graph"
+  ],
+  "answerIndex": 2,
+  "explanation": "docker compose build <service> (or up --build) compose = project-scoped network + DNS + lifecycle. depends_on orders starts; healthchecks express readiness."
+ },
+ {
+  "id": "docker-b068",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "Which instruction should bake the launch command of a self-contained app image?",
+  "options": [
+   "RUN ['app'] as the last line",
+   "It is appended after ENTRYPOINT",
+   "Documents which port the container listens on — publishing still needs -p",
+   "ENTRYPOINT (with CMD for default flags)"
+  ],
+  "answerIndex": 3,
+  "explanation": "ENTRYPOINT (with CMD for default flags) CMD/ENTRYPOINT cooperate (exec form preferred); EXPOSE documents; WORKDIR sets cwd for everything after it."
+ },
+ {
+  "id": "docker-b072",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "Why does instruction ORDER matter in a Dockerfile?",
+  "options": [
+   "After — everything must COPY first",
+   "Each changed instruction invalidates the cache for it and every later layer",
+   "They are identical in modern Docker",
+   "Keeps files out of the build context — smaller uploads, fewer cache busts, no secret leaks"
+  ],
+  "answerIndex": 1,
+  "explanation": "Each changed instruction invalidates the cache for it and every later layer COPY > ADD; cache flows downward so stable layers go first; .dockerignore and multi-stage keep images lean and safe."
+ },
+ {
+  "id": "docker-b135",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "What does docker port web print?",
+  "options": [
+   "It pauses the container",
+   "The port mapping failed",
+   "The ports the image EXPOSEs",
+   "The host port mappings for every published container port"
+  ],
+  "answerIndex": 3,
+  "explanation": "The host port mappings for every published container port create = configured-but-not-started; 125/126/127 distinguish daemon/exec/not-found failures; top and port inspect from outside."
+ },
+ {
+  "id": "docker-b186",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "What does -P (capital) do on docker run?",
+  "options": [
+   "Publishes EVERY port the image EXPOSEs to random high host ports",
+   "Enables port forwarding persistence",
+   "Use -P and firewall everything",
+   "Publishes port 80 of the host into the container"
+  ],
+  "answerIndex": 0,
+  "explanation": "Publishes EVERY port the image EXPOSEs to random high host ports EXPOSE documents, -p/-P publish. Loopback-only or network-internal access is the safe default for stateful services."
+ },
+ {
+  "id": "docker-b064",
+  "topic": "docker",
+  "difficulty": "easy",
+  "prompt": "What does the writable layer do?",
+  "options": [
+   "It saves the container to a tarball",
+   "Compressed tarballs downloaded from Docker Hub",
+   "It commits the image to a registry",
+   "Stores everything the container changes at runtime — deleted with the container"
+  ],
+  "answerIndex": 3,
+  "explanation": "Stores everything the container changes at runtime — deleted with the container image = immutable layers; container = those layers + one writable layer, isolated by namespaces, limited by cgroups."
+ },
+ {
+  "id": "docker-b172",
+  "topic": "docker",
+  "difficulty": "hard",
+  "prompt": "Why is a tag like nginx:1.27 NOT immutable?",
+  "options": [
+   "Access to private registries",
+   "It cannot be deleted from a registry",
+   "The container's runtime digest",
+   "Anyone with push rights can re-point the tag to different content"
+  ],
+  "answerIndex": 3,
+  "explanation": "Anyone with push rights can re-point the tag to different content Tags are mutable labels; digests are content addresses. Pin by digest when reproducibility matters."
+ },
+ {
+  "id": "docker-b085",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "Why is 'latest' a trap?",
+  "options": [
+   "Untagged <none> images left behind when a rebuild re-tags — prune removes them",
+   "It is just a default tag name — it is not guaranteed to be newest or stable",
+   "SIGTERM — with a grace period before SIGKILL",
+   "It always points to the newest build"
+  ],
+  "answerIndex": 1,
+  "explanation": "It is just a default tag name — it is not guaranteed to be newest or stable exit codes come from PID 1; stop is TERM-then-KILL; --rm keeps one-shots clean; prune eats dangling layers; pin real versions instead of latest."
+ },
+ {
+  "id": "docker-b084",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "What are dangling images?",
+  "options": [
+   "Detaches you from the container",
+   "The container was OOM-killed",
+   "Untagged <none> images left behind when a rebuild re-tags — prune removes them",
+   "Images currently in use but idle"
+  ],
+  "answerIndex": 2,
+  "explanation": "Untagged <none> images left behind when a rebuild re-tags — prune removes them exit codes come from PID 1; stop is TERM-then-KILL; --rm keeps one-shots clean; prune eats dangling layers; pin real versions instead of latest."
+ },
+ {
+  "id": "docker-b145",
+  "topic": "docker",
+  "difficulty": "hard",
+  "prompt": "What does --init do on docker run?",
+  "options": [
+   "A separate kernel per container",
+   "Hardware-level CPU virtualisation",
+   "The image's USER instruction",
+   "Adds a tiny init (tini) as PID 1 to reap zombies and forward signals"
+  ],
+  "answerIndex": 3,
+  "explanation": "Adds a tiny init (tini) as PID 1 to reap zombies and forward signals namespaces isolate what a container SEES; cgroups limit what it USES; overlay2 merges layers; --init fixes PID 1 hygiene."
+ },
+ {
+  "id": "docker-b177",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "Which command runs docker commands against a remote daemon?",
+  "options": [
+   "docker context create/use with the host's ssh or tcp endpoint",
+   "It needs an agent on the target",
+   "They run builds remotely",
+   "The registry mirror"
+  ],
+  "answerIndex": 0,
+  "explanation": "docker context create/use with the host's ssh or tcp endpoint contexts switch WHERE the CLI points — local socket or remote daemon — without per-command flags."
+ },
+ {
+  "id": "docker-b081",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "docker ps shows 'Exited (0)'. What does the 0 tell you?",
+  "options": [
+   "SIGHUP to reload config",
+   "Untagged <none> images left behind when a rebuild re-tags — prune removes them",
+   "Images currently in use but idle",
+   "The main process exited cleanly with status 0"
+  ],
+  "answerIndex": 3,
+  "explanation": "The main process exited cleanly with status 0 exit codes come from PID 1; stop is TERM-then-KILL; --rm keeps one-shots clean; prune eats dangling layers; pin real versions instead of latest."
+ },
+ {
+  "id": "docker-b171",
+  "topic": "docker",
+  "difficulty": "hard",
+  "prompt": "What does pulling an image BY DIGEST (repo@sha256:…) guarantee?",
+  "options": [
+   "Byte-exact, immutable content — the same bits every time",
+   "Automatic vulnerability scanning",
+   "The registry's TLS certificate",
+   "It avoids rate limits"
+  ],
+  "answerIndex": 0,
+  "explanation": "Byte-exact, immutable content — the same bits every time Tags are mutable labels; digests are content addresses. Pin by digest when reproducibility matters."
+ },
+ {
+  "id": "docker-b062",
+  "topic": "docker",
+  "difficulty": "easy",
+  "prompt": "What does docker commit do?",
+  "options": [
+   "Docker skips hardware drivers",
+   "Freezes a container's current writable layer into a new image",
+   "Git repositories cloned at build time",
+   "It rewrites the Dockerfile into the image"
+  ],
+  "answerIndex": 1,
+  "explanation": "Freezes a container's current writable layer into a new image image = immutable layers; container = those layers + one writable layer, isolated by namespaces, limited by cgroups."
+ },
+ {
+  "id": "docker-b174",
+  "topic": "docker",
+  "difficulty": "hard",
+  "prompt": "What is the difference between image ID and digest?",
+  "options": [
+   "Layer deduplication",
+   "ID = config+layers hash of the LOCAL image; digest = the registry manifest's content hash",
+   "It avoids rate limits",
+   "The registry's TLS certificate"
+  ],
+  "answerIndex": 1,
+  "explanation": "ID = config+layers hash of the LOCAL image; digest = the registry manifest's content hash Tags are mutable labels; digests are content addresses. Pin by digest when reproducibility matters."
+ },
+ {
+  "id": "docker-b089",
+  "topic": "docker",
+  "difficulty": "hard",
+  "prompt": "What is PID 1 in a container, and why does it matter?",
+  "options": [
+   "no — policies never survive reboots",
+   "The image's ENTRYPOINT/CMD — signals only reach it, so zombies linger without an init",
+   "Freezes the container's processes with SIGSTOP — state stays in memory",
+   "A shell spawned by Docker"
+  ],
+  "answerIndex": 1,
+  "explanation": "The image's ENTRYPOINT/CMD — signals only reach it, so zombies linger without an init healthchecks express real readiness; policies control restarts; pause freezes; PID 1 owns signals; --memory is a hard cap."
+ },
+ {
+  "id": "docker-b191",
+  "topic": "docker",
+  "difficulty": "hard",
+  "prompt": "Which compose snippet gates service startup on a healthy database?",
+  "options": [
+   "compose validate",
+   "depends_on: db: condition: service_started",
+   "It tails the logs",
+   "depends_on: db: condition: service_healthy (with a HEALTHCHECK in db)"
+  ],
+  "answerIndex": 3,
+  "explanation": "depends_on: db: condition: service_healthy (with a HEALTHCHECK in db) compose run = one-off container, compose exec = inside the running one; service_healthy needs HEALTHCHECK; config renders the merged truth."
+ },
+ {
+  "id": "docker-b173",
+  "topic": "docker",
+  "difficulty": "hard",
+  "prompt": "What does docker inspect show under RepoDigests?",
+  "options": [
+   "Faster downloads from the registry",
+   "A list of parent image IDs",
+   "Automatic vulnerability scanning",
+   "The digests this local image was pulled/verified against"
+  ],
+  "answerIndex": 3,
+  "explanation": "The digests this local image was pulled/verified against Tags are mutable labels; digests are content addresses. Pin by digest when reproducibility matters."
+ },
+ {
+  "id": "docker-b069",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "What does EXPOSE in a Dockerfile do?",
+  "options": [
+   "The user the container runs as",
+   "RUN ['app'] as the last line",
+   "ENTRYPOINT (with CMD for default flags)",
+   "Documents which port the container listens on — publishing still needs -p"
+  ],
+  "answerIndex": 3,
+  "explanation": "Documents which port the container listens on — publishing still needs -p CMD/ENTRYPOINT cooperate (exec form preferred); EXPOSE documents; WORKDIR sets cwd for everything after it."
+ },
+ {
+  "id": "docker-b192",
+  "topic": "docker",
+  "difficulty": "hard",
+  "prompt": "What does restart: on-failure:5 mean in compose?",
+  "options": [
+   "docker compose build --dry-run",
+   "links: [db] with health checks",
+   "Retry a crashed service up to 5 times",
+   "It tails the logs"
+  ],
+  "answerIndex": 2,
+  "explanation": "Retry a crashed service up to 5 times compose run = one-off container, compose exec = inside the running one; service_healthy needs HEALTHCHECK; config renders the merged truth."
+ },
+ {
+  "id": "docker-b182",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "Why does a pull of a private image fail with 'denied'?",
+  "options": [
+   "docker save into the registry",
+   "A build argument in Dockerfile",
+   "You are not authenticated (or lack rights) on that registry",
+   "It converts images between formats"
+  ],
+  "answerIndex": 2,
+  "explanation": "You are not authenticated (or lack rights) on that registry Registry auth = login + correctly tagged paths; mirrors cache pulls; secrets belong to the CI secret store."
+ },
+ {
+  "id": "docker-b141",
+  "topic": "docker",
+  "difficulty": "hard",
+  "prompt": "What do Linux namespaces give containers?",
+  "options": [
+   "zfs on every distro",
+   "It enables namespaces",
+   "overlayfs1 — the modern replacement",
+   "Isolated views of kernel resources — pid, net, mnt, uts, ipc, user"
+  ],
+  "answerIndex": 3,
+  "explanation": "Isolated views of kernel resources — pid, net, mnt, uts, ipc, user namespaces isolate what a container SEES; cgroups limit what it USES; overlay2 merges layers; --init fixes PID 1 hygiene."
+ },
+ {
+  "id": "docker-b076",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "-p 8080:80 — which port is the HOST's?",
+  "options": [
+   "Names are written into /etc/hosts by cron",
+   "The default bridge — reachable by IP, no automatic DNS between containers",
+   "host — sharing the host's stack",
+   "8080 — the left side is host, the right side is the container port"
+  ],
+  "answerIndex": 3,
+  "explanation": "8080 — the left side is host, the right side is the container port -p is host:container; volumes are managed and persistent, binds are literal host paths; custom networks give free DNS."
+ },
+ {
+  "id": "docker-b133",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "Exit code 125 from docker run means?",
+  "options": [
+   "The container exited with error 127",
+   "Your command returned 125",
+   "The Docker daemon itself failed to run the container (not your command)",
+   "The port mapping failed"
+  ],
+  "answerIndex": 2,
+  "explanation": "The Docker daemon itself failed to run the container (not your command) create = configured-but-not-started; 125/126/127 distinguish daemon/exec/not-found failures; top and port inspect from outside."
+ },
+ {
+  "id": "docker-b083",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "What does --rm do on docker run?",
+  "options": [
+   "Makes the container read-only",
+   "Removes the container (and its writable layer) as soon as it exits",
+   "It is just a default tag name — it is not guaranteed to be newest or stable",
+   "It is a reserved read-only tag"
+  ],
+  "answerIndex": 1,
+  "explanation": "Removes the container (and its writable layer) as soon as it exits exit codes come from PID 1; stop is TERM-then-KILL; --rm keeps one-shots clean; prune eats dangling layers; pin real versions instead of latest."
+ },
+ {
+  "id": "docker-b188",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "EXPOSE 80 with no -p — what can the host access?",
+  "options": [
+   "The port is unreachable, by design",
+   "Nothing from outside — the port is documented but not published",
+   "Everything — EXPOSE publishes too",
+   "Use -P and firewall everything"
+  ],
+  "answerIndex": 1,
+  "explanation": "Nothing from outside — the port is documented but not published EXPOSE documents, -p/-P publish. Loopback-only or network-internal access is the safe default for stateful services."
+ },
+ {
+  "id": "docker-b134",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "What does docker top web show?",
+  "options": [
+   "The processes running inside container web, host-side view",
+   "Your command returned 125",
+   "It builds an image without container",
+   "The firewall rules Docker added"
+  ],
+  "answerIndex": 0,
+  "explanation": "The processes running inside container web, host-side view create = configured-but-not-started; 125/126/127 distinguish daemon/exec/not-found failures; top and port inspect from outside."
+ },
+ {
+  "id": "docker-b185",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "Where should CI keep registry passwords?",
+  "options": [
+   "docker commit then docker run",
+   "It converts images between formats",
+   "In the CI secret store injected at runtime — never baked into images or logs",
+   "The daemon's TLS key"
+  ],
+  "answerIndex": 2,
+  "explanation": "In the CI secret store injected at runtime — never baked into images or logs Registry auth = login + correctly tagged paths; mirrors cache pulls; secrets belong to the CI secret store."
+ },
+ {
+  "id": "docker-b195",
+  "topic": "docker",
+  "difficulty": "hard",
+  "prompt": "Which command validates a compose file without running anything?",
+  "options": [
+   "docker compose config",
+   "docker compose build --dry-run",
+   "Restart only on reboots",
+   "It tails the logs"
+  ],
+  "answerIndex": 0,
+  "explanation": "docker compose config compose run = one-off container, compose exec = inside the running one; service_healthy needs HEALTHCHECK; config renders the merged truth."
+ },
+ {
+  "id": "docker-b193",
+  "topic": "docker",
+  "difficulty": "hard",
+  "prompt": "What does docker compose run --rm web sh do?",
+  "options": [
+   "It creates a NEW container",
+   "Starts a one-off container from the web service definition, removed on exit",
+   "compose lint",
+   "restart: db-health"
+  ],
+  "answerIndex": 1,
+  "explanation": "Starts a one-off container from the web service definition, removed on exit compose run = one-off container, compose exec = inside the running one; service_healthy needs HEALTHCHECK; config renders the merged truth."
+ },
+ {
+  "id": "docker-b136",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "In docker compose, how does service web reach service db?",
+  "options": [
+   "The compose file's YAML graph",
+   "rm -rf and re-clone",
+   "They live only inside images",
+   "By the name 'db' — compose gives each project a network with service-name DNS"
+  ],
+  "answerIndex": 3,
+  "explanation": "By the name 'db' — compose gives each project a network with service-name DNS compose = project-scoped network + DNS + lifecycle. depends_on orders starts; healthchecks express readiness."
+ },
+ {
+  "id": "docker-b079",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "Which network does a container join by default?",
+  "options": [
+   "Docker runs an embedded DNS server resolving container/service names",
+   "The default bridge — reachable by IP, no automatic DNS between containers",
+   "Nothing — volumes die with the container",
+   "The registry resolves names"
+  ],
+  "answerIndex": 1,
+  "explanation": "The default bridge — reachable by IP, no automatic DNS between containers -p is host:container; volumes are managed and persistent, binds are literal host paths; custom networks give free DNS."
+ },
+ {
+  "id": "docker-b183",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "How do you push a private image to your registry?",
+  "options": [
+   "docker save into the registry",
+   "Echo them into logs for backup",
+   "Tag it with the registry path, docker login, then docker push",
+   "Registries auto-import local images"
+  ],
+  "answerIndex": 2,
+  "explanation": "Tag it with the registry path, docker login, then docker push Registry auth = login + correctly tagged paths; mirrors cache pulls; secrets belong to the CI secret store."
+ },
+ {
+  "id": "docker-b144",
+  "topic": "docker",
+  "difficulty": "hard",
+  "prompt": "What does --user 1000:1000 on docker run change?",
+  "options": [
+   "It restarts PID 1 on crash",
+   "btrfs always",
+   "Software licenses",
+   "The uid/gid the container's process runs as"
+  ],
+  "answerIndex": 3,
+  "explanation": "The uid/gid the container's process runs as namespaces isolate what a container SEES; cgroups limit what it USES; overlay2 merges layers; --init fixes PID 1 hygiene."
+ },
+ {
+  "id": "docker-b142",
+  "topic": "docker",
+  "difficulty": "hard",
+  "prompt": "What do cgroups give containers?",
+  "options": [
+   "It enables namespaces",
+   "It restarts PID 1 on crash",
+   "It increases the PID limit",
+   "Resource LIMITS and accounting — cpu, memory, io"
+  ],
+  "answerIndex": 3,
+  "explanation": "Resource LIMITS and accounting — cpu, memory, io namespaces isolate what a container SEES; cgroups limit what it USES; overlay2 merges layers; --init fixes PID 1 hygiene."
+ },
+ {
+  "id": "docker-b061",
+  "topic": "docker",
+  "difficulty": "easy",
+  "prompt": "What is the relationship between an image and a container?",
+  "options": [
+   "It persists data across container removal",
+   "An image is the immutable template; a container is a running (or stopped) instance with a writable layer on top",
+   "Compressed tarballs downloaded from Docker Hub",
+   "They are the same thing with different names"
+  ],
+  "answerIndex": 1,
+  "explanation": "An image is the immutable template; a container is a running (or stopped) instance with a writable layer on top image = immutable layers; container = those layers + one writable layer, isolated by namespaces, limited by cgroups."
+ },
+ {
+  "id": "docker-b179",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "Why do contexts beat raw -H flags for teams?",
+  "options": [
+   "Build-time variable scopes",
+   "Named, persisted endpoints — docker context use prod, then plain docker ps",
+   "Registry authentication realms",
+   "docker info --contexts"
+  ],
+  "answerIndex": 1,
+  "explanation": "Named, persisted endpoints — docker context use prod, then plain docker ps contexts switch WHERE the CLI points — local socket or remote daemon — without per-command flags."
+ },
+ {
+  "id": "docker-b082",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "What does docker stop actually send first?",
+  "options": [
+   "Images currently in use but idle",
+   "It is just a default tag name — it is not guaranteed to be newest or stable",
+   "SIGTERM — with a grace period before SIGKILL",
+   "SIGKILL immediately — stop is instant"
+  ],
+  "answerIndex": 2,
+  "explanation": "SIGTERM — with a grace period before SIGKILL exit codes come from PID 1; stop is TERM-then-KILL; --rm keeps one-shots clean; prune eats dangling layers; pin real versions instead of latest."
+ },
+ {
+  "id": "docker-b086",
+  "topic": "docker",
+  "difficulty": "hard",
+  "prompt": "What does a HEALTHCHECK in a Dockerfile give you?",
+  "options": [
+   "The image's ENTRYPOINT/CMD — signals only reach it, so zombies linger without an init",
+   "A status of healthy/unhealthy driven by a probe command — compose can gate depends_on on it",
+   "no — policies never survive reboots",
+   "It restarts the container when it crashes"
+  ],
+  "answerIndex": 1,
+  "explanation": "A status of healthy/unhealthy driven by a probe command — compose can gate depends_on on it healthchecks express real readiness; policies control restarts; pause freezes; PID 1 owns signals; --memory is a hard cap."
+ },
+ {
+  "id": "docker-b077",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "A named volume vs a bind mount — what is the key difference?",
+  "options": [
+   "Nothing — volumes die with the container",
+   "The image is deleted too",
+   "Named volumes are Docker-managed storage; bind mounts map an exact host directory",
+   "The registry resolves names"
+  ],
+  "answerIndex": 2,
+  "explanation": "Named volumes are Docker-managed storage; bind mounts map an exact host directory -p is host:container; volumes are managed and persistent, binds are literal host paths; custom networks give free DNS."
+ },
+ {
+  "id": "docker-b180",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "What lists your contexts and marks the current one?",
+  "options": [
+   "The current context only",
+   "It needs an agent on the target",
+   "docker context ls",
+   "The socket permission mode"
+  ],
+  "answerIndex": 2,
+  "explanation": "docker context ls contexts switch WHERE the CLI points — local socket or remote daemon — without per-command flags."
+ },
+ {
+  "id": "docker-b197",
+  "topic": "docker",
+  "difficulty": "easy",
+  "prompt": "docker run exits immediately with code 125. What does 125 mean?",
+  "options": [
+   "The command inside was not found",
+   "The container's app returned 125",
+   "The port mapping collided",
+   "The Docker daemon failed to run the container"
+  ],
+  "answerIndex": 3,
+  "explanation": "125 → daemon-level failure; 126 → command found but not executable; 127 → command not found. Everything else comes from the app itself."
+ },
+ {
+  "id": "docker-b181",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "What does docker login store?",
+  "options": [
+   "docker save into the registry",
+   "The image is not tagged latest",
+   "Registry credentials in the configured credential helper / config.json",
+   "The local disk is full"
+  ],
+  "answerIndex": 2,
+  "explanation": "Registry credentials in the configured credential helper / config.json Registry auth = login + correctly tagged paths; mirrors cache pulls; secrets belong to the CI secret store."
+ },
+ {
+  "id": "docker-b140",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "What does docker compose ps show?",
+  "options": [
+   "Only the containers belonging to this compose project, with status/ports",
+   "They require external Kubernetes",
+   "They are deleted on compose down",
+   "The compose file's YAML graph"
+  ],
+  "answerIndex": 0,
+  "explanation": "Only the containers belonging to this compose project, with status/ports compose = project-scoped network + DNS + lifecycle. depends_on orders starts; healthchecks express readiness."
+ },
+ {
+  "id": "docker-b189",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "Two containers publish host port 80. Second run fails with?",
+  "options": [
+   "docker netstat",
+   "Publish to 0.0.0.0 always",
+   "Use -P and firewall everything",
+   "bind: address already in use"
+  ],
+  "answerIndex": 3,
+  "explanation": "bind: address already in use EXPOSE documents, -p/-P publish. Loopback-only or network-internal access is the safe default for stateful services."
+ },
+ {
+  "id": "docker-b176",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "What does docker context manage?",
+  "options": [
+   "The socket permission mode",
+   "It needs an agent on the target",
+   "The current context only",
+   "Which Docker endpoint (local socket, remote host) your docker CLI talks to"
+  ],
+  "answerIndex": 3,
+  "explanation": "Which Docker endpoint (local socket, remote host) your docker CLI talks to contexts switch WHERE the CLI points — local socket or remote daemon — without per-command flags."
+ },
+ {
+  "id": "docker-b070",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "What does WORKDIR change?",
+  "options": [
+   "Publishes the port to the host automatically",
+   "ENTRYPOINT (with CMD for default flags)",
+   "The working directory for every later instruction (RUN, CMD, COPY…)",
+   "It is appended after ENTRYPOINT"
+  ],
+  "answerIndex": 2,
+  "explanation": "The working directory for every later instruction (RUN, CMD, COPY…) CMD/ENTRYPOINT cooperate (exec form preferred); EXPOSE documents; WORKDIR sets cwd for everything after it."
+ },
+ {
+  "id": "docker-b132",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "docker run fails with exit code 127. What happened?",
+  "options": [
+   "The container exited with error 127",
+   "The command inside the container was not found",
+   "The image's filesystem layers",
+   "The ports the image EXPOSEs"
+  ],
+  "answerIndex": 1,
+  "explanation": "The command inside the container was not found create = configured-but-not-started; 125/126/127 distinguish daemon/exec/not-found failures; top and port inspect from outside."
+ },
+ {
+  "id": "docker-b063",
+  "topic": "docker",
+  "difficulty": "easy",
+  "prompt": "What are image layers?",
+  "options": [
+   "Read-only filesystem diffs stacked by Dockerfile instructions and shared between images",
+   "Stores everything the container changes at runtime — deleted with the container",
+   "It holds the container's logs",
+   "It rewrites the Dockerfile into the image"
+  ],
+  "answerIndex": 0,
+  "explanation": "Read-only filesystem diffs stacked by Dockerfile instructions and shared between images image = immutable layers; container = those layers + one writable layer, isolated by namespaces, limited by cgroups."
+ },
+ {
+  "id": "docker-b137",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "What does depends_on guarantee in compose?",
+  "options": [
+   "Start ORDER only — readiness needs healthcheck conditions (compose v2 style)",
+   "By IP — names do not resolve",
+   "They require external Kubernetes",
+   "Restart loops until healthy"
+  ],
+  "answerIndex": 0,
+  "explanation": "Start ORDER only — readiness needs healthcheck conditions (compose v2 style) compose = project-scoped network + DNS + lifecycle. depends_on orders starts; healthchecks express readiness."
+ },
+ {
+  "id": "docker-b067",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "docker run image /bin/sh — what happens to the Dockerfile's CMD?",
+  "options": [
+   "They are aliases — no difference",
+   "ENTRYPOINT must be shell form only",
+   "It is replaced by /bin/sh",
+   "It is appended after ENTRYPOINT"
+  ],
+  "answerIndex": 2,
+  "explanation": "It is replaced by /bin/sh CMD/ENTRYPOINT cooperate (exec form preferred); EXPOSE documents; WORKDIR sets cwd for everything after it."
+ },
+ {
+  "id": "docker-b184",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "What is a registry mirror used for?",
+  "options": [
+   "Echo them into logs for backup",
+   "Pulling through a local cache/proxy — faster pulls and rate-limit relief",
+   "It mirrors pushes too by default",
+   "An image tag in the local store"
+  ],
+  "answerIndex": 1,
+  "explanation": "Pulling through a local cache/proxy — faster pulls and rate-limit relief Registry auth = login + correctly tagged paths; mirrors cache pulls; secrets belong to the CI secret store."
+ },
+ {
+  "id": "docker-b198",
+  "topic": "docker",
+  "difficulty": "easy",
+  "prompt": "docker run exits immediately with code 126. What does 126 mean?",
+  "options": [
+   "The command exists but is not executable",
+   "The image is unsigned",
+   "The daemon failed to start",
+   "The app exited with 126"
+  ],
+  "answerIndex": 0,
+  "explanation": "125 → daemon-level failure; 126 → command found but not executable; 127 → command not found. Everything else comes from the app itself."
+ },
+ {
+  "id": "docker-b194",
+  "topic": "docker",
+  "difficulty": "hard",
+  "prompt": "What does docker compose exec web sh do?",
+  "options": [
+   "Start once per boot",
+   "links: [db] with health checks",
+   "Rebuilds the image first",
+   "Opens a shell in the ALREADY RUNNING web container"
+  ],
+  "answerIndex": 3,
+  "explanation": "Opens a shell in the ALREADY RUNNING web container compose run = one-off container, compose exec = inside the running one; service_healthy needs HEALTHCHECK; config renders the merged truth."
+ },
+ {
+  "id": "docker-b088",
+  "topic": "docker",
+  "difficulty": "hard",
+  "prompt": "What does docker pause do?",
+  "options": [
+   "It suspends the VM underneath",
+   "A soft hint the kernel ignores under pressure",
+   "Freezes the container's processes with SIGSTOP — state stays in memory",
+   "The host's init system"
+  ],
+  "answerIndex": 2,
+  "explanation": "Freezes the container's processes with SIGSTOP — state stays in memory healthchecks express real readiness; policies control restarts; pause freezes; PID 1 owns signals; --memory is a hard cap."
+ },
+ {
+  "id": "docker-b175",
+  "topic": "docker",
+  "difficulty": "hard",
+  "prompt": "Why pin by digest in CI?",
+  "options": [
+   "Reproducible builds — every pipeline run uses identical bytes",
+   "Faster downloads from the registry",
+   "It avoids rate limits",
+   "It is signed by Docker Inc"
+  ],
+  "answerIndex": 0,
+  "explanation": "Reproducible builds — every pipeline run uses identical bytes Tags are mutable labels; digests are content addresses. Pin by digest when reproducibility matters."
+ },
+ {
+  "id": "docker-b080",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "Why do containers on a custom (or compose) network reach each other by name?",
+  "options": [
+   "Bind mounts are slower in every case",
+   "Docker runs an embedded DNS server resolving container/service names",
+   "Only the volume's metadata",
+   "Named volumes are Docker-managed storage; bind mounts map an exact host directory"
+  ],
+  "answerIndex": 1,
+  "explanation": "Docker runs an embedded DNS server resolving container/service names -p is host:container; volumes are managed and persistent, binds are literal host paths; custom networks give free DNS."
+ },
+ {
+  "id": "docker-b143",
+  "topic": "docker",
+  "difficulty": "hard",
+  "prompt": "Which storage driver class does Docker use for overlay filesystems?",
+  "options": [
+   "It increases the PID limit",
+   "overlay2 — stacking image layers into one merged mount",
+   "A separate kernel per container",
+   "zfs on every distro"
+  ],
+  "answerIndex": 1,
+  "explanation": "overlay2 — stacking image layers into one merged mount namespaces isolate what a container SEES; cgroups limit what it USES; overlay2 merges layers; --init fixes PID 1 hygiene."
+ },
+ {
+  "id": "docker-b066",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "What is the difference between CMD and ENTRYPOINT?",
+  "options": [
+   "The working directory for every later instruction (RUN, CMD, COPY…)",
+   "ENTRYPOINT is the fixed executable; CMD supplies default args (fully overridable by docker run)",
+   "Documents which port the container listens on — publishing still needs -p",
+   "ENTRYPOINT (with CMD for default flags)"
+  ],
+  "answerIndex": 1,
+  "explanation": "ENTRYPOINT is the fixed executable; CMD supplies default args (fully overridable by docker run) CMD/ENTRYPOINT cooperate (exec form preferred); EXPOSE documents; WORKDIR sets cwd for everything after it."
+ },
+ {
+  "id": "docker-b131",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "What does docker create do compared to docker run?",
+  "options": [
+   "The host's global process table",
+   "The ports the image EXPOSEs",
+   "It builds the container (writable layer, name, config) but does NOT start it",
+   "The container's internal listening ports"
+  ],
+  "answerIndex": 2,
+  "explanation": "It builds the container (writable layer, name, config) but does NOT start it create = configured-but-not-started; 125/126/127 distinguish daemon/exec/not-found failures; top and port inspect from outside."
+ },
+ {
+  "id": "docker-b187",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "How do you see the random ports assigned by -P?",
+  "options": [
+   "Only localhost can see it",
+   "Sets the container's HTTP port",
+   "Publish 5432 publicly for admin convenience",
+   "docker ps PORTS column or docker port <container>"
+  ],
+  "answerIndex": 3,
+  "explanation": "docker ps PORTS column or docker port <container> EXPOSE documents, -p/-P publish. Loopback-only or network-internal access is the safe default for stateful services."
+ },
+ {
+  "id": "docker-b071",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "COPY vs ADD — which is the recommended default?",
+  "options": [
+   "COPY — ADD only for auto-extracting local tarballs (its URL fetch is discouraged)",
+   "Order is irrelevant — Docker sorts layers",
+   "Order does not affect caching",
+   "It builds ARM images on x86 hosts"
+  ],
+  "answerIndex": 0,
+  "explanation": "COPY — ADD only for auto-extracting local tarballs (its URL fetch is discouraged) COPY > ADD; cache flows downward so stable layers go first; .dockerignore and multi-stage keep images lean and safe."
+ },
+ {
+  "id": "docker-b200",
+  "topic": "docker",
+  "difficulty": "easy",
+  "prompt": "Which command lists ONLY currently running containers, not stopped ones (variant 1)?",
+  "options": [
+   "docker images",
+   "docker inspect --all",
+   "docker ps -a",
+   "docker ps"
+  ],
+  "answerIndex": 3,
+  "explanation": "docker ps shows running containers; docker ps -a adds exited ones — muscle-memory both."
+ },
+ {
+  "id": "docker-b190",
+  "topic": "docker",
+  "difficulty": "medium",
+  "prompt": "What is the safest default for a database container port?",
+  "options": [
+   "The daemon log only",
+   "Sets the container's HTTP port",
+   "docker netstat",
+   "Publish on 127.0.0.1 only (or not at all — use the docker network)"
+  ],
+  "answerIndex": 3,
+  "explanation": "Publish on 127.0.0.1 only (or not at all — use the docker network) EXPOSE documents, -p/-P publish. Loopback-only or network-internal access is the safe default for stateful services."
+ },
+ {
+  "id": "docker-b196",
+  "topic": "docker",
+  "difficulty": "easy",
+  "prompt": "Which command lists ONLY currently running containers (not stopped ones)?",
+  "options": [
+   "docker ps",
+   "docker ps -a",
+   "docker inspect --all",
+   "docker images"
+  ],
+  "answerIndex": 0,
+  "explanation": "docker ps shows running containers; docker ps -a adds stopped/exited ones. Variant 1 of this question — muscle-memory both."
+ },
+ {
+  "id": "docker-b090",
+  "topic": "docker",
+  "difficulty": "hard",
+  "prompt": "What does --memory=256m enforce?",
+  "options": [
+   "always — and unless-stopped, except for ones you manually stopped",
+   "It publishes a /health HTTP route",
+   "A hard cgroup cap — exceed it and the OOM killer terminates the process",
+   "The maximum swap the container may use"
+  ],
+  "answerIndex": 2,
+  "explanation": "A hard cgroup cap — exceed it and the OOM killer terminates the process healthchecks express real readiness; policies control restarts; pause freezes; PID 1 owns signals; --memory is a hard cap."
+ }
+]
