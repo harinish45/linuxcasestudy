@@ -15,6 +15,7 @@ import {
   Flame,
   Trophy,
   Terminal,
+  Lock,
 } from "lucide-react";
 import Reveal from "@/components/Reveal";
 import CommandChip from "@/components/CommandChip";
@@ -424,15 +425,25 @@ function ChallengeCard({
                 ) : (
                   <CommandBody challenge={c} solved={solved} onSolve={onSolve} />
                 )}
-                {c.practice && (
-                  <div className="mt-4 rounded-xl border border-border bg-secondary/40 p-3">
-                    <p className="mb-2 flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-text-faint">
-                      <Terminal className="h-3 w-3" />
-                      practise this in the terminal lab
-                    </p>
-                    <CommandChip cmd={c.practice} accentHex={hex} compact />
-                  </div>
-                )}
+                {/* Terminal command stays hidden until solved — it would give
+                    away the answer for command questions (practice === accepted). */}
+                {c.practice &&
+                  (solved ? (
+                    <div className="mt-4 rounded-xl border border-border bg-secondary/40 p-3">
+                      <p className="mb-2 flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-text-faint">
+                        <Terminal className="h-3 w-3" />
+                        solved — now run it in the terminal lab
+                      </p>
+                      <CommandChip cmd={c.practice} accentHex={hex} compact />
+                    </div>
+                  ) : (
+                    <div className="mt-4 flex items-center gap-2.5 rounded-xl border border-dashed border-input bg-secondary/20 px-3.5 py-3">
+                      <Lock className="h-3.5 w-3.5 shrink-0 text-text-faint" />
+                      <p className="font-mono text-[10.5px] uppercase tracking-[0.16em] text-text-faint">
+                        terminal lab command locked — solve to reveal
+                      </p>
+                    </div>
+                  ))}
               </div>
             </motion.div>
           )}
