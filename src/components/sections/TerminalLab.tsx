@@ -138,8 +138,8 @@ export default function TerminalLab() {
   const totalScenarios = useMemo(() => TABS.reduce((n, t) => n + t.scenarios.length, 0), []);
 
   return (
-    <section id="terminal" className="relative pt-10">
-      <div className="mx-auto max-w-6xl px-5 pb-24 md:px-8">
+    <section id="terminal" className="relative">
+      <div>
         <SectionHeading
           kicker="Live terminal simulator"
           title="Run the lab yourself"

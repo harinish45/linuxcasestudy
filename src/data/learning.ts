@@ -8,9 +8,6 @@
 
 export type TopicKey = "lvm" | "nfs" | "docker";
 
-/** DOM section id for a topic (the containers chapter lives at #containers). */
-export const sectionIdOf = (k: TopicKey) => (k === "docker" ? "containers" : k);
-
 export interface VideoPick {
   id: string; // youtube video id
   title: string;

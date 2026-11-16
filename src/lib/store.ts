@@ -1,16 +1,28 @@
 "use client";
 
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 export type AccentKey = "lvm" | "nfs" | "docker";
-export type SectionId =
-  | "hero"
-  | "lvm"
-  | "nfs"
-  | "containers"
-  | "practice"
-  | "terminal"
-  | "resources";
+export type TopicKey = AccentKey;
+
+/** App routes — the platform is multi-page now, not one long scroll. */
+export const ROUTES = {
+  home: "/",
+  lvm: "/courses/lvm",
+  nfs: "/courses/nfs",
+  containers: "/courses/containers",
+  practice: "/practice",
+  terminal: "/terminal",
+  pipeline: "/pipeline",
+  resources: "/resources",
+} as const;
+
+export type Route = (typeof ROUTES)[keyof typeof ROUTES];
+
+/** Topic key → route (topics use "docker", the route is "containers"). */
+export const topicRoute = (k: TopicKey): Route =>
+  k === "docker" ? ROUTES.containers : k === "nfs" ? ROUTES.nfs : ROUTES.lvm;
 
 export const ACCENTS: Record<AccentKey, { hex: string; rgb: string; label: string }> = {
   lvm: { hex: "#7c5cff", rgb: "124, 92, 255", label: "LVM" },
@@ -18,40 +30,25 @@ export const ACCENTS: Record<AccentKey, { hex: string; rgb: string; label: strin
   docker: { hex: "#34d399", rgb: "52, 211, 153", label: "Containers" },
 };
 
-export const SECTION_IDS: SectionId[] = [
-  "hero",
-  "lvm",
-  "nfs",
-  "containers",
-  "practice",
-  "terminal",
-  "resources",
-];
-
 interface LabState {
-  activeSection: SectionId;
-  heroAccent: AccentKey;
-  paletteOpen: boolean;
-  /** Intro gate: SSR default false → intro renders on first paint. */
+  /** Boot intro gate: SSR default false → intro renders on first paint. */
   introDone: boolean;
   /** Bumped on "replay intro" so the intro remounts. */
   introNonce: number;
-  setActiveSection: (s: SectionId) => void;
-  setHeroAccent: (a: AccentKey) => void;
-  setPaletteOpen: (open: boolean) => void;
+  /** Mobile slide-over sidebar visibility. */
+  sidebarOpen: boolean;
+  paletteOpen: boolean;
   setIntroDone: (done: boolean) => void;
   replayIntro: () => void;
+  setSidebarOpen: (open: boolean) => void;
+  setPaletteOpen: (open: boolean) => void;
 }
 
 export const useLabStore = create<LabState>((set) => ({
-  activeSection: "hero",
-  heroAccent: "lvm",
-  paletteOpen: false,
   introDone: false,
   introNonce: 0,
-  setActiveSection: (s) => set({ activeSection: s }),
-  setHeroAccent: (a) => set({ heroAccent: a }),
-  setPaletteOpen: (open) => set({ paletteOpen: open }),
+  sidebarOpen: false,
+  paletteOpen: false,
   setIntroDone: (done) => set({ introDone: done }),
   replayIntro: () => {
     // Clear the played-once flag or the remounted intro will skip itself.
@@ -62,4 +59,41 @@ export const useLabStore = create<LabState>((set) => ({
     }
     set((s) => ({ introDone: false, introNonce: s.introNonce + 1 }));
   },
+  setSidebarOpen: (open) => set({ sidebarOpen: open }),
+  setPaletteOpen: (open) => set({ paletteOpen: open }),
 }));
+
+/* ────────────────────────────────────────────────────────────────────── */
+/* Learning progress — persisted in localStorage.                          */
+/* ────────────────────────────────────────────────────────────────────── */
+
+export interface LearningProgress {
+  /** Chapter keys the learner marked complete. */
+  completed: TopicKey[];
+  /** Last course route visited ("continue learning"). */
+  lastCourse: string | null;
+  markComplete: (k: TopicKey) => void;
+  markIncomplete: (k: TopicKey) => void;
+  setLastCourse: (route: string) => void;
+  resetProgress: () => void;
+}
+
+const PROGRESS_DEFAULT = { completed: [] as TopicKey[], lastCourse: null as string | null };
+
+export const useProgressStore = create<LearningProgress>()(
+  persist(
+    (set) => ({
+      ...PROGRESS_DEFAULT,
+      markComplete: (k) =>
+        set((s) => ({ completed: s.completed.includes(k) ? s.completed : [...s.completed, k] })),
+      markIncomplete: (k) => set((s) => ({ completed: s.completed.filter((c) => c !== k) })),
+      setLastCourse: (route) => set({ lastCourse: route }),
+      resetProgress: () => set(PROGRESS_DEFAULT),
+    }),
+    {
+      name: "clu-progress-v1",
+      storage: createJSONStorage(() => localStorage),
+      partialize: (s) => ({ completed: s.completed, lastCourse: s.lastCourse }),
+    }
+  )
+);

@@ -32,7 +32,7 @@ export default function ContainerVisual() {
 
   const running = state === "running" || state === "paused";
 
-  useEffect(() => () => token.current++, []);
+  useEffect(() => () => { token.current++; }, []);
 
   useEffect(() => {
     if (state !== "running") return;

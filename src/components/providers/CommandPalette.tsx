@@ -2,14 +2,15 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { CornerDownLeft, Search, Terminal } from "lucide-react";
 import { COMMAND_INDEX } from "@/data/commandIndex";
 import { ACCENTS, useLabStore } from "@/lib/store";
-import { scrollToSection } from "@/lib/scroll";
 import { fuzzyScore } from "@/lib/fuzzy";
 
 /** Cmd/Ctrl+K palette: fuzzy-search every command in the lab and jump to its section. */
 export default function CommandPalette() {
+  const router = useRouter();
   const open = useLabStore((s) => s.paletteOpen);
   const setOpen = useLabStore((s) => s.setPaletteOpen);
   const [query, setQuery] = useState("");
@@ -47,9 +48,9 @@ export default function CommandPalette() {
     if (open) inputRef.current?.focus();
   }, [open]);
 
-  const jump = (section: string) => {
+  const jump = (route: string) => {
     setOpen(false);
-    setTimeout(() => scrollToSection(section), 60);
+    router.push(route);
   };
 
   return (
@@ -90,7 +91,7 @@ export default function CommandPalette() {
                     e.preventDefault();
                     setIdx((i) => Math.max(0, i - 1));
                   } else if (e.key === "Enter" && results[idx]) {
-                    jump(results[idx].section);
+                    jump(results[idx].route);
                   }
                 }}
                 placeholder="Search every command in the lab…"
@@ -113,7 +114,7 @@ export default function CommandPalette() {
                 return (
                   <li key={`${entry.cmd}-${i}`}>
                     <button
-                      onClick={() => jump(entry.section)}
+                      onClick={() => jump(entry.route)}
                       onMouseEnter={() => setIdx(i)}
                       aria-selected={i === idx}
                       role="option"
@@ -144,7 +145,7 @@ export default function CommandPalette() {
               })}
             </ul>
             <div className="border-t border-white/10 px-4 py-2.5 font-mono text-[10px] uppercase tracking-widest text-[#8fa2c9]">
-              ↑↓ navigate · ↵ jump to section
+              ↑↓ navigate · ↵ open page
             </div>
           </motion.div>
         </motion.div>

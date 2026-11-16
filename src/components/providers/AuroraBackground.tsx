@@ -1,24 +1,28 @@
 "use client";
 
-import { useLabStore } from "@/lib/store";
+import { usePathname } from "next/navigation";
+import { ROUTES } from "@/lib/store";
 
 /**
  * Animated aurora background — three blurred radial blobs whose
- * dominant hue shifts with the active section.
+ * dominant hue shifts with the active route.
  */
-const SECTION_OPACITY: Record<string, [number, number, number]> = {
-  hero: [0.55, 0.3, 0.16],
-  lvm: [0.8, 0.08, 0.05],
-  nfs: [0.08, 0.75, 0.12],
-  containers: [0.05, 0.18, 0.75],
-  pipeline: [0.45, 0.45, 0.45],
-  terminal: [0.35, 0.3, 0.35],
-  dashboard: [0.12, 0.12, 0.12],
+const ROUTE_TINT: Record<string, [number, number, number]> = {
+  [ROUTES.home]: [0.5, 0.28, 0.16],
+  [ROUTES.lvm]: [0.8, 0.08, 0.05],
+  [ROUTES.nfs]: [0.08, 0.75, 0.12],
+  [ROUTES.containers]: [0.05, 0.18, 0.75],
+  [ROUTES.pipeline]: [0.45, 0.45, 0.45],
+  [ROUTES.terminal]: [0.35, 0.3, 0.35],
+  [ROUTES.practice]: [0.4, 0.35, 0.2],
+  [ROUTES.resources]: [0.3, 0.3, 0.3],
 };
 
+const BASE: [number, number, number] = [0.5, 0.28, 0.16];
+
 export default function AuroraBackground() {
-  const activeSection = useLabStore((s) => s.activeSection);
-  const op = SECTION_OPACITY[activeSection] ?? SECTION_OPACITY.hero;
+  const pathname = usePathname();
+  const op = ROUTE_TINT[pathname] ?? BASE;
 
   return (
     <div aria-hidden className="fixed inset-0 -z-10 overflow-hidden bg-[#05070f]">

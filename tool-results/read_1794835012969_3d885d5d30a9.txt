@@ -1,0 +1,656 @@
+     1→/**
+     2→ * Learning layer — the single source of truth for lessons, notes, cheat-sheet
+     3→ * commands, curated videos and external practice platforms.
+     4→ *
+     5→ * EVERY youtube id and external URL in this file was verified live
+     6→ * (YouTube oEmbed API / HTTP 200) before shipping.
+     7→ */
+     8→
+     9→export type TopicKey = "lvm" | "nfs" | "docker";
+    10→
+    11→/** DOM section id for a topic (the containers chapter lives at #containers). */
+    12→export const sectionIdOf = (k: TopicKey) => (k === "docker" ? "containers" : k);
+    13→
+    14→export interface VideoPick {
+    15→  id: string; // youtube video id
+    16→  title: string;
+    17→  channel: string;
+    18→  blurb: string;
+    19→}
+    20→
+    21→export interface ConceptNote {
+    22→  term: string;
+    23→  def: string;
+    24→}
+    25→
+    26→export interface CheatCommand {
+    27→  cmd: string;
+    28→  note?: string;
+    29→}
+    30→
+    31→export interface PracticeLink {
+    32→  name: string;
+    33→  url: string;
+    34→  blurb: string;
+    35→  tag: "wargame" | "labs" | "sandbox" | "reference" | "course";
+    36→}
+    37→
+    38→export interface Topic {
+    39→  key: TopicKey;
+    40→  num: string;
+    41→  name: string;
+    42→  title: string;
+    43→  tagline: string;
+    44→  accentHex: string;
+    45→  rgb: string;
+    46→  icon: "harddrive" | "network" | "container";
+    47→  intro: string;
+    48→  lesson: { heading: string; body: string }[];
+    49→  concepts: ConceptNote[];
+    50→  cheatsheet: CheatCommand[];
+    51→  videos: VideoPick[];
+    52→  practice: PracticeLink[];
+    53→}
+    54→
+    55→/* ──────────────────────────────────────────────────────────────────────── */
+    56→/* Topics                                                                   */
+    57→/* ──────────────────────────────────────────────────────────────────────── */
+    58→
+    59→export const TOPICS: Topic[] = [
+    60→  {
+    61→    key: "lvm",
+    62→    num: "01",
+    63→    name: "LVM",
+    64→    title: "Storage that grows",
+    65→    tagline: "Pool disks, resize live, snapshot before risky deploys",
+    66→    accentHex: "#7c5cff",
+    67→    rgb: "124, 92, 255",
+    68→    icon: "harddrive",
+    69→    intro:
+    70→      "LVM (Logical Volume Manager) sits between your raw disks and filesystems. Instead of carving fixed partitions you can never change, you pool disks into one resizable allocation space — then slice, grow and snapshot without downtime.",
+    71→    lesson: [
+    72→      {
+    73→        heading: "PV → VG → LV, the three-layer model",
+    74→        body: "Physical Volumes are raw disks initialised with an LVM header (pvcreate). Volume Groups pool those PVs into one allocation space measured in 4 MiB extents (vgcreate). Logical Volumes are the slices you actually format and mount (lvcreate) — /dev/vg_lab/lv_data behaves like a normal disk to everything above it.",
+    75→      },
+    76→      {
+    77→        heading: "Grow online, shrink with a plan",
+    78→        body: "The headline trick: lvextend -L +2G -r grows the LV AND the filesystem in one step while the volume is mounted. XFS is grow-only — it can never shrink — so pairs like lv_data (XFS, grows) + lv_logs (ext4, grows and shrinks) cover both needs.",
+    79→      },
+    80→      {
+    81→        heading: "Snapshots = cheap undo",
+    82→        body: "lvcreate -s freezes a volume's state at a point in time using copy-on-write: only changed blocks are stored, so a snapshot is nearly free to take. Deploy gone wrong? lvconvert --merge rolls the volume back — verified byte-identical with sha256sum in our lab.",
+    83→      },
+    84→    ],
+    85→    concepts: [
+    86→      { term: "PV", def: "Physical Volume — a raw disk (or partition) initialised for LVM use." },
+    87→      { term: "VG", def: "Volume Group — the pool of PVs; its free extents are what you spend when resizing." },
+    88→      { term: "LV", def: "Logical Volume — the slice you format & mount; grows/shrinks on demand." },
+    89→      { term: "Extent", def: "The VG's unit of allocation (4 MiB default) — LVM's currency." },
+    90→      { term: "COW snapshot", def: "Copy-on-write: only blocks changed after the snapshot are saved — cheap undo." },
+    91→      { term: "-r flag", def: "Tells lvextend/lvreduce to also resize the filesystem inside the LV." },
+    92→    ],
+    93→    cheatsheet: [
+    94→      { cmd: "sudo pvcreate /dev/sdb /dev/sdc /dev/sdd", note: "initialise disks as physical volumes" },
+    95→      { cmd: "sudo vgcreate vg_lab /dev/sdb /dev/sdc /dev/sdd", note: "pool PVs into one volume group" },
+    96→      { cmd: "sudo lvcreate -n lv_data -L 5G vg_lab", note: "carve a 5G logical volume" },
+    97→      { cmd: "sudo mkfs.xfs /dev/vg_lab/lv_data", note: "format it XFS (grow-only, parallel-friendly)" },
+    98→      { cmd: "sudo lvextend -L +2G -r /dev/vg_lab/lv_data", note: "grow LV + filesystem online — the money command" },
+    99→      { cmd: "sudo lvcreate -s -n lv_data_snap -L 1G vg_lab/lv_data", note: "snapshot before a risky deploy" },
+   100→      { cmd: "sudo lvconvert --merge vg_lab/lv_data_snap", note: "rollback to the snapshot state" },
+   101→      { cmd: "sudo pvs && sudo vgs && sudo lvs", note: "the three one-letter status reports" },
+   102→    ],
+   103→    videos: [
+   104→      {
+   105→        id: "MeltFN-bXrQ",
+   106→        title: "Linux Logical Volume Manager (LVM) Deep Dive Tutorial",
+   107→        channel: "Learn Linux TV",
+   108→        blurb: "One-shot deep dive: why LVM, getting started, and the commands that matter.",
+   109→      },
+   110→      {
+   111→        id: "ceEk56Z8k9s",
+   112→        title: "Set Up LVM Storage in Linux — Beginner's Guide",
+   113→        channel: "Mingtao SUN",
+   114→        blurb: "Gentle walkthrough of pvcreate → vgcreate → lvcreate → mount.",
+   115→      },
+   116→      {
+   117→        id: "Ap-S2faYjbA",
+   118→        title: "Logical Volume Management (LVM) vs Standard Partitions",
+   119→        channel: "SavvyNik",
+   120→        blurb: "See exactly what LVM buys you over plain partitions.",
+   121→      },
+   122→    ],
+   123→    practice: [
+   124→      { name: "KodeKloud Linux labs", url: "https://kodekloud.com/", blurb: "Browser labs with LVM tasks graded automatically.", tag: "labs" },
+   125→      { name: "Killercoda LVM scenarios", url: "https://killercoda.com/", blurb: "Free Ubuntu playgrounds — practise pvcreate in a real shell.", tag: "labs" },
+   126→      { name: "explainshell", url: "https://explainshell.com/", blurb: "Paste 'lvextend -L +2G -r ...' and see every flag explained.", tag: "reference" },
+   127→    ],
+   128→  },
+   129→  {
+   130→    key: "nfs",
+   131→    num: "02",
+   132→    name: "NFS",
+   133→    title: "One share, every machine",
+   134→    tagline: "Serve one directory to a whole fleet — with real permissions",
+   135→    accentHex: "#22d3ee",
+   136→    rgb: "34, 211, 238",
+   137→    icon: "network",
+   138→    intro:
+   139→      "NFS (Network File System) lets remote machines mount a directory as if it were local disk. One server, many clients — the classic way teams share data, media and home directories across a lab or cluster.",
+   140→    lesson: [
+   141→      {
+   142→        heading: "Server exports, clients mount",
+   143→        body: "The server lists shares in /etc/exports with who-gets-what options, then exportfs -ra applies them. Clients install nfs-common and mount -t nfs server:/export /mnt/point. NFSv4 needs just port 2049/tcp open — one firewall rule instead of the v3 port parade.",
+   144→      },
+   145→      {
+   146→        heading: "sync vs async, root_squash",
+   147→        body: "sync makes the server acknowledge writes only after they hit disk (safe, slower); async acknowledges early (fast, risks loss on crash). root_squash maps a client's root to the anonymous user — so a compromised client can't own your share. Turning it off (no_root_squash) is a lab shortcut and a production landmine.",
+   148→      },
+   149→      {
+   150→        heading: "Permissions that actually work",
+   151→        body: "NFS passes numeric UID/GIDs straight through — files created by UID 1000 look like UID 1000 everywhere. That's why shared team dirs use the setgid bit (chmod 2775) so new files inherit the group, plus a matching group membership on every client.",
+   152→      },
+   153→    ],
+   154→    concepts: [
+   155→      { term: "Export", def: "A directory the server shares, defined in /etc/exports with client + option rules." },
+   156→      { term: "2049/tcp", def: "The NFSv4 port — the only one you need in the firewall for modern setups." },
+   157→      { term: "root_squash", def: "Maps client root → nobody on the share; the default safety net." },
+   158→      { term: "sync", def: "Server acks writes only after disk write — slower, crash-safe." },
+   159→      { term: "setgid (2775)", def: "New files inherit the directory's group — team shares without chown fights." },
+   160→      { term: "exportfs -ra", def: "Re-read /etc/exports and apply every change immediately." },
+   161→    ],
+   162→    cheatsheet: [
+   163→      { cmd: "sudo apt install -y nfs-kernel-server", note: "server side package" },
+   164→      { cmd: "echo '/srv/nfs/shared 192.168.56.0/24(rw,sync,subtree_check)' | sudo tee -a /etc/exports", note: "declare the export + client range" },
+   165→      { cmd: "sudo exportfs -ra", note: "apply /etc/exports live" },
+   166→      { cmd: "sudo mkdir -p /srv/nfs/shared && sudo chmod 2775 /srv/nfs/shared", note: "setgid so files inherit the team group" },
+   167→      { cmd: "sudo ufw allow from 192.168.56.0/24 to any port 2049 proto tcp", note: "NFSv4 = one port" },
+   168→      { cmd: "showmount -e 192.168.56.10", note: "ask the server what it exports" },
+   169→      { cmd: "sudo mount -t nfs -o rw,sync 192.168.56.10:/srv/nfs/shared /mnt/shared", note: "client mount" },
+   170→      { cmd: "192.168.56.10:/srv/nfs/shared /mnt/shared nfs defaults 0 0", note: "fstab line for boot-persistent mounts" },
+   171→    ],
+   172→    videos: [
+   173→      {
+   174→        id: "Na_jKeVWzrc",
+   175→        title: "How to Set Up an NFS Server on Ubuntu (Complete with AutoFS!)",
+   176→        channel: "Learn Linux TV",
+   177→        blurb: "Full server+client walkthrough, plus automounting with AutoFS.",
+   178→      },
+   179→      {
+   180→        id: "zmDIfJtCKCk",
+   181→        title: "How to Install and Configure an NFS Linux Server and Client",
+   182→        channel: "Akamai Developers",
+   183→        blurb: "Clean end-to-end setup with firewall and permissions covered.",
+   184→      },
+   185→      {
+   186→        id: "WfV-3B27nPU",
+   187→        title: "Configuring NFS on Linux — Into the Terminal 97",
+   188→        channel: "Red Hat",
+   189→        blurb: "The RHEL-flavoured export config and mount procedure.",
+   190→      },
+   191→    ],
+   192→    practice: [
+   193→      { name: "Killercoda NFS scenarios", url: "https://killercoda.com/", blurb: "Two-node Linux environments — practise server + client mounts.", tag: "labs" },
+   194→      { name: "SadServers", url: "https://sadservers.com/", blurb: "Fix broken servers (incl. storage/mount cases) in real scenarios.", tag: "wargame" },
+   195→      { name: "explainshell", url: "https://explainshell.com/", blurb: "Decode every mount -o flag and export option.", tag: "reference" },
+   196→    ],
+   197→  },
+   198→  {
+   199→    key: "docker",
+   200→    num: "03",
+   201→    name: "Containers",
+   202→    title: "Ship it once",
+   203→    tagline: "Images, layers, volumes — build once, run anywhere",
+   204→    accentHex: "#34d399",
+   205→    rgb: "52, 211, 153",
+   206→    icon: "container",
+   207→    intro:
+   208→      "Containers package an app with everything it needs — libraries, runtime, config — into an image, then run it as an isolated process sharing the host kernel. No 'works on my machine': the artifact you tested is the artifact you ship.",
+   209→    lesson: [
+   210→      {
+   211→        heading: "Images are layer cakes",
+   212→        body: "A Dockerfile builds read-only layers — one per instruction (base OS, deps, code). Layers cache, so rebuilding after a one-line change is near-instant, and identical layers are shared between images. A container is just a thin writable layer stacked on top of the image.",
+   213→      },
+   214→      {
+   215→        heading: "The lifecycle state machine",
+   216→        body: "created → running (docker run / docker start) → paused (docker pause, freezes SIGSTOP-style) → stopped (docker stop, graceful SIGTERM then SIGKILL) → removed (docker rm). docker ps -a shows everything including stopped; docker run -d detaches so it survives your terminal.",
+   217→      },
+   218→      {
+   219→        heading: "Data outlives containers",
+   220→        body: "A container's writable layer disappears with docker rm. Named volumes (docker volume create) live in a managed host area, survive container removal, and can be reused across containers — bind mounts map a host directory instead, great for dev. Persist data with volumes; the golden rule of stateless containers.",
+   221→      },
+   222→    ],
+   223→    concepts: [
+   224→      { term: "Image", def: "Immutable layered template — the build artifact." },
+   225→      { term: "Container", def: "A running (or stopped) instance of an image + one writable layer." },
+   226→      { term: "Layer", def: "One read-only filesystem diff per Dockerfile instruction; cached and shared." },
+   227→      { term: "Named volume", def: "Docker-managed storage that survives docker rm — where databases live." },
+   228→      { term: "-d flag", def: "Detached mode — the container keeps running after your terminal closes." },
+   229→      { term: "exec", def: "Run a process inside a live container — no sshd needed." },
+   230→    ],
+   231→    cheatsheet: [
+   232→      { cmd: "docker build -t lab-app:1.0 .", note: "build the image from a Dockerfile" },
+   233→      { cmd: "docker run -d --name web -v lab_data:/data lab-app:1.0", note: "run detached with a named volume" },
+   234→      { cmd: "docker ps -a", note: "every container, including stopped ones" },
+   235→      { cmd: "docker pause web && docker unpause web", note: "freeze and resume a process" },
+   236→      { cmd: "docker exec -it web sh", note: "shell into a live container" },
+   237→      { cmd: "docker logs -f web", note: "follow the container's stdout" },
+   238→      { cmd: "docker rm -f web", note: "stop (if needed) and delete" },
+   239→      { cmd: "docker system prune -f", note: "reclaim dangling images + stopped containers" },
+   240→    ],
+   241→    videos: [
+   242→      {
+   243→        id: "3c-iBn73dDE",
+   244→        title: "Docker Tutorial for Beginners [FULL COURSE in 3 Hours]",
+   245→        channel: "TechWorld with Nana",
+   246→        blurb: "The classic full course — images, containers, compose, a real project.",
+   247→      },
+   248→      {
+   249→        id: "pg19Z8LL06w",
+   250→        title: "Docker Crash Course for Absolute Beginners [NEW]",
+   251→        channel: "TechWorld with Nana",
+   252→        blurb: "Shorter, newer — concepts first, hands-on demo included.",
+   253→      },
+   254→      {
+   255→        id: "pTFZFxd4hOI",
+   256→        title: "Docker Tutorial for Beginners",
+   257→        channel: "Programming with Mosh",
+   258→        blurb: "Tight, clear intro from a legendary teacher.",
+   259→      },
+   260→      {
+   261→        id: "RqTEHSBrYFw",
+   262→        title: "Complete Docker Course — From BEGINNER to PRO!",
+   263→        channel: "DevOps Directive",
+   264→        blurb: "Deeper: multi-stage builds, compose, security, CI thinking.",
+   265→      },
+   266→      {
+   267→        id: "zJ6WbK9zFpI",
+   268→        title: "Learn Docker in 2 Hours — A Full Tutorial (2025)",
+   269→        channel: "KodeKloud",
+   270→        blurb: "Modern 2025 refresh, hands-on labs to follow along.",
+   271→      },
+   272→    ],
+   273→    practice: [
+   274→      { name: "Play with Docker", url: "https://labs.play-with-docker.com/", blurb: "Free browser Docker sandbox — real Docker, zero install.", tag: "sandbox" },
+   275→      { name: "Killercoda Docker scenarios", url: "https://killercoda.com/", blurb: "Guided container scenarios right in the browser.", tag: "labs" },
+   276→      { name: "TryHackMe — Linux Fundamentals", url: "https://tryhackme.com/", blurb: "Hacker-style rooms that also cover containers & services.", tag: "course" },
+   277→    ],
+   278→  },
+   279→];
+   280→
+   281→/* ──────────────────────────────────────────────────────────────────────── */
+   282→/* Practice arena — leetcode-style challenges                               */
+   283→/* ──────────────────────────────────────────────────────────────────────── */
+   284→
+   285→export type Difficulty = "easy" | "medium" | "hard";
+   286→export type ChallengeType = "quiz" | "command";
+   287→
+   288→export interface Challenge {
+   289→  id: string;
+   290→  topic: TopicKey;
+   291→  difficulty: Difficulty;
+   292→  type: ChallengeType;
+   293→  title: string;
+   294→  prompt: string;
+   295→  /** quiz only */
+   296→  options?: string[];
+   297→  answerIndex?: number;
+   298→  /** command only — accepted answers after normalisation */
+   299→  accepted?: string[];
+   300→  hint: string;
+   301→  explanation: string;
+   302→  xp: number;
+   303→}
+   304→
+   305→export const CHALLENGES: Challenge[] = [
+   306→  // ── LVM ────────────────────────────────────────────────────────────────
+   307→  {
+   308→    id: "lvm-1",
+   309→    topic: "lvm",
+   310→    difficulty: "easy",
+   311→    type: "quiz",
+   312→    title: "Name that layer",
+   313→    prompt: "Which LVM layer pools physical disks into ONE resizable allocation space?",
+   314→    options: ["Physical Volume (PV)", "Volume Group (VG)", "Logical Volume (LV)", "Extent group (EG)"],
+   315→    answerIndex: 1,
+   316→    hint: "It's the middle layer of PV → ? → LV.",
+   317→    explanation:
+   318→      "Volume Group. PVs are pooled into a VG (vgcreate), and LVs are carved out of the VG (lvcreate). The VG is the wallet of free extents.",
+   319→    xp: 10,
+   320→  },
+   321→  {
+   322→    id: "lvm-2",
+   323→    topic: "lvm",
+   324→    difficulty: "easy",
+   325→    type: "command",
+   326→    title: "Init a physical volume",
+   327→    prompt: "Initialise /dev/sdb so LVM can use it. Write the exact command.",
+   328→    accepted: ["pvcreate /dev/sdb", "pvcreate /dev/sdb1"],
+   329→    hint: "It starts with pv… and needs sudo in real life (optional here).",
+   330→    explanation:
+   331→      "sudo pvcreate /dev/sdb writes the LVM header to the disk. Verify with pvs — it should show as allocatable.",
+   332→    xp: 10,
+   333→  },
+   334→  {
+   335→    id: "lvm-3",
+   336→    topic: "lvm",
+   337→    difficulty: "medium",
+   338→    type: "command",
+   339→    title: "The money command",
+   340→    prompt:
+   341→      "Grow /dev/vg_lab/lv_data by 2G AND resize the filesystem inside it in the SAME command, while it stays mounted.",
+   342→    accepted: ["lvextend -L +2G -r /dev/vg_lab/lv_data", "lvextend -r -L +2G /dev/vg_lab/lv_data"],
+   343→    hint: "lvextend, plus a flag that says 'also resize the filesystem'.",
+   344→    explanation:
+   345→      "lvextend -L +2G -r grows the LV and the filesystem in one step — online, no unmount. Without -r you'd need a separate xfs_growfs/resize2fs.",
+   346→    xp: 20,
+   347→  },
+   348→  {
+   349→    id: "lvm-4",
+   350→    topic: "lvm",
+   351→    difficulty: "medium",
+   352→    type: "quiz",
+   353→    title: "Why did the shrink fail?",
+   354→    prompt:
+   355→      "You ran lvreduce on an XFS logical volume and it refused. Why?",
+   356→    options: [
+   357→      "XFS volumes can only shrink while unmounted",
+   358→      "XFS cannot shrink at all — it is grow-only",
+   359→      "You forgot the -r flag",
+   360→      "The VG had no free extents",
+   361→    ],
+   362→    answerIndex: 1,
+   363→    hint: "Our lab keeps the failed shrink on purpose.",
+   364→    explanation:
+   365→      "XFS is grow-only by design. That's exactly why our lab formats lv_logs as ext4 — it's the one that may need to shrink.",
+   366→    xp: 20,
+   367→  },
+   368→  {
+   369→    id: "lvm-5",
+   370→    topic: "lvm",
+   371→    difficulty: "hard",
+   372→    type: "command",
+   373→    title: "Snapshot before the deploy",
+   374→    prompt: "Create a 1G snapshot of vg_lab/lv_data named lv_data_snap.",
+   375→    accepted: ["lvcreate -s -n lv_data_snap -L 1G vg_lab/lv_data", "lvcreate -s -L 1G -n lv_data_snap vg_lab/lv_data"],
+   376→    hint: "lvcreate with the snapshot flag -s, sized -L 1G, based on the source volume.",
+   377→    explanation:
+   378→      "lvcreate -s -n lv_data_snap -L 1G vg_lab/lv_data is nearly free (copy-on-write). Rollback later with lvconvert --merge — our lab verified byte-identical results.",
+   379→    xp: 30,
+   380→  },
+   381→  // ── NFS ────────────────────────────────────────────────────────────────
+   382→  {
+   383→    id: "nfs-1",
+   384→    topic: "nfs",
+   385→    difficulty: "easy",
+   386→    type: "quiz",
+   387→    title: "One port to rule NFSv4",
+   388→    prompt: "Which single port (and protocol) does a modern NFSv4 deployment need open?",
+   389→    options: ["111/udp", "2049/tcp", "2049/udp + 111/tcp", "32803/tcp only"],
+   390→    answerIndex: 1,
+   391→    hint: "The old v3 port parade is gone.",
+   392→    explanation:
+   393→      "NFSv4 listens on 2049/tcp only — one firewall rule instead of rpcbind/mountd/lockd sprawl.",
+   394→    xp: 10,
+   395→  },
+   396→  {
+   397→    id: "nfs-2",
+   398→    topic: "nfs",
+   399→    difficulty: "easy",
+   400→    type: "command",
+   401→    title: "Apply your exports",
+   402→    prompt: "You edited /etc/exports. Make the server pick up the changes right now.",
+   403→    accepted: ["exportfs -ra", "exportfs -r"],
+   404→    hint: "exportfs with the re-export flags.",
+   405→    explanation:
+   406→      "sudo exportfs -ra re-reads /etc/exports and applies every change immediately — no daemon restart needed.",
+   407→    xp: 10,
+   408→  },
+   409→  {
+   410→    id: "nfs-3",
+   411→    topic: "nfs",
+   412→    difficulty: "medium",
+   413→    type: "quiz",
+   414→    title: "What root_squash really does",
+   415→    prompt: "With root_squash enabled (the default), what happens when client-root writes to the share?",
+   416→    options: [
+   417→      "The write is blocked entirely",
+   418→      "Client root is mapped to an unprivileged user (nobody)",
+   419→      "Server root takes ownership of the files",
+   420→      "Files are created with mode 777",
+   421→    ],
+   422→    answerIndex: 1,
+   423→    hint: "Squash = flatten privilege.",
+   424→    explanation:
+   425→      "root_squash maps UID 0 on the client to the anonymous (nobody) user server-side — a compromised client can't own your share. no_root_squash disables that safety net.",
+   426→    xp: 20,
+   427→  },
+   428→  {
+   429→    id: "nfs-4",
+   430→    topic: "nfs",
+   431→    difficulty: "medium",
+   432→    type: "command",
+   433→    title: "Ask before you mount",
+   434→    prompt: "Query which exports the server at 192.168.56.10 offers.",
+   435→    accepted: ["showmount -e 192.168.56.10"],
+   436→    hint: "showmount, the -e flag, then the server.",
+   437→    explanation:
+   438→      "showmount -e 192.168.56.10 lists the export table — always test before writing fstab lines.",
+   439→    xp: 20,
+   440→  },
+   441→  {
+   442→    id: "nfs-5",
+   443→    topic: "nfs",
+   444→    difficulty: "hard",
+   445→    type: "quiz",
+   446→    title: "The nobody:nogroup mystery",
+   447→    prompt:
+   448→      "A client mounts the share fine, but files created there show owner nobody:nogroup on the server. Most likely cause?",
+   449→    options: [
+   450→      "root_squash is squashing every user",
+   451→      "UID/GID mismatch — users exist on the client but not the server (or vice versa)",
+   452→      "sync mode corrupts ownership",
+   453→      "The filesystem must be remounted with -o hard",
+   454→    ],
+   455→    answerIndex: 1,
+   456→    hint: "NFS passes numbers, not names.",
+   457→    explanation:
+   458→      "NFS transmits numeric UID/GIDs. If user 'maya' is UID 1000 on the client but UID 1000 is unknown on the server, files look like 'nobody'. Fix identity centrally (LDAP/same UIDs) or align the idmapd domain on NFSv4.",
+   459→    xp: 30,
+   460→  },
+   461→  // ── Containers ─────────────────────────────────────────────────────────
+   462→  {
+   463→    id: "dkr-1",
+   464→    topic: "docker",
+   465→    difficulty: "easy",
+   466→    type: "quiz",
+   467→    title: "Image vs container",
+   468→    prompt: "What is the precise relationship between an image and a container?",
+   469→    options: [
+   470→      "An image is a running process; a container is stored on disk",
+   471→      "An image is the immutable layered template; a container is a running instance with one writable layer",
+   472→      "They are the same thing with different names",
+   473→      "A container stores images inside it",
+   474→    ],
+   475→    answerIndex: 1,
+   476→    hint: "Template vs instance.",
+   477→    explanation:
+   478→      "Image = immutable layer stack. Container = image + a thin writable layer, running (or stopped). docker ps -a lists instances.",
+   479→    xp: 10,
+   480→  },
+   481→  {
+   482→    id: "dkr-2",
+   483→    topic: "docker",
+   484→    difficulty: "easy",
+   485→    type: "command",
+   486→    title: "Run it for real",
+   487→    prompt:
+   488→      "Run nginx detached, name the container web, and publish host port 8080 to container port 80. (Base image: nginx)",
+   489→    accepted: ["docker run -d --name web -p 8080:80 nginx", "docker run -d -p 8080:80 --name web nginx", "docker run --name web -d -p 8080:80 nginx", "docker run -p 8080:80 -d --name web nginx", "docker run --name web -p 8080:80 -d nginx", "docker run -p 8080:80 --name web -d nginx"],
+   490→    hint: "docker run -d --name <name> -p <host:container> <image>",
+   491→    explanation:
+   492→      "docker run -d --name web -p 8080:80 nginx — -d survives your terminal, -p publishes the port. Open http://localhost:8080 and nginx answers.",
+   493→    xp: 10,
+   494→  },
+   495→  {
+   496→    id: "dkr-3",
+   497→    topic: "docker",
+   498→    difficulty: "medium",
+   499→    type: "command",
+   500→    title: "IDs only",
+   501→    prompt: "List ONLY the container IDs of currently running containers.",
+   502→    accepted: ["docker ps -q"],
+   503→    hint: "docker ps plus the flag for quiet/IDs-only.",
+   504→    explanation:
+   505→      "docker ps -q prints just the IDs — perfect for piping: docker rm -f $(docker ps -q).",
+   506→    xp: 20,
+   507→  },
+   508→  {
+   509→    id: "dkr-4",
+   510→    topic: "docker",
+   511→    difficulty: "medium",
+   512→    type: "quiz",
+   513→    title: "Data that survives",
+   514→    prompt: "Which storage type survives `docker rm` AND lives in a Docker-managed area of the host?",
+   515→    options: ["The container's writable layer", "A bind mount", "A named volume", "tmpfs mount"],
+   516→    answerIndex: 2,
+   517→    hint: "Think 'docker volume create'.",
+   518→    explanation:
+   519→      "Named volumes live in /var/lib/docker/volumes, are managed by Docker, and outlive containers. Bind mounts survive too but map an exact host path you choose.",
+   520→    xp: 20,
+   521→  },
+   522→  {
+   523→    id: "dkr-5",
+   524→    topic: "docker",
+   525→    difficulty: "hard",
+   526→    type: "quiz",
+   527→    title: "Why not SSH?",
+   528→    prompt: "Why is `docker exec -it web sh` preferred over installing sshd in every container?",
+   529→    options: [
+   530→      "SSH encrypts traffic; exec does not",
+   531→      "exec attaches to the container's namespaces directly — no extra daemon, no keys, no attack surface",
+   532→      "exec works only on stopped containers",
+   533→      "sshd cannot run as PID 1",
+   534→    ],
+   535→    answerIndex: 1,
+   536→    hint: "Containers should stay minimal & immutable.",
+   537→    explanation:
+   538→      "Containers are supposed to be single-purpose and immutable. exec uses the container's existing namespaces (no sshd, no credentials), keeping the attack surface tiny — the Docker philosophy in one command.",
+   539→    xp: 30,
+   540→  },
+   541→];
+   542→
+   543→/* ──────────────────────────────────────────────────────────────────────── */
+   544→/* Resource hub — every URL verified live                                   */
+   545→/* ──────────────────────────────────────────────────────────────────────── */
+   546→
+   547→export interface Platform {
+   548→  name: string;
+   549→  url: string;
+   550→  blurb: string;
+   551→  tag: "wargame" | "labs" | "sandbox" | "reference" | "course";
+   552→  topics: string;
+   553→}
+   554→
+   555→export const PLATFORMS: Platform[] = [
+   556→  {
+   557→    name: "OverTheWire — Bandit",
+   558→    url: "https://overthewire.org/wargames/bandit/",
+   559→    blurb: "The classic SSH wargame. Level-by-level command-line puzzles — the closest thing to LeetCode for the Linux terminal.",
+   560→    tag: "wargame",
+   561→    topics: "CLI · SSH · permissions",
+   562→  },
+   563→  {
+   564→    name: "SadServers",
+   565→    url: "https://sadservers.com/",
+   566→    blurb: "'LeetCode for sysadmins' — broken servers, real scenarios, fix them in a live shell. Storage & mount cases included.",
+   567→    tag: "wargame",
+   568→    topics: "troubleshooting · storage",
+   569→  },
+   570→  {
+   571→    name: "cmdchallenge",
+   572→    url: "https://cmdchallenge.com/",
+   573→    blurb: "One-line bash puzzles in the browser. 'Print the 3rd largest number in a file' — you get the idea.",
+   574→    tag: "wargame",
+   575→    topics: "bash · text tools",
+   576→  },
+   577→  {
+   578→    name: "Killercoda",
+   579→    url: "https://killercoda.com/",
+   580→    blurb: "Free interactive scenarios with real Linux/Ubuntu nodes in the browser — LVM, NFS and container tracks.",
+   581→    tag: "labs",
+   582→    topics: "linux · containers",
+   583→  },
+   584→  {
+   585→    name: "Play with Docker",
+   586→    url: "https://labs.play-with-docker.com/",
+   587→    blurb: "Official Docker sandbox — spin up real Docker in a browser tab and run every command from this site.",
+   588→    tag: "sandbox",
+   589→    topics: "docker",
+   590→  },
+   591→  {
+   592→    name: "TryHackMe",
+   593→    url: "https://tryhackme.com/",
+   594→    blurb: "Guided hacker-style rooms. Linux Fundamentals 1-3 are the smoothest beginner path on the internet.",
+   595→    tag: "course",
+   596→    topics: "linux · security",
+   597→  },
+   598→  {
+   599→    name: "Linux Survival",
+   600→    url: "https://linuxsurvival.com/",
+   601→    blurb: "Interactive bash course disguised as a quiz journey — great first week of Linux.",
+   602→    tag: "course",
+   603→    topics: "bash · basics",
+   604→  },
+   605→  {
+   606→    name: "KodeKloud",
+   607→    url: "https://kodekloud.com/",
+   608→    blurb: "Browser labs with automatic grading — the strongest free+paid hands-on lab library for Linux & DevOps.",
+   609→    tag: "labs",
+   610→    topics: "lvm · devops",
+   611→  },
+   612→  {
+   613→    name: "Linux Journey",
+   614→    url: "https://linuxjourney.com/",
+   615→    blurb: "The beloved classic: bite-sized lessons from the shell to networking, with quizzes.",
+   616→    tag: "course",
+   617→    topics: "basics · networking",
+   618→  },
+   619→  {
+   620→    name: "explainshell",
+   621→    url: "https://explainshell.com/",
+   622→    blurb: "Paste ANY command — every flag is explained against real man pages. Bookmark it; you'll use it daily.",
+   623→    tag: "reference",
+   624→    topics: "reference",
+   625→  },
+   626→  {
+   627→    name: "freeCodeCamp",
+   628→    url: "https://www.freecodecamp.org/",
+   629→    blurb: "Multi-hour YouTube-grade courses (incl. Docker & Linux) plus certifications — free forever.",
+   630→    tag: "course",
+   631→    topics: "docker · linux",
+   632→  },
+   633→];
+   634→
+   635→/** Hacker-vibe starter videos for the resources hub (all IDs verified). */
+   636→export const HACKER_VIDEOS: VideoPick[] = [
+   637→  {
+   638→    id: "VbEx7B_PTOE",
+   639→    title: "Linux for Hackers // EP 1 (FREE Linux course for beginners)",
+   640→    channel: "NetworkChuck",
+   641→    blurb: "Start here if the green terminal got you. Full beginner course, hacker energy.",
+   642→  },
+   643→  {
+   644→    id: "A3G-3hp88mo",
+   645→    title: "The Linux File System explained in 1,233 seconds",
+   646→    channel: "NetworkChuck",
+   647→    blurb: "/etc, /var, /dev demystified — perfect before the LVM chapter.",
+   648→  },
+   649→  {
+   650→    id: "ACM36qtHIEg",
+   651→    title: "You need to HACK faster!! (Linux Terminal hacks)",
+   652→    channel: "NetworkChuck",
+   653→    blurb: "Shortcuts, aliases and terminal speed — pure fun fuel.",
+   654→  },
+   655→];
+   656→

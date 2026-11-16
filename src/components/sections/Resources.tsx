@@ -22,8 +22,8 @@ const TAG_HEX: Record<string, string> = {
 
 export default function Resources() {
   return (
-    <section id="resources" className="relative py-20 md:py-28" aria-labelledby="resources-title">
-      <div className="mx-auto max-w-6xl px-5 md:px-8">
+    <section id="resources" className="relative" aria-labelledby="resources-title">
+      <div>
         <Reveal>
           <p className="mb-3 flex items-center gap-2 font-mono text-xs uppercase tracking-[0.3em] text-[#fbbf24]">
             <Compass className="h-4 w-4" />
@@ -31,9 +31,9 @@ export default function Resources() {
           </p>
         </Reveal>
         <Reveal delay={0.08}>
-          <h2 id="resources-title" className="text-3xl font-semibold tracking-tight text-[#e8eefc] md:text-5xl">
+          <h1 id="resources-title" className="text-3xl font-semibold tracking-tight text-[#e8eefc] md:text-4xl">
             The best places to practise next
-          </h2>
+          </h1>
         </Reveal>
         <Reveal delay={0.14}>
           <p className="mt-3 max-w-2xl text-base leading-relaxed text-[#8fa2c9] md:text-lg">

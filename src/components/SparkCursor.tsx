@@ -10,10 +10,12 @@ interface Spark {
   life: number;
   maxLife: number;
   size: number;
-  color: string;
+  /** hue 0-1 picks the fire ramp (white core → yellow → orange → deep red) */
+  heat: number;
 }
 
-const COLORS = ["#4ade80", "#a3e635", "#e8eefc", "#7c5cff", "#22d3ee"];
+const FIRE_RAMP = ["#fff7d6", "#ffe08a", "#ffb347", "#ff8c2f", "#ff5e2b", "#e8441f"];
+
 const subscribeFinePointer = (cb: () => void) => {
   const mql = window.matchMedia("(pointer: fine)");
   mql.addEventListener("change", cb);
@@ -21,9 +23,10 @@ const subscribeFinePointer = (cb: () => void) => {
 };
 
 /**
- * Spark cursor: the native cursor stays untouched; a lightweight canvas trail
- * emits tiny green/white sparks as the mouse moves and bursts on click.
- * Desktop fine-pointer only; disabled for reduced-motion users.
+ * Fire cursor: a live flame sits exactly ON the pointer tip — every ember
+ * spawns at the exact cursor position (zero offset), drifts upward like real
+ * fire and fades through a white→yellow→orange→red ramp. Clicking throws a
+ * spark burst. Fine pointers only; disabled for reduced-motion users.
  */
 export default function SparkCursor() {
   const fine = useSyncExternalStore(
@@ -55,72 +58,108 @@ export default function SparkCursor() {
 
     const sparks: Spark[] = [];
     let raf = 0;
-    let lastX = -1;
-    let lastY = -1;
+    // Exact pointer position in CSS pixels (canvas draws in device px).
+    let px = -100;
+    let py = -100;
+    let hasPointer = false;
 
-    const spawn = (x: number, y: number, n: number, burst = false) => {
+    /** Spawn n embers precisely at the cursor tip (css px coords). */
+    const spawnAtCursor = (n: number, burst = false) => {
       for (let i = 0; i < n; i++) {
-        if (sparks.length > 140) sparks.shift();
-        const a = Math.random() * Math.PI * 2;
-        const speed = burst ? 1.2 + Math.random() * 2.6 : 0.25 + Math.random() * 0.85;
+        if (sparks.length > 170) sparks.shift();
+        const spread = burst ? 2.4 : 0.7;
+        const rise = burst ? -(1.0 + Math.random() * 1.8) : -(0.55 + Math.random() * 0.9);
         sparks.push({
-          x: x * dpr,
-          y: y * dpr,
-          vx: Math.cos(a) * speed * dpr,
-          vy: Math.sin(a) * speed * dpr - (burst ? 0.4 : 0.1) * dpr,
+          x: px, // exact — no offset
+          y: py, // exact — no offset
+          vx: (Math.random() - 0.5) * spread,
+          vy: rise,
           life: 0,
-          maxLife: burst ? 34 + Math.random() * 18 : 22 + Math.random() * 16,
-          size: (burst ? 1.6 : 1.1) + Math.random() * 1.4,
-          color: COLORS[Math.floor(Math.random() * COLORS.length)],
+          maxLife: burst ? 30 + Math.random() * 16 : 20 + Math.random() * 18,
+          size: (burst ? 1.8 : 1.3) + Math.random() * 1.5,
+          heat: Math.random(),
         });
       }
     };
 
     const onMove = (e: MouseEvent) => {
-      if (lastX < 0) {
-        lastX = e.clientX;
-        lastY = e.clientY;
-        return;
-      }
-      const dx = e.clientX - lastX;
-      const dy = e.clientY - lastY;
-      const dist = Math.hypot(dx, dy);
-      // Faster movement → more sparks (capped).
-      const n = Math.min(4, 1 + Math.floor(dist / 14));
-      if (dist > 1.2) spawn(e.clientX + (Math.random() - 0.5) * 6, e.clientY + (Math.random() - 0.5) * 6, n);
-      lastX = e.clientX;
-      lastY = e.clientY;
+      px = e.clientX;
+      py = e.clientY;
+      hasPointer = true;
+    };
+    const onLeave = () => {
+      hasPointer = false;
+    };
+    const onDown = (e: MouseEvent) => {
+      px = e.clientX;
+      py = e.clientY;
+      hasPointer = true;
+      spawnAtCursor(16, true);
     };
 
-    const onDown = (e: MouseEvent) => spawn(e.clientX, e.clientY, 14, true);
-
+    let flicker = 0;
     const tick = () => {
       raf = requestAnimationFrame(tick);
+      flicker++;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Steady flame right on the cursor tip: 2 embers every frame.
+      if (hasPointer) spawnAtCursor(flicker % 6 === 0 ? 3 : 2);
+
       for (let i = sparks.length - 1; i >= 0; i--) {
         const s = sparks[i];
         s.life++;
-        s.x += s.vx;
+        // Fire physics: rise up, cool down, sway slightly.
+        s.x += s.vx + Math.sin((s.life + s.heat * 20) * 0.35) * 0.28;
         s.y += s.vy;
-        s.vx *= 0.94;
-        s.vy = s.vy * 0.94 + 0.02 * dpr;
+        s.vy *= 0.975; // buoyancy eases off
+        s.vx *= 0.97;
         const t = 1 - s.life / s.maxLife;
         if (t <= 0) {
           sparks.splice(i, 1);
           continue;
         }
-        ctx.globalAlpha = t;
-        ctx.fillStyle = s.color;
-        // Tiny streak oriented along velocity — reads as a spark, not a dot.
-        const vx = s.vx * 1.6;
-        const vy = s.vy * 1.6;
+
+        // Colour shifts down the ramp as the ember cools.
+        const idx = Math.min(
+          FIRE_RAMP.length - 1,
+          Math.floor((1 - t) * FIRE_RAMP.length + (1 - s.heat) * 0.8)
+        );
+        const alpha = Math.min(1, t * 1.6);
+
+        // Soft glowing ember (radial fade instead of a hard dot).
+        const r = s.size * dpr * (0.7 + t * 0.5);
+        const g = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, Math.max(r * 2.4, 2));
+        g.addColorStop(0, FIRE_RAMP[Math.min(idx, FIRE_RAMP.length - 1)]);
+        g.addColorStop(1, "rgba(255,94,43,0)");
+        ctx.globalAlpha = alpha * 0.85;
+        ctx.fillStyle = g;
         ctx.beginPath();
-        ctx.moveTo(s.x - vx, s.y - vy);
-        ctx.lineTo(s.x + vx, s.y + vy);
-        ctx.lineWidth = s.size * dpr * t;
-        ctx.lineCap = "round";
-        ctx.strokeStyle = s.color;
-        ctx.stroke();
+        ctx.arc(s.x, s.y, Math.max(r * 2.4, 2), 0, Math.PI * 2);
+        ctx.fill();
+
+        // Bright core.
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = FIRE_RAMP[Math.max(0, idx - 1)];
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, Math.max(r * 0.7, 0.8), 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Flickering glow attached to the pointer itself — the "torch tip".
+      if (hasPointer) {
+        const pulse = 5.2 + Math.sin(flicker * 0.45) * 1.1 + Math.random() * 0.6;
+        const gx = px * dpr;
+        const gy = py * dpr;
+        const gg = ctx.createRadialGradient(gx, gy, 0, gx, gy, pulse * dpr);
+        gg.addColorStop(0, "rgba(255,240,200,0.95)");
+        gg.addColorStop(0.35, "rgba(255,170,70,0.55)");
+        gg.addColorStop(1, "rgba(255,94,43,0)");
+        ctx.globalAlpha = 0.9;
+        ctx.fillStyle = gg;
+        ctx.beginPath();
+        ctx.arc(gx, gy, pulse * dpr, 0, Math.PI * 2);
+        ctx.fill();
       }
       ctx.globalAlpha = 1;
     };
@@ -128,11 +167,13 @@ export default function SparkCursor() {
 
     window.addEventListener("mousemove", onMove, { passive: true });
     window.addEventListener("mousedown", onDown, { passive: true });
+    document.documentElement.addEventListener("mouseleave", onLeave);
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("mousedown", onDown);
+      document.documentElement.removeEventListener("mouseleave", onLeave);
     };
   }, [fine]);
 

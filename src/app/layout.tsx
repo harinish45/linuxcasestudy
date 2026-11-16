@@ -1,6 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import { ToastProvider } from "@/components/providers/ToastProvider";
+import AuroraBackground from "@/components/providers/AuroraBackground";
+import SparkCursor from "@/components/SparkCursor";
+import CommandPalette from "@/components/providers/CommandPalette";
+import LabRoot from "@/components/LabRoot";
+import AppShell from "@/components/layout/AppShell";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -17,7 +23,7 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "Linux Lab — Learn LVM, NFS & Containers the Hacker Way",
   description:
-    "A hands-on learning lab: animated LVM, NFS and container diagrams, copy-ready practice notes, verified YouTube lessons, and a LeetCode-style practice arena that grades your terminal skills.",
+    "A hands-on learning platform: animated LVM, NFS and container diagrams, copy-ready practice notes, verified YouTube lessons, and a LeetCode-style practice arena that grades your terminal skills.",
   keywords: [
     "Linux",
     "learn Linux",
@@ -54,7 +60,17 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} antialiased bg-background text-foreground font-sans`}
       >
-        {children}
+        <ToastProvider>
+          <AuroraBackground />
+          <div className="grain" aria-hidden />
+          <SparkCursor />
+          <LabRoot>
+            <AppShell>
+              <CommandPalette />
+              {children}
+            </AppShell>
+          </LabRoot>
+        </ToastProvider>
       </body>
     </html>
   );

@@ -109,8 +109,8 @@ export default function PracticeArena() {
   const solvedCount = progress.solved.length;
 
   return (
-    <section id="practice" className="relative py-20 md:py-28" aria-labelledby="practice-title">
-      <div className="mx-auto max-w-6xl px-5 md:px-8">
+    <section id="practice" className="relative" aria-labelledby="practice-title">
+      <div>
         <Reveal>
           <p className="mb-3 flex items-center gap-2 font-mono text-xs uppercase tracking-[0.3em] text-[#4ade80]">
             <Target className="h-4 w-4" />
@@ -118,9 +118,9 @@ export default function PracticeArena() {
           </p>
         </Reveal>
         <Reveal delay={0.08}>
-          <h2 id="practice-title" className="text-3xl font-semibold tracking-tight text-[#e8eefc] md:text-5xl">
+          <h1 id="practice-title" className="text-3xl font-semibold tracking-tight text-[#e8eefc] md:text-4xl">
             LeetCode, but for the Linux terminal
-          </h2>
+          </h1>
         </Reveal>
         <Reveal delay={0.14}>
           <p className="mt-3 max-w-2xl text-base leading-relaxed text-[#8fa2c9] md:text-lg">

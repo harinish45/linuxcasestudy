@@ -2,19 +2,18 @@ import { LVM_META, LVM_STEPS } from "./lvm";
 import { NFS_META, NFS_STEPS } from "./nfs";
 import { DOCKER_META, DOCKER_STEPS, DOCKER_LIFECYCLE } from "./docker";
 import type { ImplementationStep } from "./types";
-import type { SectionId } from "@/lib/store";
 
 export interface CommandEntry {
   cmd: string;
   label: string;
-  section: SectionId;
+  route: string;
   accent: "lvm" | "nfs" | "docker";
   sectionTitle: string;
 }
 
 function fromSteps(
   steps: ImplementationStep[],
-  section: SectionId,
+  route: string,
   accent: "lvm" | "nfs" | "docker",
   sectionTitle: string
 ): CommandEntry[] {
@@ -26,7 +25,7 @@ function fromSteps(
       out.push({
         cmd: c.cmd,
         label: step.title.replace(/^\d+ · /, ""),
-        section,
+        route,
         accent,
         sectionTitle,
       });
@@ -38,15 +37,15 @@ function fromSteps(
 const lifecycleEntries: CommandEntry[] = DOCKER_LIFECYCLE.map((s) => ({
   cmd: s.command,
   label: `Lifecycle: ${s.label}`,
-  section: "containers" as SectionId,
+  route: "/courses/containers",
   accent: "docker" as const,
   sectionTitle: "Containers",
 }));
 
 export const COMMAND_INDEX: CommandEntry[] = [
-  ...fromSteps(LVM_STEPS, "lvm", "lvm", "LVM"),
-  ...fromSteps(NFS_STEPS, "nfs", "nfs", "NFS"),
-  ...fromSteps(DOCKER_STEPS, "containers", "docker", "Containers"),
+  ...fromSteps(LVM_STEPS, "/courses/lvm", "lvm", "LVM"),
+  ...fromSteps(NFS_STEPS, "/courses/nfs", "nfs", "NFS"),
+  ...fromSteps(DOCKER_STEPS, "/courses/containers", "docker", "Containers"),
   ...lifecycleEntries,
 ].filter(
   (e, i, arr) => arr.findIndex((x) => x.cmd === e.cmd) === i // dedupe

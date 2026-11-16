@@ -1,42 +1,43 @@
 "use client";
 
+import Link from "next/link";
 import { TerminalSquare, RotateCcw } from "lucide-react";
-import { scrollToSection } from "@/lib/scroll";
-import { useLabStore } from "@/lib/store";
+import { ROUTES, useLabStore } from "@/lib/store";
 
 const STACK = [
-  "Next.js 16 · App Router",
+  "Next.js · App Router",
   "React 19",
   "TypeScript",
   "Tailwind CSS 4",
   "Framer Motion",
-  "Lenis smooth scroll",
   "lucide-react",
 ];
 
 const LINKS: [string, string][] = [
-  ["LVM", "lvm"],
-  ["NFS", "nfs"],
-  ["Containers", "containers"],
-  ["Practice Arena", "practice"],
-  ["Terminal", "terminal"],
-  ["Resources", "resources"],
+  ["Dashboard", ROUTES.home],
+  ["LVM", ROUTES.lvm],
+  ["NFS", ROUTES.nfs],
+  ["Containers", ROUTES.containers],
+  ["Challenge Arena", ROUTES.practice],
+  ["Terminal Lab", ROUTES.terminal],
+  ["Pipeline", ROUTES.pipeline],
+  ["Resources", ROUTES.resources],
 ];
 
 export default function Footer() {
   const replayIntro = useLabStore((s) => s.replayIntro);
 
   return (
-    <footer className="mt-auto border-t border-white/8 bg-[#05070f]/80 backdrop-blur">
-      <div className="mx-auto grid max-w-6xl gap-10 px-5 py-12 md:grid-cols-3 md:px-8">
+    <footer className="mt-10 border-t border-white/8 bg-[#05070f]/80 backdrop-blur">
+      <div className="mx-auto grid max-w-[1060px] gap-10 px-5 py-12 md:grid-cols-3 md:px-10">
         <div>
           <p className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.25em] text-[#8fa2c9]">
             <TerminalSquare className="h-3.5 w-3.5 text-[#4ade80]" />
             linux lab
           </p>
           <p className="mt-3 max-w-xs text-[13px] leading-relaxed text-[#8fa2c9]">
-            Learn LVM, NFS and containers the hands-on way: animated diagrams, copy-ready notes, verified video lessons
-            and a practice arena that grades you.
+            Learn LVM, NFS and containers the hands-on way: animated diagrams, copy-ready notes, verified video
+            lessons and a practice arena that grades you.
           </p>
           <p className="mt-4 font-mono text-[11px] text-[#64748b]">
             © 2026 Linux Lab · built for people who break things on purpose
@@ -44,16 +45,13 @@ export default function Footer() {
         </div>
 
         <div>
-          <p className="mb-3 font-mono text-[10.5px] uppercase tracking-[0.25em] text-[#8fa2c9]">Sections</p>
+          <p className="mb-3 font-mono text-[10.5px] uppercase tracking-[0.25em] text-[#8fa2c9]">Pages</p>
           <ul className="grid grid-cols-2 gap-2">
-            {LINKS.map(([label, id]) => (
-              <li key={id}>
-                <button
-                  onClick={() => scrollToSection(id)}
-                  className="text-[13px] text-[#b9c6e4] transition-colors hover:text-white"
-                >
+            {LINKS.map(([label, href]) => (
+              <li key={href}>
+                <Link href={href} className="text-[13px] text-[#b9c6e4] transition-colors hover:text-white">
                   {label}
-                </button>
+                </Link>
               </li>
             ))}
           </ul>

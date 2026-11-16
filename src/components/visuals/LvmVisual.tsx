@@ -34,7 +34,7 @@ export default function LvmVisual() {
   const logsSize = 2;
   const usedInData = Math.min(lvData, Math.round(lvData * 0.72));
 
-  useEffect(() => () => token.current++, []);
+  useEffect(() => () => { token.current++; }, []);
 
   const extend = async () => {
     if (extended || extending) return;
@@ -152,15 +152,16 @@ export default function LvmVisual() {
       {/* LV row */}
       <div className="grid grid-cols-2 gap-3">
         <div className="rounded-xl border border-white/10 bg-white/4 p-3.5">
-          <p className="flex items-center justify-between font-mono text-xs text-[#e8eefc]">
-            <span className="flex items-center gap-2">
-              <Database className="h-3.5 w-3.5" style={{ color: V }} /> /dev/vg_lab/lv_data
+          <p className="flex items-center justify-between gap-2 font-mono text-xs text-[#e8eefc]">
+            <span className="flex min-w-0 items-center gap-2">
+              <Database className="h-3.5 w-3.5 shrink-0" style={{ color: V }} />
+              <span className="truncate">/dev/vg_lab/lv_data</span>
             </span>
             <motion.span
               key={lvData}
               initial={reduced ? {} : { scale: 1.35, color: "#e8eefc" }}
               animate={{ scale: 1, color: V }}
-              className="font-semibold"
+              className="shrink-0 whitespace-nowrap font-semibold"
             >
               {lvData}G · XFS
             </motion.span>
@@ -178,11 +179,14 @@ export default function LvmVisual() {
           </p>
         </div>
         <div className="rounded-xl border border-white/10 bg-white/4 p-3.5">
-          <p className="flex items-center justify-between font-mono text-xs text-[#e8eefc]">
-            <span className="flex items-center gap-2">
-              <Database className="h-3.5 w-3.5" style={{ color: V }} /> /dev/vg_lab/lv_logs
+          <p className="flex items-center justify-between gap-2 font-mono text-xs text-[#e8eefc]">
+            <span className="flex min-w-0 items-center gap-2">
+              <Database className="h-3.5 w-3.5 shrink-0" style={{ color: V }} />
+              <span className="truncate">/dev/vg_lab/lv_logs</span>
             </span>
-            <span style={{ color: V }}>{logsSize}G · ext4</span>
+            <span className="shrink-0 whitespace-nowrap" style={{ color: V }}>
+              {logsSize}G · ext4
+            </span>
           </p>
           <div className="mt-2.5 h-2 w-full overflow-hidden rounded-full bg-white/8">
             <div className="h-full w-[46%] rounded-full" style={{ background: `linear-gradient(90deg, ${V}aa, ${V}55)` }} />
