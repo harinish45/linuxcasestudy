@@ -1,6 +1,6 @@
 "use client";
 
-import { Layers3, RotateCcw } from "lucide-react";
+import { TerminalSquare, RotateCcw } from "lucide-react";
 import { scrollToSection } from "@/lib/scroll";
 import { useLabStore } from "@/lib/store";
 
@@ -9,9 +9,8 @@ const STACK = [
   "React 19",
   "TypeScript",
   "Tailwind CSS 4",
-  "three.js · R3F · drei",
   "Framer Motion",
-  "Lenis",
+  "Lenis smooth scroll",
   "lucide-react",
 ];
 
@@ -19,9 +18,9 @@ const LINKS: [string, string][] = [
   ["LVM", "lvm"],
   ["NFS", "nfs"],
   ["Containers", "containers"],
-  ["Pipeline", "pipeline"],
+  ["Practice Arena", "practice"],
   ["Terminal", "terminal"],
-  ["Dashboard", "dashboard"],
+  ["Resources", "resources"],
 ];
 
 export default function Footer() {
@@ -32,15 +31,15 @@ export default function Footer() {
       <div className="mx-auto grid max-w-6xl gap-10 px-5 py-12 md:grid-cols-3 md:px-8">
         <div>
           <p className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.25em] text-[#8fa2c9]">
-            <Layers3 className="h-3.5 w-3.5 text-[#7c5cff]" />
-            comprehensive linux
+            <TerminalSquare className="h-3.5 w-3.5 text-[#4ade80]" />
+            linux lab
           </p>
           <p className="mt-3 max-w-xs text-[13px] leading-relaxed text-[#8fa2c9]">
-            Three case studies, one lab: LVM storage pools, NFS shared storage and Docker containers — composed
-            into a single verified pipeline.
+            Learn LVM, NFS and containers the hands-on way: animated diagrams, copy-ready notes, verified video lessons
+            and a practice arena that grades you.
           </p>
           <p className="mt-4 font-mono text-[11px] text-[#64748b]">
-            © 2026 Case Study Lab · built for engineers who read the man pages
+            © 2026 Linux Lab · built for people who break things on purpose
           </p>
         </div>
 
@@ -60,12 +59,10 @@ export default function Footer() {
           </ul>
           <button
             onClick={replayIntro}
-            data-cursor="replay"
-            data-cursor-label="replay"
-            className="mt-4 inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 font-mono text-[11px] text-[#8fa2c9] transition-colors hover:border-[#7c5cff66] hover:text-[#e8eefc]"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 font-mono text-[11px] text-[#8fa2c9] transition-colors hover:border-[#4ade8066] hover:text-[#4ade80]"
           >
             <RotateCcw className="h-3 w-3" />
-            replay the laptop intro
+            replay the boot intro
           </button>
         </div>
 
@@ -82,7 +79,7 @@ export default function Footer() {
             ))}
           </div>
           <p className="mt-4 font-mono text-[11px] text-[#64748b]">
-            No images shipped — every pixel is CSS, SVG or WebGL.
+            Every external link verified live before shipping.
           </p>
         </div>
       </div>

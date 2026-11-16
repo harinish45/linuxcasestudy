@@ -289,6 +289,29 @@ html.cursor-live * {
   56%, 100% { opacity: 0; }
 }
 
+/* ── Hacker green caret + CRT vignette (boot intro) ─────────────────── */
+.caret-green {
+  display: inline-block;
+  width: 0.55em;
+  height: 1.05em;
+  margin-left: 3px;
+  vertical-align: text-bottom;
+  background: #4ade80;
+  box-shadow: 0 0 12px rgba(74, 222, 128, 0.8);
+  animation: blink 1.05s steps(1) infinite;
+}
+.crt-vignette {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 90% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.55) 100%),
+    repeating-linear-gradient(0deg, rgba(74, 222, 128, 0.02) 0px, rgba(74, 222, 128, 0.02) 1px, transparent 1px, transparent 3px);
+}
+.text-glow-green {
+  text-shadow: 0 0 18px rgba(74, 222, 128, 0.65), 0 0 60px rgba(74, 222, 128, 0.3);
+}
+
 /* ── LED pulse for 3D-free fallbacks ─────────────────────────────────── */
 @keyframes led-pulse {
   0%, 100% { opacity: 0.35; }

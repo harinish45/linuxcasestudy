@@ -1,19 +1,18 @@
 import SmoothScroll from "@/components/providers/SmoothScroll";
 import { ToastProvider } from "@/components/providers/ToastProvider";
 import AuroraBackground from "@/components/providers/AuroraBackground";
-import Cursor from "@/components/providers/Cursor";
+import SparkCursor from "@/components/SparkCursor";
 import ProgressRail from "@/components/providers/ProgressRail";
 import NavBar from "@/components/providers/NavBar";
 import CommandPalette from "@/components/providers/CommandPalette";
 import LabRoot from "@/components/LabRoot";
-import Hero from "@/components/sections/Hero";
-import CaseLVM from "@/components/sections/CaseLVM";
-import CaseNFS from "@/components/sections/CaseNFS";
-import CaseDocker from "@/components/sections/CaseDocker";
-import Integration from "@/components/sections/Integration";
+import HeroLearn from "@/components/sections/HeroLearn";
+import TopicSection from "@/components/sections/TopicSection";
+import PracticeArena from "@/components/sections/PracticeArena";
 import TerminalLab from "@/components/sections/TerminalLab";
-import Dashboard from "@/components/sections/Dashboard";
+import Resources from "@/components/sections/Resources";
 import Footer from "@/components/sections/Footer";
+import { TOPICS } from "@/data/learning";
 
 export default function Home() {
   return (
@@ -21,20 +20,20 @@ export default function Home() {
       <ToastProvider>
         <AuroraBackground />
         <div className="grain" aria-hidden />
-        <Cursor />
+        <SparkCursor />
         <LabRoot>
           <NavBar />
           <ProgressRail />
           <CommandPalette />
 
           <main className="relative flex min-h-screen flex-col">
-            <Hero />
-            <CaseLVM />
-            <CaseNFS />
-            <CaseDocker />
-            <Integration />
+            <HeroLearn />
+            {TOPICS.map((t) => (
+              <TopicSection key={t.key} topic={t} />
+            ))}
+            <PracticeArena />
             <TerminalLab />
-            <Dashboard />
+            <Resources />
           </main>
           <Footer />
         </LabRoot>

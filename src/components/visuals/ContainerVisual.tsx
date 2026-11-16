@@ -1,0 +1,240 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { Play, Pause, Square, Trash2, Box, HardDrive, Hammer, Check } from "lucide-react";
+
+const V = "#34d399";
+const sleep = (ms: number) => new Promise<void>((r) => window.setTimeout(r, ms));
+
+const LAYERS = [
+  { id: "base", label: "FROM ubuntu:24.04", size: "78MB" },
+  { id: "apt", label: "RUN apt-get install deps", size: "24MB" },
+  { id: "node", label: "COPY node_modules", size: "12MB" },
+  { id: "src", label: "COPY src/ ./src", size: "0.4MB" },
+  { id: "cmd", label: "ENTRYPOINT [\"./app\"]", size: "0B meta" },
+];
+
+type State = "idle" | "building" | "created" | "running" | "paused" | "stopped";
+
+/**
+ * Containers interactive diagram: image layers stack on build,
+ * then a container runs through its lifecycle. Volume persists.
+ */
+export default function ContainerVisual() {
+  const reduced = useReducedMotion();
+  const [state, setState] = useState<State>("idle");
+  const [builtLayers, setBuiltLayers] = useState(0);
+  const [uptime, setUptime] = useState(0);
+  const [volumeExists, setVolumeExists] = useState(true);
+  const [removed, setRemoved] = useState(false);
+  const token = useRef(0);
+
+  const running = state === "running" || state === "paused";
+
+  useEffect(() => () => token.current++, []);
+
+  useEffect(() => {
+    if (state !== "running") return;
+    const t = window.setInterval(() => setUptime((u) => u + 1), 1000);
+    return () => window.clearInterval(t);
+  }, [state]);
+
+  const build = async () => {
+    if (state !== "idle" && state !== "stopped") return;
+    const my = ++token.current;
+    setState("building");
+    for (let i = 0; i < LAYERS.length; i++) {
+      if (token.current !== my) return;
+      await sleep(reduced ? 60 : 420);
+      if (token.current !== my) return;
+      setBuiltLayers(i + 1);
+    }
+    await sleep(300);
+    if (token.current !== my) return;
+    setState("created");
+  };
+
+  const start = () => {
+    if (state !== "created") return;
+    setRemoved(false);
+    setUptime(0);
+    setState("running");
+  };
+
+  const rm = () => {
+    if (state !== "stopped" && state !== "created" && state !== "paused") return;
+    token.current += 1;
+    setState("idle");
+    setBuiltLayers(0);
+    setUptime(0);
+    setRemoved(true); // volume stays — that's the lesson
+  };
+
+  const fmt = (s: number) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+
+  const STATE_META: Record<State, { label: string; color: string }> = {
+    idle: { label: "no container", color: "#64748b" },
+    building: { label: "building…", color: "#fbbf24" },
+    created: { label: "created", color: "#8fa2c9" },
+    running: { label: "running", color: V },
+    paused: { label: "paused", color: "#fbbf24" },
+    stopped: { label: "stopped", color: "#8fa2c9" },
+  };
+
+  return (
+    <div className="flex flex-col gap-5">
+      {/* image layer stack */}
+      <div>
+        <p className="mb-2 flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-[0.25em] text-[#8fa2c9]">
+          <Hammer className="h-3.5 w-3.5" style={{ color: V }} /> image — lab-app:1.0 · read-only layers
+        </p>
+        <div className="flex flex-col gap-1.5">
+          {LAYERS.map((l, i) => (
+            <motion.div
+              key={l.id}
+              initial={false}
+              animate={
+                i < builtLayers
+                  ? { opacity: 1, x: 0, scale: 1 }
+                  : { opacity: 0.22, x: -14, scale: 0.985 }
+              }
+              transition={{ type: "spring", stiffness: 300, damping: 24 }}
+              className="flex items-center justify-between rounded-lg border px-3 py-2 font-mono text-[11px]"
+              style={{
+                borderColor: i < builtLayers ? `${V}55` : "rgba(255,255,255,0.08)",
+                background: i < builtLayers ? `${V}12` : "rgba(255,255,255,0.02)",
+                color: i < builtLayers ? "#e8eefc" : "#64748b",
+              }}
+            >
+              <span className="flex items-center gap-2">
+                {i < builtLayers && <Check className="h-3 w-3" style={{ color: V }} />}
+                {l.label}
+              </span>
+              <span className="text-[9.5px] text-[#8fa2c9]">{l.size}</span>
+            </motion.div>
+          ))}
+          {/* writable layer — appears once container runs */}
+          <AnimatePresence>
+            {running && (
+              <motion.div
+                initial={reduced ? { opacity: 0 } : { opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="flex items-center justify-between rounded-lg border border-dashed px-3 py-2 font-mono text-[11px]"
+                style={{ borderColor: `${V}88`, background: `${V}0d`, color: "#e8eefc" }}
+              >
+                <span className="flex items-center gap-2">
+                  <Box className="h-3 w-3" style={{ color: V }} /> writable layer — container web
+                </span>
+                <span className="text-[9.5px]" style={{ color: V }}>
+                  {fmt(uptime)} {state === "paused" ? "(frozen)" : "live"}
+                </span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+
+      {/* lifecycle control bar */}
+      <div className="flex flex-wrap items-center gap-2.5">
+        <button
+          onClick={build}
+          disabled={state === "building" || state === "created" || running}
+          className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 font-mono text-xs transition-all duration-300 disabled:opacity-45"
+          style={{ borderColor: `${V}55`, color: "#e8eefc" }}
+        >
+          <Hammer className="h-3.5 w-3.5" />
+          {state === "building" ? "building…" : builtLayers ? "rebuild image" : "docker build"}
+        </button>
+        <button
+          onClick={start}
+          disabled={state !== "created"}
+          className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 font-mono text-xs transition-all duration-300 disabled:opacity-45"
+          style={{ borderColor: `${V}55`, color: "#e8eefc" }}
+        >
+          <Play className="h-3.5 w-3.5" /> docker run -d
+        </button>
+        <button
+          onClick={() => setState((s) => (s === "running" ? "paused" : s === "paused" ? "running" : s))}
+          disabled={!running}
+          className="inline-flex items-center gap-2 rounded-lg border border-white/12 px-4 py-2 font-mono text-xs text-[#e8eefc] transition-all duration-300 hover:border-[#34d39988] disabled:opacity-45"
+        >
+          {state === "paused" ? <Play className="h-3.5 w-3.5" /> : <Pause className="h-3.5 w-3.5" />}
+          {state === "paused" ? "unpause" : "pause"}
+        </button>
+        <button
+          onClick={() => setState(running || state === "created" ? "stopped" : state)}
+          disabled={!running && state !== "created"}
+          className="inline-flex items-center gap-2 rounded-lg border border-white/12 px-4 py-2 font-mono text-xs text-[#e8eefc] transition-all duration-300 hover:border-[#34d39988] disabled:opacity-45"
+        >
+          <Square className="h-3.5 w-3.5" /> stop
+        </button>
+        <button
+          onClick={rm}
+          disabled={!running && state !== "created" && state !== "stopped"}
+          className="inline-flex items-center gap-2 rounded-lg border border-red-400/30 px-4 py-2 font-mono text-xs text-red-300 transition-all duration-300 hover:border-red-400/60 disabled:opacity-45"
+        >
+          <Trash2 className="h-3.5 w-3.5" /> rm -f
+        </button>
+      </div>
+
+      {/* status strip */}
+      <div className="flex items-center justify-between rounded-lg border border-white/10 bg-[#05070f]/70 px-3.5 py-2.5">
+        <span className="flex items-center gap-2 font-mono text-xs">
+          <span
+            className="led h-2 w-2 rounded-full"
+            style={{
+              background: STATE_META[state].color,
+              boxShadow: `0 0 8px ${STATE_META[state].color}`,
+              animationDuration: running ? "1.6s" : "3s",
+            }}
+          />
+          <span className="text-[#e8eefc]">web</span>
+          <span style={{ color: STATE_META[state].color }}>— {STATE_META[state].label}</span>
+        </span>
+        <AnimatePresence>
+          {removed && (
+            <motion.span
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0 }}
+              className="font-mono text-[10px]"
+              style={{ color: V }}
+            >
+              container gone — volume survived
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* volume persistence */}
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-white/10 bg-white/4 px-3.5 py-2.5">
+        <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 font-mono text-xs text-[#e8eefc]">
+          <HardDrive className="h-4 w-4 shrink-0" style={{ color: V }} />
+          <span className="whitespace-nowrap">docker volume — lab_data</span>
+          <span className="hidden text-[9.5px] text-[#64748b] sm:inline">/var/lib/docker/volumes</span>
+        </span>
+        <span
+          className="shrink-0 rounded-full border px-2.5 py-0.5 font-mono text-[10px] whitespace-nowrap"
+          style={{ borderColor: `${V}66`, color: V, background: `${V}14` }}
+        >
+          persists ∅ docker rm
+        </span>
+      </div>
+
+      {/* command echo */}
+      <div className="rounded-lg border border-white/10 bg-[#05070f]/80 px-3.5 py-2.5 font-mono text-[12px]" aria-live="polite">
+        <span style={{ color: V }}>$ </span>
+        <span className="text-[#e8eefc]">
+          {state === "idle" && "docker build -t lab-app:1.0 ."}
+          {state === "building" && "Step 3/5 — RUN apt-get install deps"}
+          {state === "created" && "docker create — ready, waiting for start"}
+          {state === "running" && "docker run -d --name web -v lab_data:/data lab-app:1.0"}
+          {state === "paused" && "docker pause web — process frozen (SIGSTOP)"}
+          {state === "stopped" && "docker stop web — SIGTERM → SIGKILL after 10s"}
+        </span>
+      </div>
+    </div>
+  );
+}

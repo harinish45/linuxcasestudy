@@ -15,24 +15,25 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Comprehensive Linux — Case Study Lab",
+  title: "Linux Lab — Learn LVM, NFS & Containers the Hacker Way",
   description:
-    "LVM · NFS · Containers — three hands-on case studies and one integrated pipeline. An interactive engineering lab with live 3D scenes, real commands and verification results.",
+    "A hands-on learning lab: animated LVM, NFS and container diagrams, copy-ready practice notes, verified YouTube lessons, and a LeetCode-style practice arena that grades your terminal skills.",
   keywords: [
     "Linux",
-    "LVM",
-    "NFS",
-    "Docker",
+    "learn Linux",
+    "LVM tutorial",
+    "NFS tutorial",
+    "Docker tutorial",
     "containers",
-    "case study",
-    "storage",
-    "devops",
+    "practice",
+    "OverTheWire",
+    "devops labs",
   ],
-  authors: [{ name: "Case Study Lab" }],
+  authors: [{ name: "Linux Lab" }],
   openGraph: {
-    title: "Comprehensive Linux — Case Study Lab",
+    title: "Linux Lab — Learn LVM, NFS & Containers the Hacker Way",
     description:
-      "Three case studies, one lab: LVM storage pools, NFS shared storage and Docker containers, composed into a single pipeline.",
+      "Visual lessons, practice notes, verified videos and a challenge arena for LVM storage, NFS sharing and Docker containers.",
     type: "website",
   },
 };

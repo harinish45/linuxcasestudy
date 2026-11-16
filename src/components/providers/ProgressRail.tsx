@@ -10,9 +10,9 @@ const LABELS: Record<string, string> = {
   lvm: "01 · LVM",
   nfs: "02 · NFS",
   containers: "03 · Containers",
-  pipeline: "Pipeline",
-  terminal: "Terminal",
-  dashboard: "Dashboard",
+  practice: "04 · Arena",
+  terminal: "05 · Terminal",
+  resources: "06 · Resources",
 };
 
 /** Left-hand progress rail with glowing dots; reports the active section. */

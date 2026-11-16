@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { Command, Layers3, Search } from "lucide-react";
+import { Command, Search, TerminalSquare } from "lucide-react";
 import { useLabStore, type SectionId } from "@/lib/store";
 import { scrollToSection } from "@/lib/scroll";
 
@@ -10,12 +10,12 @@ const LINKS: { id: SectionId; label: string; num: string }[] = [
   { id: "lvm", label: "LVM", num: "01" },
   { id: "nfs", label: "NFS", num: "02" },
   { id: "containers", label: "Containers", num: "03" },
-  { id: "pipeline", label: "Pipeline", num: "04" },
+  { id: "practice", label: "Arena", num: "04" },
   { id: "terminal", label: "Terminal", num: "05" },
-  { id: "dashboard", label: "Verify", num: "06" },
+  { id: "resources", label: "Resources", num: "06" },
 ];
 
-/** Fixed top navigation: section jumps, active highlight, ⌘K search. */
+/** Fixed top navigation: chapter jumps, active highlight, ⌘K search. */
 export default function NavBar() {
   const active = useLabStore((s) => s.activeSection);
   const setPaletteOpen = useLabStore((s) => s.setPaletteOpen);
@@ -45,9 +45,9 @@ export default function NavBar() {
           className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.22em] text-[#e8eefc]"
           aria-label="Back to top"
         >
-          <Layers3 className="h-4 w-4 text-[#7c5cff]" />
-          <span className="hidden sm:inline">comprehensive linux</span>
-          <span className="sm:hidden">clu</span>
+          <TerminalSquare className="h-4 w-4 text-[#4ade80]" />
+          <span className="hidden sm:inline">linux&nbsp;lab</span>
+          <span className="sm:hidden">ll</span>
         </button>
 
         <nav aria-label="Sections" className="mx-auto hidden items-center gap-1 lg:flex">
@@ -78,8 +78,6 @@ export default function NavBar() {
 
         <button
           onClick={() => setPaletteOpen(true)}
-          data-cursor="open"
-          data-cursor-label="search"
           aria-label="Open command palette (Control or Command K)"
           className="ml-auto flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 font-mono text-[11px] text-[#8fa2c9] transition-colors hover:border-white/25 hover:text-[#e8eefc] lg:ml-0"
         >

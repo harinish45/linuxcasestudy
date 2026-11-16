@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
   },
   reactStrictMode: false,
   devIndicators: false,
-  allowedDevOrigins: ["preview-*.space-z.ai"],
+  allowedDevOrigins: ["preview-*.space-z.ai", "preview-chat-*.space-z.ai"],
 };
 
 export default nextConfig;

@@ -8,9 +8,9 @@ export type SectionId =
   | "lvm"
   | "nfs"
   | "containers"
-  | "pipeline"
+  | "practice"
   | "terminal"
-  | "dashboard";
+  | "resources";
 
 export const ACCENTS: Record<AccentKey, { hex: string; rgb: string; label: string }> = {
   lvm: { hex: "#7c5cff", rgb: "124, 92, 255", label: "LVM" },
@@ -23,9 +23,9 @@ export const SECTION_IDS: SectionId[] = [
   "lvm",
   "nfs",
   "containers",
-  "pipeline",
+  "practice",
   "terminal",
-  "dashboard",
+  "resources",
 ];
 
 interface LabState {
@@ -56,7 +56,7 @@ export const useLabStore = create<LabState>((set) => ({
   replayIntro: () => {
     // Clear the played-once flag or the remounted intro will skip itself.
     try {
-      window.sessionStorage.removeItem("clu-intro-v2");
+      window.sessionStorage.removeItem("clu-boot-v1");
     } catch {
       /* private mode — fine */
     }
